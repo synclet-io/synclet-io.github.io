@@ -1,4 +1,5 @@
-// Fails when a built page links to a site path outside the base or to a file the build did not produce.
+// Fails when a built page links to a site path outside the base, to a file the build did not produce,
+// or to a #fragment that no element id on the target page provides.
 // Usage: node scripts/check-links.mjs [distDir] [base]
 import { readdir, readFile, stat } from 'node:fs/promises';
 import path from 'node:path';
@@ -22,11 +23,17 @@ async function exists(file) {
   }
 }
 
-async function resolvesToFile(sitePath) {
+async function resolveFile(sitePath) {
   const rel = decodeURIComponent(sitePath.slice(base.length)).replace(/^\/+/, '');
   const target = path.join(distDir, rel);
-  if (sitePath.endsWith('/') || rel === '') return exists(path.join(target, 'index.html'));
-  return (await exists(target)) || (await exists(path.join(target, 'index.html'))) || (await exists(`${target}.html`));
+  const candidates =
+    sitePath.endsWith('/') || rel === ''
+      ? [path.join(target, 'index.html')]
+      : [target, path.join(target, 'index.html'), `${target}.html`];
+  for (const candidate of candidates) {
+    if (await exists(candidate)) return candidate;
+  }
+  return null;
 }
 
 function pageUrl(file) {
@@ -35,22 +42,36 @@ function pageUrl(file) {
   return `https://site.invalid${base}/${dir}`;
 }
 
-const attr = /\s(?:href|src)\s*=\s*(?:"([^"]*)"|'([^']*)')/g;
+const attrValue = `(?:"([^"]*)"|'([^']*)'|([^\\s"'=<>\`]+))`;
+const linkAttr = new RegExp(`\\s(?:href|src)\\s*=\\s*${attrValue}`, 'g');
+const idAttr = new RegExp(`\\sid\\s*=\\s*${attrValue}`, 'g');
+const value = (match) => match[1] ?? match[2] ?? match[3];
+
+const pages = new Map();
+for await (const file of htmlFiles(distDir)) {
+  const html = await readFile(file, 'utf8');
+  pages.set(file, { html, ids: new Set(Array.from(html.matchAll(idAttr), value)) });
+}
+
 const problems = [];
 let checked = 0;
 
-for await (const file of htmlFiles(distDir)) {
-  const html = await readFile(file, 'utf8');
+for (const [file, { html }] of pages) {
   const page = path.relative(distDir, file);
-  for (const match of html.matchAll(attr)) {
-    const raw = (match[1] ?? match[2]).trim();
-    if (raw === '' || raw.startsWith('#') || raw.startsWith('//') || /^[a-z][a-z0-9+.-]*:/i.test(raw)) continue;
+  for (const match of html.matchAll(linkAttr)) {
+    const raw = value(match).trim();
+    if (raw === '' || raw === '#' || raw.startsWith('//') || /^[a-z][a-z0-9+.-]*:/i.test(raw)) continue;
     checked++;
-    const { pathname } = new URL(raw, pageUrl(file));
+    const { pathname, hash } = new URL(raw, pageUrl(file));
     if (pathname !== base && !pathname.startsWith(`${base}/`)) {
       problems.push(`${page}: ${raw} ignores the base ${base}`);
-    } else if (!(await resolvesToFile(pathname))) {
+      continue;
+    }
+    const target = raw.startsWith('#') ? file : await resolveFile(pathname);
+    if (target === null) {
       problems.push(`${page}: ${raw} points to nothing in the build`);
+    } else if (hash.length > 1 && pages.has(target) && !pages.get(target).ids.has(decodeURIComponent(hash.slice(1)))) {
+      problems.push(`${page}: ${raw} points to an anchor the page does not have`);
     }
   }
 }

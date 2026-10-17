@@ -43,7 +43,8 @@ Download a pre-compiled archive from the [GitHub Releases](https://github.com/sy
 ```bash
 # Download the archive for your platform and SHA256SUMS, e.g.
 # synclet-v0.1.0-linux-amd64.tar.gz
-shasum -a 256 -c SHA256SUMS --ignore-missing
+sha256sum -c SHA256SUMS --ignore-missing            # Linux
+shasum -a 256 -c SHA256SUMS --ignore-missing        # macOS
 tar -xzf synclet-v0.1.0-linux-amd64.tar.gz
 cd synclet-v0.1.0-linux-amd64
 ```
