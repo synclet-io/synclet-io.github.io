@@ -139,6 +139,6 @@ To log out, click your avatar in the top-right corner and select **Log out**. Th
 
 ## Next Steps
 
-- [Workspaces & Roles](/docs/concepts/workspaces-and-roles/) — Learn about multi-tenant workspaces and role-based access.
-- [Settings & API Keys](/docs/guides/settings/) — Manage workspace settings, members, and API keys.
-- [Configuration](/docs/getting-started/configuration/) — Full list of environment variables including OIDC and registration settings.
+- [Workspaces & Roles](/synclet-site/docs/concepts/workspaces-and-roles/) — Learn about multi-tenant workspaces and role-based access.
+- [Settings & API Keys](/synclet-site/docs/guides/settings/) — Manage workspace settings, members, and API keys.
+- [Configuration](/synclet-site/docs/getting-started/configuration/) — Full list of environment variables including OIDC and registration settings.

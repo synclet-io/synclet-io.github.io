@@ -23,12 +23,12 @@ Each connection maintains its own sync state, job history, and health status.
 1. **Navigate** — Go to **Connections** in the sidebar and click **Create Connection**.
 2. **Select a source** — Choose an existing source from the dropdown, or click **Add Source** to create one inline.
 3. **Select a destination** — Choose an existing destination from the dropdown, or click **Add Destination** to create one inline.
-4. **Configure streams** — Synclet displays the streams discovered from the source. For each stream, choose whether to enable it, select a sync mode, pick fields, and configure namespace mapping. See [Stream Configuration](/docs/guides/stream-configuration/) for details.
-5. **Set a schedule** — Choose a cron schedule for automated syncs, or select **Manual** to only sync on demand. See [Scheduling & Triggers](/docs/guides/scheduling/) for cron syntax and examples.
+4. **Configure streams** — Synclet displays the streams discovered from the source. For each stream, choose whether to enable it, select a sync mode, pick fields, and configure namespace mapping. See [Stream Configuration](/synclet-site/docs/guides/stream-configuration/) for details.
+5. **Set a schedule** — Choose a cron schedule for automated syncs, or select **Manual** to only sync on demand. See [Scheduling & Triggers](/synclet-site/docs/guides/scheduling/) for cron syntax and examples.
 6. **Configure retry policy** — Set the maximum number of attempts and the retry delay (in minutes) for failed syncs.
 7. **Save** — Review your configuration and click **Save**. The connection is created in an active, enabled state.
 
-To receive alerts when syncs fail, create notification rules under **Settings > Notifications**. See [Notifications](/docs/guides/notifications/).
+To receive alerts when syncs fail, create notification rules under **Settings > Notifications**. See [Notifications](/synclet-site/docs/guides/notifications/).
 
 :::tip
 Start with a manual schedule and run a test sync before enabling a cron schedule. This lets you verify the configuration without waiting for the next scheduled run.
@@ -86,6 +86,6 @@ The dashboard shows an overview of all connection statuses so you can address is
 
 ## Next Steps
 
-- [Stream Configuration](/docs/guides/stream-configuration/) — Deep dive into sync modes, field selection, primary keys, and cursors.
-- [Scheduling & Triggers](/docs/guides/scheduling/) — Learn about cron syntax, retries, and concurrency.
-- [Monitoring & Jobs](/docs/guides/monitoring/) — Track sync progress and diagnose failures.
+- [Stream Configuration](/synclet-site/docs/guides/stream-configuration/) — Deep dive into sync modes, field selection, primary keys, and cursors.
+- [Scheduling & Triggers](/synclet-site/docs/guides/scheduling/) — Learn about cron syntax, retries, and concurrency.
+- [Monitoring & Jobs](/synclet-site/docs/guides/monitoring/) — Track sync progress and diagnose failures.

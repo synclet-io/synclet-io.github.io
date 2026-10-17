@@ -59,7 +59,7 @@ Then create an email notification channel:
 4. Give the channel a name (e.g., `Data Team Email`) and click **Save**.
 
 :::note
-Email notifications are only available when the SMTP environment variables are configured. If they are not set, the Email option will not appear when creating a channel. See [Configuration](/docs/getting-started/configuration/) for details.
+Email notifications are only available when the SMTP environment variables are configured. If they are not set, the Email option will not appear when creating a channel. See [Configuration](/synclet-site/docs/getting-started/configuration/) for details.
 :::
 
 ## Telegram
@@ -112,6 +112,6 @@ Notifications are not sent for:
 
 ## Next Steps
 
-- [Settings & API Keys](/docs/guides/settings/) — Manage notification channels and other workspace settings.
-- [Monitoring & Jobs](/docs/guides/monitoring/) — View job details and logs referenced in notifications.
-- [Scheduling & Triggers](/docs/guides/scheduling/) — Configure retry policies that affect when failure notifications are sent.
+- [Settings & API Keys](/synclet-site/docs/guides/settings/) — Manage notification channels and other workspace settings.
+- [Monitoring & Jobs](/synclet-site/docs/guides/monitoring/) — View job details and logs referenced in notifications.
+- [Scheduling & Triggers](/synclet-site/docs/guides/scheduling/) — Configure retry policies that affect when failure notifications are sent.

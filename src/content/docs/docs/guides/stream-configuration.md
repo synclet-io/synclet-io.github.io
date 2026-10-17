@@ -108,6 +108,6 @@ You can reset individual streams without affecting others in the same connection
 
 ## Next Steps
 
-- [Creating Connections](/docs/guides/connections/) — Set up a connection using these stream options.
-- [Sync Modes](/docs/concepts/sync-modes/) — Learn more about how each sync mode works under the hood.
-- [Scheduling & Triggers](/docs/guides/scheduling/) — Configure when syncs run.
+- [Creating Connections](/synclet-site/docs/guides/connections/) — Set up a connection using these stream options.
+- [Sync Modes](/synclet-site/docs/concepts/sync-modes/) — Learn more about how each sync mode works under the hood.
+- [Scheduling & Triggers](/synclet-site/docs/guides/scheduling/) — Configure when syncs run.

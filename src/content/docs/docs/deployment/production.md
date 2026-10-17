@@ -26,7 +26,7 @@ Store secrets in a secret manager (HashiCorp Vault, AWS Secrets Manager, Kuberne
 Always terminate TLS in front of Synclet. Options:
 
 - **Reverse proxy** -- Nginx, Caddy, or Traefik with a Let's Encrypt certificate.
-- **Kubernetes Ingress** -- Enable `server.ingress.tls` in the [Helm chart](/docs/deployment/kubernetes/).
+- **Kubernetes Ingress or Gateway API** -- Enable `server.ingress.tls`, or route through a TLS-terminating Gateway with `server.gateway.*`, in the [Helm chart](/synclet-site/docs/deployment/kubernetes/#exposing-the-server).
 - **Cloud load balancer** -- AWS ALB, GCP HTTPS LB, etc.
 
 ### Disable open registration
@@ -39,7 +39,7 @@ export AUTH_REGISTRATION_ENABLED="false"
 
 ### OIDC single sign-on
 
-For teams, configure an OIDC provider (Google, Okta, etc.) instead of local passwords. See [Environment Variables](/docs/reference/environment-variables/) for the `AUTH_OIDC_*` settings.
+For teams, configure an OIDC provider (Google, Okta, etc.) instead of local passwords. See [Environment Variables](/synclet-site/docs/reference/environment-variables/) for the `AUTH_OIDC_*` settings.
 
 ### Container network isolation
 
@@ -64,12 +64,16 @@ Always use `sslmode=require` or `sslmode=verify-full` in production.
 
 ## Monitoring
 
-### Health endpoint
+### Health endpoints
+
+`/live` and `/ready` are served on the internal port (`8081` by default), which is not meant to be public. Probe them from inside your network:
 
 ```bash
-curl -f https://synclet.example.com/health
+curl -f http://synclet-internal.example:8081/ready
 # HTTP 200 = healthy
 ```
+
+For an external uptime check, request the UI at `https://synclet.example.com/`.
 
 Wire this into your uptime monitor (Pingdom, UptimeRobot, etc.).
 
@@ -84,7 +88,7 @@ scrape_configs:
       - targets: ["synclet:8080"]
 ```
 
-On Kubernetes, enable the ServiceMonitor in the [Helm chart](/docs/deployment/kubernetes/).
+On Kubernetes, enable the ServiceMonitor in the [Helm chart](/synclet-site/docs/deployment/kubernetes/).
 
 ### Grafana dashboards
 
@@ -163,14 +167,14 @@ Key considerations:
 - **Database** -- Use a managed PostgreSQL with multi-AZ or a replicated cluster. Synclet does not manage database HA.
 - **Connection pooling** -- With multiple replicas, a connection pooler (PgBouncer) prevents exhausting the database connection limit.
 
-See [Kubernetes deployment](/docs/deployment/kubernetes/) for the full Helm reference.
+See [Kubernetes deployment](/synclet-site/docs/deployment/kubernetes/) for the full Helm reference.
 
 ## Upgrade Strategy
 
 1. **Read the release notes** for breaking changes.
 2. **Back up** the database and configuration before major upgrades.
 3. **Pull the new image** or download the new binary.
-4. **Restart Synclet** -- migrations run automatically on startup. No manual `migrate up` needed for standard upgrades.
-5. **Verify** -- Check `/health`, review the dashboard, and confirm a test sync completes.
+4. **Run migrations and restart Synclet** -- run `synclet migrate up` before starting the new version. The Helm chart runs it in an init container of the server pod.
+5. **Verify** -- Check `/ready` on the internal port, review the dashboard, and confirm a test sync completes.
 
 For Kubernetes, use rolling updates (the default Helm strategy). The readiness probe ensures traffic only routes to healthy pods.

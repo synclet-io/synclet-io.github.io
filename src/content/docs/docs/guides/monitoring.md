@@ -96,6 +96,27 @@ Synclet captures logs from each connector during a sync. Logs are available per 
 
 Logs can be filtered by level to focus on warnings and errors during troubleshooting.
 
+### Log storage and archiving
+
+While a job runs, its log lines are stored in PostgreSQL and the UI tails them from there. Each attempt keeps at most `PIPELINE_LOG_MAX_LINES_PER_ATTEMPT` lines (100,000 by default, `0` disables the cap); later lines are dropped and counted in a single `[synclet] log truncated: N further lines dropped` line.
+
+`PIPELINE_LOG_ARCHIVE_BACKEND` decides where the logs of finished jobs go:
+
+| Backend | Where logs of finished jobs live |
+|---|---|
+| `none` (default) | They stay in PostgreSQL until job retention deletes the job. |
+| `filesystem` | Files under `PIPELINE_LOG_ARCHIVE_DIR`. Every server replica must see the same directory, so use a shared volume. |
+| `s3` | Any S3-compatible bucket: AWS S3, MinIO, Cloudflare R2, Google Cloud Storage through its S3 interoperability endpoint (HMAC keys), or the [Garage store bundled with the Helm chart](/synclet-site/docs/deployment/kubernetes/#log-archive). Set `PIPELINE_LOG_ARCHIVE_S3_ENDPOINT` for anything but AWS, and `PIPELINE_LOG_ARCHIVE_S3_USE_PATH_STYLE=true` for MinIO. Without static keys the default AWS credential chain is used (environment, IRSA, instance profile). |
+| `gcs` | Google Cloud Storage through its native API. With `PIPELINE_LOG_ARCHIVE_GCS_CREDENTIALS_FILE` it uses that service account key; without it, Application Default Credentials (GKE Workload Identity, `GOOGLE_APPLICATION_CREDENTIALS`, or `gcloud auth application-default login` locally). |
+
+With an archive backend, a finished job's logs move out of PostgreSQL into one gzipped NDJSON object per attempt, keyed `logs/<workspace>/<connection>/<job>/<attempt>.ndjson.gz`, and the UI reads them back from there. Job retention and workspace deletion remove the objects too.
+
+The server logs which GCS credential source it uses at startup. Credentials are resolved on first use, so missing credentials show up as archive errors and in `synclet_log_archive_failures_total`, not as a startup failure.
+
+Switching back to `none` leaves already archived logs where they are, but they can no longer be read from the UI.
+
+All variables are listed under [Environment Variables: Job Logs](/synclet-site/docs/reference/environment-variables/#job-logs).
+
 ## Prometheus Metrics
 
 Synclet exposes a Prometheus-compatible metrics endpoint for integration with external monitoring systems like Grafana.
@@ -106,7 +127,11 @@ Synclet exposes a Prometheus-compatible metrics endpoint for integration with ex
 GET /metrics
 ```
 
-This endpoint returns metrics in the Prometheus exposition format.
+The endpoint is served on the internal port (`INTERNAL_HTTP_SERVER_ADDR`, `8081` by default), not on the public UI port, and returns metrics in the Prometheus exposition format.
+
+```bash
+curl -s http://localhost:8081/metrics
+```
 
 ### Key Metrics
 
@@ -120,50 +145,40 @@ This endpoint returns metrics in the Prometheus exposition format.
 | `synclet_failed_syncs_total` | Counter | Total number of failed syncs by workspace and connection. |
 | `synclet_pending_jobs` | Gauge | Number of pending jobs in the queue. |
 | `synclet_connector_sync_duration_seconds` | Histogram | Duration of sync operations by connector type. |
+| `synclet_log_archive_failures_total` | Counter | Job attempts whose logs failed to archive, by archive backend (`filesystem`, `s3`, `gcs`). |
+| `synclet_log_archive_bytes_total` | Counter | Total size in bytes of the job log objects written to the log archive. |
+| `synclet_log_lines_dropped_total` | Counter | Job log lines dropped by the per-attempt line cap (`PIPELINE_LOG_MAX_LINES_PER_ATTEMPT`). |
 
 ### Kubernetes ServiceMonitor
 
-If you run Synclet on Kubernetes with the Prometheus Operator, create a `ServiceMonitor` to scrape metrics automatically:
+With the Prometheus Operator, let the Helm chart create the `ServiceMonitor`. It scrapes `/metrics` on the internal Service port:
 
 ```yaml
-apiVersion: monitoring.coreos.com/v1
-kind: ServiceMonitor
-metadata:
-  name: synclet
-  labels:
-    app: synclet
-spec:
-  selector:
-    matchLabels:
-      app: synclet
-  endpoints:
-    - port: http
-      path: /metrics
-      interval: 30s
+server:
+  serviceMonitor:
+    enabled: true
+    interval: 30s
+    labels:
+      release: prometheus   # match your Prometheus selector
 ```
 
-## Health Endpoint
+## Health Endpoints
 
-Synclet provides a health check endpoint for load balancers and orchestration tools.
+Synclet serves two probes on the internal port (`8081` by default):
 
-```
-GET /health
-```
-
-Returns `200 OK` when all registered health checks pass (currently just the database). Returns `503 Service Unavailable` if any check fails. The response body is a JSON object with the live state and per-check errors.
-
-Example:
+| Endpoint | Returns `200` when |
+|---|---|
+| `GET /live` | The process answers HTTP. |
+| `GET /ready` | Every health check passes: the database answers, background jobs have started and the event router is running (the last two only in processes that run them). Otherwise `503`, with the failing checks in the JSON body. |
 
 ```bash
-curl -s http://localhost:8080/health
+curl -s http://localhost:8081/ready
 ```
 
-```json
-{"alive":true,"checkErrors":{"gorm":null}}
-```
+Point load balancer health checks and Kubernetes probes at these endpoints. Images up to 0.4.0 serve only `GET /health` on the public port.
 
 ## Next Steps
 
-- [Scheduling & Triggers](/docs/guides/scheduling/) — Configure when syncs run and how retries work.
-- [Notifications](/docs/guides/notifications/) — Get alerted when syncs fail.
-- [Environment Variables](/docs/reference/environment-variables/) — Configure metrics, log storage, and health check settings.
+- [Scheduling & Triggers](/synclet-site/docs/guides/scheduling/) — Configure when syncs run and how retries work.
+- [Notifications](/synclet-site/docs/guides/notifications/) — Get alerted when syncs fail.
+- [Environment Variables](/synclet-site/docs/reference/environment-variables/) — Configure metrics, log storage, and health check settings.

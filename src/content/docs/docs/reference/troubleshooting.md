@@ -31,7 +31,7 @@ The connector connected successfully but could not read the source schema.
 
 The sync exceeded the configured time limit.
 
-- **Increase `DOCKER_EXECUTOR_MAX_SYNC_DURATION`** -- Default is `24h`. For very large initial syncs, you may need to raise this. See [Environment Variables](/docs/reference/environment-variables/).
+- **Increase `DOCKER_EXECUTOR_MAX_SYNC_DURATION`** -- Default is `24h`. For very large initial syncs, you may need to raise this. See [Environment Variables](/synclet-site/docs/reference/environment-variables/).
 - **Increase `PIPELINE_IDLE_TIMEOUT`** -- Default is `10m`. Some sources are slow to emit data (e.g., API rate limits). Increase if the connector is working but pauses between batches.
 - **Check source performance** -- Slow queries on the source database can cause timeouts. Consider adding indexes or reducing the number of streams.
 

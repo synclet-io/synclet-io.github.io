@@ -40,5 +40,5 @@ Synclet follows a straightforward three-step workflow:
 
 ## Next Steps
 
-- [Installation](/docs/getting-started/installation/) — Set up Synclet on your machine or server.
-- [Quick Start](/docs/getting-started/quick-start/) — Create your first data sync in under 5 minutes.
+- [Installation](/synclet-site/docs/getting-started/installation/) — Set up Synclet on your machine or server.
+- [Quick Start](/synclet-site/docs/getting-started/quick-start/) — Create your first data sync in under 5 minutes.

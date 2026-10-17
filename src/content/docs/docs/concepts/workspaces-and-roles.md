@@ -93,6 +93,6 @@ Additional users can join the default workspace (if invited) or create their own
 
 ## Next Steps
 
-- [Authentication](/docs/guides/authentication/) — Configure OIDC single sign-on and user management.
-- [Quick Start](/docs/getting-started/quick-start/) — Set up your first sync in under 5 minutes.
-- [Architecture Overview](/docs/concepts/architecture/) — Learn how Synclet is structured under the hood.
+- [Authentication](/synclet-site/docs/guides/authentication/) — Configure OIDC single sign-on and user management.
+- [Quick Start](/synclet-site/docs/getting-started/quick-start/) — Set up your first sync in under 5 minutes.
+- [Architecture Overview](/synclet-site/docs/concepts/architecture/) — Learn how Synclet is structured under the hood.

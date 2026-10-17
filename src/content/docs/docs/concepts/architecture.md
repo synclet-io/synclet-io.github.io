@@ -13,7 +13,7 @@ Data movement follows the [Airbyte connector protocol](https://docs.airbyte.com/
 2. The built-in **scheduler** triggers a sync job when the schedule fires (or you trigger it manually).
 3. A **worker** picks up the job, starts the source and destination connectors, and pipes data through.
 4. As data flows, **state checkpoints** are saved so that interrupted syncs can resume where they left off.
-5. When the sync completes, results (record counts, duration, errors) are recorded and any configured [notifications](/docs/guides/notifications/) are sent.
+5. When the sync completes, results (record counts, duration, errors) are recorded and any configured [notifications](/synclet-site/docs/guides/notifications/) are sent.
 
 ## Execution Modes
 
@@ -41,7 +41,7 @@ Each sync job becomes a **Kubernetes Job** containing a single pod with three co
 
 Resource limits (CPU, memory) are applied per container. Completed jobs are automatically cleaned up. This mode is ideal for production deployments where you need horizontal scaling and resource isolation.
 
-See [Kubernetes Deployment](/docs/deployment/kubernetes/) for setup instructions.
+See [Kubernetes Deployment](/synclet-site/docs/deployment/kubernetes/) for setup instructions.
 
 
 ## Reliability
@@ -80,7 +80,7 @@ If a sync fails mid-way, no data is lost. The next attempt resumes from the **la
 
 ### Credential Encryption
 
-All connector credentials (database passwords, API keys, OAuth tokens) are encrypted at rest using **AES-256-GCM** with an HKDF-derived data key. The master key is configured via the `SECRET_ENCRYPTION_KEY` environment variable and never stored in the database. See [Configuration](/docs/getting-started/configuration/) for details.
+All connector credentials (database passwords, API keys, OAuth tokens) are encrypted at rest using **AES-256-GCM** with an HKDF-derived data key. The master key is configured via the `SECRET_ENCRYPTION_KEY` environment variable and never stored in the database. See [Configuration](/synclet-site/docs/getting-started/configuration/) for details.
 
 ### Container Isolation
 
@@ -93,6 +93,6 @@ For connectors that use OAuth (e.g., Google Sheets, Salesforce), Synclet automat
 
 ## Next Steps
 
-- [Connectors & Airbyte Protocol](/docs/concepts/connectors/) — Learn how connectors work and how to add new ones.
-- [Sync Modes](/docs/concepts/sync-modes/) — Understand the different ways data can be read and written.
-- [Installation](/docs/getting-started/installation/) — Get Synclet running on your infrastructure.
+- [Connectors & Airbyte Protocol](/synclet-site/docs/concepts/connectors/) — Learn how connectors work and how to add new ones.
+- [Sync Modes](/synclet-site/docs/concepts/sync-modes/) — Understand the different ways data can be read and written.
+- [Installation](/synclet-site/docs/getting-started/installation/) — Get Synclet running on your infrastructure.

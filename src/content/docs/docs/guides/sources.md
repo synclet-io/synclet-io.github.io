@@ -85,6 +85,6 @@ For detailed error messages, check the connector logs in **Jobs** after a failed
 
 ## Next Steps
 
-- [Managing Destinations](/docs/guides/destinations/) — Set up where your data goes.
-- [Creating Connections](/docs/guides/connections/) — Link a source to a destination.
-- [Connectors](/docs/concepts/connectors/) — Learn more about the Airbyte connector protocol.
+- [Managing Destinations](/synclet-site/docs/guides/destinations/) — Set up where your data goes.
+- [Creating Connections](/synclet-site/docs/guides/connections/) — Link a source to a destination.
+- [Connectors](/synclet-site/docs/concepts/connectors/) — Learn more about the Airbyte connector protocol.

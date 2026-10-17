@@ -36,18 +36,18 @@ Yes. Any Docker image that implements the [Airbyte connector protocol](https://d
 
 All connector credentials (database passwords, API keys, OAuth tokens) are encrypted at rest using **AES-256-GCM** with an HKDF-derived data key. The master key is provided via the `SECRET_ENCRYPTION_KEY` environment variable. Without this key, stored credentials cannot be decrypted.
 
-See [Environment Variables](/docs/reference/environment-variables/) for how to generate a secure key.
+See [Environment Variables](/synclet-site/docs/reference/environment-variables/) for how to generate a secure key.
 
 ### Is data encrypted in transit?
 
-Synclet itself does not terminate TLS. To encrypt traffic between users and Synclet, place a reverse proxy (Nginx, Caddy) or load balancer in front of it with a TLS certificate, or enable TLS on the [Kubernetes Ingress](/docs/deployment/kubernetes/).
+Synclet itself does not terminate TLS. To encrypt traffic between users and Synclet, place a reverse proxy (Nginx, Caddy) or load balancer in front of it with a TLS certificate, or enable TLS on the [Kubernetes Ingress](/synclet-site/docs/deployment/kubernetes/).
 
 Data between Synclet and your sources/destinations travels over whatever connection the connector establishes. Most database and API connectors support SSL/TLS natively through their configuration options.
 
 ### How do I control access?
 
 - **Disable registration** -- Set `AUTH_REGISTRATION_ENABLED=false` after creating your initial accounts.
-- **OIDC single sign-on** -- Configure one or more OIDC providers (Google, Okta, Azure AD) so users authenticate through your identity provider. See [Environment Variables](/docs/reference/environment-variables/).
+- **OIDC single sign-on** -- Configure one or more OIDC providers (Google, Okta, Azure AD) so users authenticate through your identity provider. See [Environment Variables](/synclet-site/docs/reference/environment-variables/).
 - **Role-based access** -- Synclet supports workspace-level roles to control who can create, edit, or run pipelines.
 
 ## Scalability
@@ -63,7 +63,7 @@ It depends on your deployment mode and resources:
 
 In **standalone mode**, run only one instance to avoid duplicate scheduling.
 
-In **distributed mode** on Kubernetes, the API server is stateless and can be scaled horizontally. The scheduler and orchestrator run as single replicas with leader election. See [Kubernetes deployment](/docs/deployment/kubernetes/).
+In **distributed mode** on Kubernetes, the API server is stateless and can be scaled horizontally. The scheduler and orchestrator run as single replicas with leader election. See [Kubernetes deployment](/synclet-site/docs/deployment/kubernetes/).
 
 ### What happens if a sync is interrupted?
 

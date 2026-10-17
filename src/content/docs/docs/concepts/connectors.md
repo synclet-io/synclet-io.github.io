@@ -53,19 +53,19 @@ Synclet ships with the **default Airbyte registry** pre-configured, so you can u
 
 ### Step 3: Use It in a Connection
 
-Once a source or destination is saved, you can reference it when [creating a connection](/docs/guides/connections/). A single source or destination can be used in multiple connections.
+Once a source or destination is saved, you can reference it when [creating a connection](/synclet-site/docs/guides/connections/). A single source or destination can be used in multiple connections.
 
 ## Configuring Streams
 
 When you create a connection, Synclet runs **discover** on the source to list all available streams. For each stream, you can configure:
 
 - **Enabled/disabled** — Choose which streams to include in the sync.
-- **Sync mode** — Set the [source read mode and destination write mode](/docs/concepts/sync-modes/) independently per stream.
+- **Sync mode** — Set the [source read mode and destination write mode](/synclet-site/docs/concepts/sync-modes/) independently per stream.
 - **Field selection** — Pick only the columns you need instead of syncing the entire schema.
 - **Primary key override** — Specify a custom primary key if the connector's default is not correct (required for deduplication).
 - **Namespace rewriting** — Change the destination schema or dataset name where the stream's data lands.
 
-See the [Stream Configuration](/docs/guides/stream-configuration/) guide for detailed instructions.
+See the [Stream Configuration](/synclet-site/docs/guides/stream-configuration/) guide for detailed instructions.
 
 ## Native Go Connectors
 
@@ -84,12 +84,12 @@ Native connectors appear in the catalog alongside Docker-based community connect
 When running Docker-based connectors, Synclet manages the container lifecycle automatically:
 
 - **Image pull** — Connector images are pulled on first use. The pull has a **10-minute timeout** to handle slow registries.
-- **Resource limits** — Containers are started with default limits of **2 GB memory** and **1 CPU**. These can be overridden in the [configuration](/docs/getting-started/configuration/).
+- **Resource limits** — Containers are started with default limits of **2 GB memory** and **1 CPU**. These can be overridden in the [configuration](/synclet-site/docs/getting-started/configuration/).
 - **Stale cleanup** — A background process checks for stale or orphaned containers every **5 minutes** and removes them.
 - **Graceful shutdown** — When a sync is cancelled, Synclet sends `SIGTERM` to the container and waits up to **30 seconds** before forcing termination.
 
 ## Next Steps
 
-- [Sync Modes](/docs/concepts/sync-modes/) — Understand how data is read from sources and written to destinations.
-- [Sources Guide](/docs/guides/sources/) — Step-by-step guide for adding and managing sources.
-- [Destinations Guide](/docs/guides/destinations/) — Step-by-step guide for adding and managing destinations.
+- [Sync Modes](/synclet-site/docs/concepts/sync-modes/) — Understand how data is read from sources and written to destinations.
+- [Sources Guide](/synclet-site/docs/guides/sources/) — Step-by-step guide for adding and managing sources.
+- [Destinations Guide](/synclet-site/docs/guides/destinations/) — Step-by-step guide for adding and managing destinations.

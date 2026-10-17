@@ -1,116 +1,177 @@
 ---
 title: Environment Variables
-description: Complete reference of all Synclet environment variables.
+description: Every environment variable Synclet 0.5 reads, grouped by area, with defaults.
 ---
 
-Synclet is configured entirely through environment variables. Set them in your shell, a `.env` file, Docker Compose, or Kubernetes Secrets.
+Synclet is configured entirely through environment variables. Set them in your shell, a `.env` file, Docker Compose, or Kubernetes Secrets. Every command also accepts `--dotenv <file>` (repeatable) to load environment files first.
+
+:::tip
+`synclet generate dotenv` appends every variable the binary reads, with its default, to `.env` (or the first `--dotenv` file). Variables already set in that file are left alone; variables without a default are written commented out.
+:::
 
 ## Required
 
 | Variable | Description | Default |
 |---|---|---|
-| `DB_DSN` | PostgreSQL connection string. Example: `postgres://user:pass@host:5432/synclet?sslmode=require` | *none — required* |
+| `DB_DSN` | PostgreSQL connection string. Example: `postgres://user:pass@host:5432/synclet?sslmode=require` | *required* |
+| `AUTH_JWT_SECRET` | Token-signing secret, at least 32 characters. | *required outside local development* |
+| `SECRET_ENCRYPTION_KEY` | Base64-encoded 32-byte AES key for stored connector credentials. Back it up: stored secrets cannot be decrypted without it. | *required outside local development* |
 
-## Auto-defaulted (override in production)
+Synclet generates the two secrets only for local development: `ENVIRONMENT` unset or `development`, outside a container. There it creates an ephemeral `AUTH_JWT_SECRET` (sessions end on every restart) and persists an encryption key to `<UserConfigDir>/synclet/encryption.key`, logging a warning for each. Anywhere else, including a container or a Kubernetes pod, the process refuses to start until both are set.
 
-Synclet boots without these but logs a warning and uses ephemeral / on-disk fallbacks. Set explicit values in any environment you care about.
-
-| Variable | Default behavior | Description |
-|---|---|---|
-| `AUTH_JWT_SECRET` | Newly generated on every restart (`WARN` logged). | Token-signing secret. Without an explicit value, all existing sessions are invalidated on each restart. |
-| `SECRET_ENCRYPTION_KEY` | Generated once and persisted to `<UserConfigDir>/synclet/encryption.key`. | AES-256 master key for stored connector credentials. Losing the on-disk file makes existing secrets unrecoverable. |
-| `PUBLIC_HTTP_SERVER_ADDR` | `0.0.0.0:8080` | Dashboard + public API listener. |
-| `INTERNAL_HTTP_SERVER_ADDR` | `0.0.0.0:8081` | Executor RPC listener (distributed mode). Must differ from the public port. |
-| `WATERMILL_TRANSPORT` | `sql` | Internal messaging transport for the transactional outbox. `sql` reuses Postgres via `DB_DSN`. |
-| `WATERMILL_SQL_DRIVER` | `postgres` | SQL driver when `WATERMILL_TRANSPORT=sql`. |
-| `WATERMILL_SQL_CONSUMER_GROUP` | `synclet` | Consumer group identifier for the SQL-backed message bus. |
-
-Generate secure values:
+Generate them with:
 
 ```bash
-# AUTH_JWT_SECRET
-openssl rand -base64 32
-
-# SECRET_ENCRYPTION_KEY (32 random bytes, base64-encoded)
-openssl rand -base64 32
+openssl rand -base64 32   # AUTH_JWT_SECRET
+openssl rand -base64 32   # SECRET_ENCRYPTION_KEY
 ```
-
-:::tip
-You can generate a `.env` file with all available variables and their defaults by running `synclet generate dotenv`.
-:::
 
 ## General
 
 | Variable | Description | Default |
 |---|---|---|
-| `ENVIRONMENT` | Runtime environment. Accepts `development`, `production`, `test` (and short forms). | `development` |
+| `ENVIRONMENT` | Runtime environment: `development`, `production` or `test`. `development` allows generated secrets and `migrate down` without `--yes`. | `development` |
+| `LOG_LEVEL` | Log level. | `info` |
 
-## Server
+## HTTP Servers
 
-`PUBLIC_HTTP_SERVER_ADDR` and `INTERNAL_HTTP_SERVER_ADDR` are listed in [Auto-defaulted](#auto-defaulted-override-in-production) above.
-
-| Variable | Description | Default |
-|---|---|---|
-| `WORKSPACE_FRONTEND_URL` | Public URL of the frontend. Used for email links (e.g., workspace invitations). | `http://localhost:5173` |
-
-## Sync Behavior
+Synclet listens on two ports: the public server (UI and API) and the internal server (executor API and the `/live`, `/ready` probes). Each takes the same set of variables with the prefix `PUBLIC_HTTP_SERVER_` or `INTERNAL_HTTP_SERVER_`.
 
 | Variable | Description | Default |
 |---|---|---|
-| `DOCKER_EXECUTOR_JOB_WORKER_INTERVAL` | How often the Docker executor worker polls for pending sync jobs. | `1s` |
-| `PIPELINE_JOB_SCHEDULER_INTERVAL` | How often the scheduler evaluates pipeline cron schedules. | `30s` |
-| `DOCKER_EXECUTOR_MAX_SYNC_DURATION` | Maximum time a single sync can run before being killed (Docker executor). | `24h` |
-| `PIPELINE_MAX_CONCURRENT_JOBS` | Maximum number of sync jobs the pipeline scheduler will start concurrently. | `10` |
-| `DOCKER_EXECUTOR_MAX_CONCURRENT_JOBS` | Maximum number of sync jobs the Docker executor processes concurrently. | `5` |
-| `PIPELINE_IDLE_TIMEOUT` | Kill a sync if no data has been emitted for this duration. Prevents stuck connectors from running indefinitely. | `10m` |
-| `PIPELINE_JOB_WATCHDOG_INTERVAL` | How often the watchdog checks for stale jobs (no heartbeat). | `10s` |
-| `DOCKER_EXECUTOR_JOB_RESOURCE_CLEANUP_INTERVAL` | How often orphaned Docker containers are cleaned up. | `5m` |
-| `DOCKER_EXECUTOR_HEARTBEAT_INTERVAL` | How often the Docker executor sync worker emits a heartbeat. | `5s` |
-| `DOCKER_EXECUTOR_TEMP_DIR_ROOT` | Per-task scratch dir for connector config / catalog / state. Leave empty when running the binary natively (uses the OS temp dir). Set to a host-bind-mounted path when Synclet runs inside a container that talks to the host `docker.sock` — the value must match the host path exactly. | *empty (OS temp dir)* |
-| `PIPELINE_CONNECTOR_TASK_RUNNING_TIMEOUT` | Timeout for an in-progress connector task (check, spec, discover). | `5m` |
-| `PIPELINE_CONNECTOR_TASK_PENDING_TIMEOUT` | Timeout for a connector task that has not started running. | `1m` |
-| `PIPELINE_CONNECTOR_TASK_RETENTION` | How long completed connector task results are kept. | `24h` |
+| `PUBLIC_HTTP_SERVER_ADDR` | Public UI and API listen address. | `0.0.0.0:8080` |
+| `INTERNAL_HTTP_SERVER_ADDR` | Executor API and probe listen address. Must differ from the public one. | `0.0.0.0:8081` |
+| `*_READ_TIMEOUT` | Maximum time to read a request; `0s` means no limit. | `0s` |
+| `*_READ_HEADER_TIMEOUT` | Maximum time to read request headers. | `10s` |
+| `*_WRITE_TIMEOUT` | Maximum time to write a response; `0s` means no limit. | `0s` |
+| `*_IDLE_TIMEOUT` | Keep-alive idle timeout. | `120s` |
+| `*_TLS_ENABLED` | Serve TLS on this port. | `false` |
+| `*_TLS_CERT_PATH`, `*_TLS_KEY_PATH` | Certificate and key files. | *empty* |
+| `*_TLS_CLIENT_AUTH`, `*_TLS_CLIENT_CA_PATH` | Client certificate verification mode and CA bundle. | *empty* |
+| `*_TLS_APPEND_SYSTEM_CAS_TO_CLIENT` | Trust the system CAs in addition to the client CA bundle. | `false` |
+| `RATE_LIMIT_TRUSTED_PROXIES` | Comma-separated IPs or CIDR ranges of reverse proxies whose `X-Forwarded-For` and `X-Real-IP` headers identify the client for the login and register rate limits. | *empty* |
 
-### Resource Defaults
-
-Default container resource limits for connectors. These can be overridden per source/destination.
+### CORS (public server)
 
 | Variable | Description | Default |
 |---|---|---|
-| `PIPELINE_RUNTIME_CPU_REQUEST` | Default CPU request for connector containers. | *none* |
-| `PIPELINE_RUNTIME_CPU_LIMIT` | Default CPU limit for connector containers. | *none* |
-| `PIPELINE_RUNTIME_MEMORY_REQUEST` | Default memory request for connector containers. | *none* |
-| `PIPELINE_RUNTIME_MEMORY_LIMIT` | Default memory limit for connector containers. | *none* |
-| `PIPELINE_RUNTIME_SERVICE_ACCOUNT_NAME` | Default Kubernetes service account for connector pods. | *none* |
-
-## Email (SMTP)
-
-Required if you want Synclet to send email notifications (alerts, invitations). If `NOTIFY_SMTP_HOST` is not set, email delivery is disabled.
-
-| Variable | Description | Default |
-|---|---|---|
-| `NOTIFY_SMTP_HOST` | SMTP server hostname. | *none* |
-| `NOTIFY_SMTP_PORT` | SMTP server port. | `587` |
-| `NOTIFY_SMTP_USER` | SMTP authentication username. | *none* |
-| `NOTIFY_SMTP_PASSWORD` | SMTP authentication password. | *none* |
-| `NOTIFY_SMTP_FROM` | Sender address for outgoing emails. | `noreply@synclet.io` |
+| `PUBLIC_HTTP_SERVER_CORS_ALLOWED_ORIGINS` | Comma-separated hostnames whose browser origins may call the API. | *empty* |
+| `PUBLIC_HTTP_SERVER_CORS_ALLOWED_ORIGIN_GLOBS` | Origin patterns, for example `*.example.com`. | *empty* |
+| `PUBLIC_HTTP_SERVER_CORS_ALLOW_ALL_ORIGINS` | Allow any origin. | `false` |
+| `PUBLIC_HTTP_SERVER_CORS_ALLOWED_METHODS` | Allowed methods. | *empty* |
+| `PUBLIC_HTTP_SERVER_CORS_ALLOWED_HEADERS` | Allowed request headers. | `*` |
+| `PUBLIC_HTTP_SERVER_CORS_EXPOSED_HEADERS` | Response headers exposed to the browser. | *empty* |
+| `PUBLIC_HTTP_SERVER_CORS_ALLOW_CREDENTIALS` | Allow cookies and credentials. | `false` |
+| `PUBLIC_HTTP_SERVER_CORS_ALLOW_PRIVATE_NETWORK` | Answer private network access preflights. | `false` |
+| `PUBLIC_HTTP_SERVER_CORS_MAX_AGE` | Preflight cache lifetime in seconds. | `0` |
 
 ## Authentication
 
 | Variable | Description | Default |
 |---|---|---|
-| `AUTH_REGISTRATION_ENABLED` | Allow new users to register via the sign-up form. Set to `false` after creating your admin account. | `true` |
-| `AUTH_SECURE_COOKIES` | Set to `true` to mark authentication cookies as `Secure` (requires HTTPS). | `false` |
+| `AUTH_REGISTRATION_ENABLED` | Allow email/password sign-up. Set to `false` after creating your admin account. | `true` |
+| `AUTH_SECURE_COOKIES` | Mark authentication cookies HTTPS-only. Set to `true` behind HTTPS. | `false` |
 | `AUTH_ACCESS_TOKEN_TTL` | Lifetime of access tokens. | `15m` |
 | `AUTH_REFRESH_TOKEN_TTL` | Lifetime of refresh tokens. | `168h` |
 | `AUTH_MIN_PASSWORD_LENGTH` | Minimum length for new passwords. | `8` |
+| `AUTH_PASSWORD_RESET_COOLDOWN` | Minimum time between two password reset emails for one user. | `2m` |
+| `AUTH_TOKEN_CLEANUP_INTERVAL` | How often expired tokens are deleted. | `1h` |
+| `AUTH_OIDC_STATE_TTL` | How long an OIDC login may take between redirect and callback. | `10m` |
+| `AUTH_OIDC_PROVIDERS` | Comma-separated OIDC provider slugs; see [OIDC Providers](#oidc-providers). | *empty* |
+| `AUTH_OIDC_CALLBACK_BASE_URL` | Base URL for OIDC callbacks. | *empty* |
 
 ## Workspaces
 
 | Variable | Description | Default |
 |---|---|---|
-| `WORKSPACE_MODE` | Workspace mode. `single` creates one default workspace and auto-joins every user to it. `multi` allows multiple workspaces with explicit membership. | `single` |
+| `WORKSPACE_MODE` | `single` creates one default workspace and auto-joins every user to it. `multi` allows multiple workspaces with explicit membership. | `single` |
 | `WORKSPACE_INVITE_TTL` | How long workspace invitation links remain valid. | `168h` |
+| `WORKSPACE_FRONTEND_URL` | Public URL of the UI, used in invite and password reset links. | `http://localhost:5173` |
+
+## Audit Log
+
+| Variable | Description | Default |
+|---|---|---|
+| `AUDIT_RETENTION_DAYS` | Default number of days audit events are kept. At least `1`. | `90` |
+| `AUDIT_RETENTION_MAX_DAYS` | Upper bound a workspace may set for its own retention. Not lower than `AUDIT_RETENTION_DAYS`. | `365` |
+| `AUDIT_RETENTION_CLEANUP_INTERVAL` | How often expired audit events are deleted. | `1h` |
+
+## Email and Webhooks
+
+Email is disabled while `NOTIFY_SMTP_HOST` is empty; the "Forgot password?" link is hidden then too.
+
+| Variable | Description | Default |
+|---|---|---|
+| `NOTIFY_SMTP_HOST` | SMTP server hostname. | *empty* |
+| `NOTIFY_SMTP_PORT` | SMTP server port. | `587` |
+| `NOTIFY_SMTP_TLS` | `implicit` (TLS from the first byte), `starttls`, or `none` (plain text, for local catchers such as Mailpit). | `implicit` |
+| `NOTIFY_SMTP_USER` | SMTP username. | *empty* |
+| `NOTIFY_SMTP_PASSWORD` | SMTP password. | *empty* |
+| `NOTIFY_SMTP_FROM` | Sender address. | `noreply@synclet.io` |
+| `NOTIFY_WEBHOOK_HTTP_TIMEOUT` | Timeout of one webhook delivery. | `10s` |
+| `NOTIFY_WEBHOOK_MAX_RETRIES` | Retries of a failed webhook delivery. | `3` |
+
+## Sync Pipeline
+
+| Variable | Description | Default |
+|---|---|---|
+| `PIPELINE_MAX_CONCURRENT_JOBS` | Sync jobs the scheduler runs at once. | `10` |
+| `PIPELINE_IDLE_TIMEOUT` | Cancel a sync that receives no records for this long. | `10m` |
+| `PIPELINE_DEFAULT_MAX_ATTEMPTS` | Attempts per sync job before it fails. | `3` |
+| `PIPELINE_HEARTBEAT_TIMEOUT` | A running job without a heartbeat for this long is treated as lost. | `30s` |
+| `PIPELINE_CONNECTION_CHECK_TIMEOUT` | Timeout of a connection check. | `2m` |
+| `PIPELINE_REGISTRY_FETCH_TIMEOUT` | Timeout for fetching a connector registry. | `60s` |
+| `PIPELINE_EVENT_EMIT_TIMEOUT` | Timeout for publishing a pipeline event. | `30s` |
+| `PIPELINE_EXECUTOR_API_TOKEN` | Token the internal server requires from executors. Executors present it as `EXECUTOR_API_TOKEN`. | *empty* |
+| `PIPELINE_CONNECTOR_TASK_RETENTION` | How long finished check, spec and discover results are kept. | `24h` |
+| `PIPELINE_CONNECTOR_TASK_RUNNING_TIMEOUT` | Timeout of a running connector task (check, spec, discover). | `5m` |
+| `PIPELINE_CONNECTOR_TASK_PENDING_TIMEOUT` | Timeout of a connector task that has not started. | `1m` |
+| `PIPELINE_CONNECTOR_TASK_POLL_INTERVAL` | How often a waiting request polls its connector task. | `500ms` |
+| `PIPELINE_STATS_ROLLUP_HOURLY_LOOKBACK` | Window the hourly statistics rollup recomputes. | `2h` |
+| `PIPELINE_STATS_ROLLUP_DAILY_LOOKBACK` | Window the daily statistics rollup recomputes. | `48h` |
+
+### Background job intervals
+
+| Variable | Description | Default |
+|---|---|---|
+| `PIPELINE_JOB_SCHEDULER_INTERVAL` | How often due connections are scheduled. | `30s` |
+| `PIPELINE_JOB_WATCHDOG_INTERVAL` | How often jobs without a heartbeat are looked for. | `10s` |
+| `PIPELINE_JOB_RETENTION_INTERVAL` | How often old jobs are deleted. | `10m` |
+| `PIPELINE_JOB_STATS_ROLLUP_INTERVAL` | How often statistics are rolled up. | `5m` |
+| `PIPELINE_JOB_REPOSITORY_SYNC_INTERVAL` | How often connector repositories are refreshed. | `1h` |
+| `PIPELINE_JOB_CONNECTOR_TASK_RETENTION_INTERVAL` | How often old connector tasks are deleted. | `5m` |
+| `PIPELINE_JOB_STALE_CONNECTOR_TASK_WATCHDOG_INTERVAL` | How often stuck connector tasks are failed. | `5m` |
+
+### Connector resources
+
+Defaults for connector containers and pods. A source or destination overrides them in its runtime config.
+
+| Variable | Description | Default |
+|---|---|---|
+| `PIPELINE_RUNTIME_CPU_REQUEST` | CPU request. | *empty* |
+| `PIPELINE_RUNTIME_CPU_LIMIT` | CPU limit. | *empty* |
+| `PIPELINE_RUNTIME_MEMORY_REQUEST` | Memory request. | *empty* |
+| `PIPELINE_RUNTIME_MEMORY_LIMIT` | Memory limit. | *empty* |
+| `PIPELINE_RUNTIME_SERVICE_ACCOUNT_NAME` | Kubernetes service account of connector pods; empty uses the namespace's default account. A source or destination overrides it with `service_account_name`. See [Kubernetes: service accounts](/synclet-site/docs/deployment/kubernetes/#service-accounts). | *empty* |
+
+## Job Logs
+
+See [Monitoring: log storage](/synclet-site/docs/guides/monitoring/#log-storage-and-archiving) for how archiving works.
+
+| Variable | Description | Default |
+|---|---|---|
+| `PIPELINE_LOG_MAX_LINES_PER_ATTEMPT` | Log lines stored per job attempt; later lines are dropped and counted. `0` disables the cap. | `100000` |
+| `PIPELINE_LOG_ARCHIVE_BACKEND` | Where logs of finished jobs go: `none` (stay in PostgreSQL), `filesystem`, `s3` or `gcs`. | `none` |
+| `PIPELINE_LOG_ARCHIVE_DIR` | Base directory for `filesystem`. Every server replica must see the same directory. | *empty* |
+| `PIPELINE_LOG_ARCHIVE_S3_ENDPOINT` | S3 endpoint; set it for anything but AWS (MinIO, R2, GCS interoperability, Garage). | *empty* |
+| `PIPELINE_LOG_ARCHIVE_S3_REGION` | Bucket region. | *empty* |
+| `PIPELINE_LOG_ARCHIVE_S3_BUCKET` | Bucket name. | *empty* |
+| `PIPELINE_LOG_ARCHIVE_S3_PREFIX` | Key prefix inside the bucket. | *empty* |
+| `PIPELINE_LOG_ARCHIVE_S3_ACCESS_KEY_ID`, `PIPELINE_LOG_ARCHIVE_S3_SECRET_ACCESS_KEY` | Static keys; without them the default AWS credential chain is used (environment, IRSA, instance profile). | *empty* |
+| `PIPELINE_LOG_ARCHIVE_S3_USE_PATH_STYLE` | Path-style addressing, needed for MinIO and Garage. | `false` |
+| `PIPELINE_LOG_ARCHIVE_GCS_BUCKET` | Bucket name. | *empty* |
+| `PIPELINE_LOG_ARCHIVE_GCS_PREFIX` | Object prefix inside the bucket. | *empty* |
+| `PIPELINE_LOG_ARCHIVE_GCS_CREDENTIALS_FILE` | Service account key file; without it, Application Default Credentials (GKE Workload Identity, `GOOGLE_APPLICATION_CREDENTIALS`, `gcloud auth application-default login`). | *empty* |
 
 ## OIDC Providers
 
@@ -146,50 +207,64 @@ export AUTH_OIDC_GOOGLE_ISSUER="https://accounts.google.com"
 
 You can configure multiple providers by adding slugs to `AUTH_OIDC_PROVIDERS` (e.g., `google,okta`) and setting the corresponding `AUTH_OIDC_<SLUG>_*` variables for each.
 
-## Kubernetes
-
-These are only needed when running with the Kubernetes executor (`synclet k8s-executor` or `synclet server --standalone` inside a K8s pod).
+## Docker Executor
 
 | Variable | Description | Default |
 |---|---|---|
-| `K8S_EXECUTOR_NAMESPACE` | Kubernetes namespace for sync Job resources. | *none* |
-| `K8S_EXECUTOR_KUBECONFIG` | Path to kubeconfig file. If unset, uses in-cluster config. | *none* |
-| `K8S_EXECUTOR_IMAGE_PULL_SECRET` | Image pull secret name for private container registries. | *none* |
-| `K8S_EXECUTOR_SYNCLET_IMAGE` | Synclet image used for the orchestrator sidecar container. | *none* |
-| `K8S_EXECUTOR_SERVER_ADDR` | Address of the Synclet internal API server (used by orchestrator pods). | *none* |
-| `K8S_EXECUTOR_DEFAULT_MEMORY` | Default memory limit for sync Job pods. | `2Gi` |
-| `K8S_EXECUTOR_DEFAULT_CPU` | Default CPU limit for sync Job pods. | `1` |
+| `DOCKER_EXECUTOR_MAX_CONCURRENT_JOBS` | Sync jobs one Docker executor runs at once. | `5` |
+| `DOCKER_EXECUTOR_MAX_SYNC_DURATION` | Maximum run time of one sync. | `24h` |
+| `DOCKER_EXECUTOR_JOB_WORKER_INTERVAL` | How often the executor polls for pending work. | `1s` |
+| `DOCKER_EXECUTOR_HEARTBEAT_INTERVAL` | How often a running sync sends a heartbeat. | `5s` |
+| `DOCKER_EXECUTOR_JOB_RESOURCE_CLEANUP_INTERVAL` | How often orphaned containers are removed. | `5m` |
+| `DOCKER_EXECUTOR_TEMP_DIR_ROOT` | Scratch directory for connector config, catalog and state. Leave empty when running the binary natively (the OS temp dir is used). When Synclet runs in a container that talks to the host `docker.sock`, set it to a host-bind-mounted path that is identical inside and outside the container. | *empty* |
+
+## Kubernetes Executor
+
+Used by `synclet k8s-executor`, and by `synclet server --standalone` inside a pod.
+
+| Variable | Description | Default |
+|---|---|---|
+| `K8S_EXECUTOR_NAMESPACE` | Namespace for connector pods. | *empty* |
+| `K8S_EXECUTOR_KUBECONFIG` | Kubeconfig path; empty uses the in-cluster config. | *empty* |
+| `K8S_EXECUTOR_IMAGE_PULL_SECRET` | Image pull secret for private registries. | *empty* |
+| `K8S_EXECUTOR_SYNCLET_IMAGE` | Synclet image of the orchestrator container in sync pods. | *empty* |
+| `K8S_EXECUTOR_SERVER_ADDR` | Internal server address the orchestrator containers call. | *empty* |
+| `K8S_EXECUTOR_DEFAULT_MEMORY` | Default memory of sync pods. | `2Gi` |
+| `K8S_EXECUTOR_DEFAULT_CPU` | Default CPU of sync pods. | `1` |
+| `K8S_EXECUTOR_JOB_WORKER_INTERVAL` | How often the executor polls for pending work. | `5s` |
+| `K8S_EXECUTOR_JOB_RESOURCE_CLEANUP_INTERVAL` | How often orphaned pods are removed. | `5m` |
 
 ## Distributed Mode
 
-These are only needed when running executors in distributed (RPC) mode, where the executor connects to the API server instead of accessing the database directly.
+Executors started without `--standalone` reach the server over the internal API instead of the database.
 
 | Variable | Description | Default |
 |---|---|---|
-| `EXECUTOR_API_URL` | URL of the Synclet internal API server. | *none* |
-| `EXECUTOR_API_TOKEN` | Shared secret token for executor authentication. | *none* |
-| `INTERNAL_HTTP_SERVER_EXECUTOR_API_TOKEN` | Token the internal HTTP server validates against. Must match `EXECUTOR_API_TOKEN` on executor side. | *none* |
+| `EXECUTOR_API_URL` | Internal server URL. | *empty* |
+| `EXECUTOR_API_TOKEN` | Token the executor presents; must match the server's `PIPELINE_EXECUTOR_API_TOKEN`. | *empty* |
+
+## Event Bus
+
+| Variable | Description | Default |
+|---|---|---|
+| `WATERMILL_TRANSPORT` | Transport of the transactional outbox. `sql` reuses PostgreSQL via `DB_DSN`. | `sql` |
+| `WATERMILL_SQL_DRIVER` | SQL driver for the `sql` transport. | `postgres` |
+| `WATERMILL_SQL_CONSUMER_GROUP` | Consumer group of the `sql` transport. | `synclet` |
+| `WATERMILL_TOPICS_PREFIX` | Prefix added to every topic name. | *empty* |
+| `WATERMILL_REDIS_CONSUMER_GROUP` | Consumer group of the `redis` transport. | *empty* |
+| `WATERMILL_GCLOUD_PUB_SUB_PROJECT_ID`, `WATERMILL_GCLOUD_PUB_SUB_SUBSCRIPTION_NAME_PREFIX` | Project and subscription prefix of the Google Cloud Pub/Sub transport. | *empty* |
+| `EVENTS_RETRY_MAX_RETRIES` | Retries of a failed event handler. | `5` |
+| `EVENTS_RETRY_INITIAL_INTERVAL` | First retry delay. | `1s` |
+| `EVENTS_RETRY_MAX_INTERVAL` | Longest retry delay. | `1m` |
 
 ## Secret Rotation
 
 | Variable | Description | Default |
 |---|---|---|
-| `SECRET_ENCRYPTION_KEY_PREVIOUS` | Previous encryption key (base64-encoded). When set, Synclet can decrypt credentials encrypted with the old key and re-encrypt them with the current key. | *none* |
-
-## Generating Secrets
-
-Use `openssl` to generate production-grade secrets:
-
-```bash
-# JWT secret (base64, 32 bytes)
-openssl rand -base64 32
-
-# Encryption key (base64, 32 bytes)
-openssl rand -base64 32
-```
+| `SECRET_ENCRYPTION_KEY_PREVIOUS` | Previous encryption key, kept during key rotation. Synclet decrypts credentials encrypted with it and re-encrypts them with the current key. | *empty* |
 
 **Security notes:**
 
 - Never commit secrets to version control.
 - Use a secret manager (HashiCorp Vault, AWS Secrets Manager, Kubernetes Secrets, Doppler) in production.
-- Rotate secrets periodically. After rotating `AUTH_JWT_SECRET`, all users will need to re-authenticate. After rotating `SECRET_ENCRYPTION_KEY`, set the old key as `SECRET_ENCRYPTION_KEY_PREVIOUS` so existing credentials can be re-encrypted transparently.
+- After rotating `AUTH_JWT_SECRET`, all users sign in again. After rotating `SECRET_ENCRYPTION_KEY`, set the old key as `SECRET_ENCRYPTION_KEY_PREVIOUS` so existing credentials are re-encrypted.

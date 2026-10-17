@@ -36,13 +36,14 @@ Open your browser and navigate to [http://localhost:8080](http://localhost:8080)
 
 ## Pre-built Binary
 
-Download a pre-compiled archive from the [GitHub Releases](https://github.com/synclet-io/synclet/releases) page. Each release tag is named `synclet-v<version>` and publishes archives for `linux/amd64`, `linux/arm64`, `darwin/amd64`, `darwin/arm64`, and `windows/amd64`, plus an aggregated `SHA256SUMS` file.
+Download a pre-compiled archive from the [GitHub Releases](https://github.com/synclet-io/synclet/releases) page. Each release tag is named `synclet-v<version>` and publishes `synclet-v<version>-<os>-<arch>.tar.gz` archives for `linux/amd64`, `linux/arm64`, `darwin/amd64` and `darwin/arm64`, plus `SHA256SUMS` over every archive.
 
-**1. Download and extract the archive**
+**1. Download, verify and extract the archive**
 
 ```bash
-# Pick the asset that matches your platform, e.g.
-# synclet-v0.1.0-linux-amd64.tar.gz (Windows archives are .zip)
+# Download the archive for your platform and SHA256SUMS, e.g.
+# synclet-v0.1.0-linux-amd64.tar.gz
+shasum -a 256 -c SHA256SUMS --ignore-missing
 tar -xzf synclet-v0.1.0-linux-amd64.tar.gz
 cd synclet-v0.1.0-linux-amd64
 ```
@@ -54,9 +55,9 @@ cd synclet-v0.1.0-linux-amd64
 export DB_DSN="postgres://user:password@localhost:5432/synclet?sslmode=disable"
 ```
 
-On first run Synclet generates an **ephemeral** `AUTH_JWT_SECRET` and persists a `SECRET_ENCRYPTION_KEY` to `<UserConfigDir>/synclet/encryption.key`. For anything beyond a local trial, set both explicitly (`openssl rand -base64 32` for each) so sessions survive restarts and the encryption key is in your secret manager rather than a single on-disk file.
+With `ENVIRONMENT` unset or `development` and outside a container, Synclet generates an **ephemeral** `AUTH_JWT_SECRET` and persists a `SECRET_ENCRYPTION_KEY` to `<UserConfigDir>/synclet/encryption.key` for a local trial. Anywhere else it refuses to start until both are set: generate each with `openssl rand -base64 32`, keep them in your secret manager and back up the encryption key.
 
-See [Environment Variables](/docs/reference/environment-variables/) for every variable and its default.
+See [Environment Variables](/synclet-site/docs/reference/environment-variables/) for every variable and its default.
 
 **3. Run database migrations**
 
@@ -94,13 +95,13 @@ The compiled binary is located at `./bin/synclet`. Follow the same steps as the 
 
 Once Synclet is running, verify that everything is working:
 
-**1. Check the health endpoint**
+**1. Check the readiness endpoint**
 
 ```bash
-curl http://localhost:8080/health
+curl http://localhost:8081/ready
 ```
 
-You should receive a `200 OK` response.
+You should receive a `200 OK` response. Health endpoints are served on the internal port (`8081` by default), not on the UI port.
 
 **2. Open the dashboard**
 
@@ -112,5 +113,5 @@ On the first visit, Synclet will prompt you to create an admin account. Enter yo
 
 ## Next Steps
 
-- [Configuration](/docs/getting-started/configuration/) — Fine-tune Synclet with environment variables for SMTP, OIDC, sync behavior, and more.
-- [Quick Start](/docs/getting-started/quick-start/) — Create your first source, destination, and connection.
+- [Configuration](/synclet-site/docs/getting-started/configuration/) — Fine-tune Synclet with environment variables for SMTP, OIDC, sync behavior, and more.
+- [Quick Start](/synclet-site/docs/getting-started/quick-start/) — Create your first source, destination, and connection.

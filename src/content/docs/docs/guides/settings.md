@@ -47,7 +47,7 @@ Role changes take effect immediately.
 
 Removed members lose access to the workspace immediately. Their past actions (created connections, triggered syncs) remain in the history.
 
-For a detailed explanation of what each role can do, see [Workspaces & Roles](/docs/concepts/workspaces-and-roles/).
+For a detailed explanation of what each role can do, see [Workspaces & Roles](/synclet-site/docs/concepts/workspaces-and-roles/).
 
 ## Connector Repositories
 
@@ -83,7 +83,7 @@ Manage your workspace's notification channels and rules from **Settings > Notifi
 
 For outbound HTTP integrations (e.g., calling external systems on sync events), see **Settings > Webhooks**.
 
-For detailed setup instructions, see the [Notifications](/docs/guides/notifications/) guide.
+For detailed setup instructions, see the [Notifications](/synclet-site/docs/guides/notifications/) guide.
 
 ## API Keys
 
@@ -198,6 +198,6 @@ Importing merges the configuration into the current workspace. Existing items wi
 
 ## Next Steps
 
-- [Authentication & SSO](/docs/guides/authentication/) — Set up OIDC providers and manage registration.
-- [Notifications](/docs/guides/notifications/) — Detailed setup for Slack, Email, and Telegram channels.
-- [Workspaces & Roles](/docs/concepts/workspaces-and-roles/) — Understand the Admin, Editor, and Viewer roles.
+- [Authentication & SSO](/synclet-site/docs/guides/authentication/) — Set up OIDC providers and manage registration.
+- [Notifications](/synclet-site/docs/guides/notifications/) — Detailed setup for Slack, Email, and Telegram channels.
+- [Workspaces & Roles](/synclet-site/docs/concepts/workspaces-and-roles/) — Understand the Admin, Editor, and Viewer roles.

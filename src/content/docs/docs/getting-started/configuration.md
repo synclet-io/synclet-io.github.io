@@ -7,7 +7,7 @@ Synclet is configured entirely through environment variables. Set them in your s
 
 ## Required Settings
 
-`DB_DSN` is the only variable Synclet truly requires — everything else has a built-in default. See [Environment Variables](/docs/reference/environment-variables/) for the full list.
+`DB_DSN` is the only variable Synclet truly requires — everything else has a built-in default. See [Environment Variables](/synclet-site/docs/reference/environment-variables/) for the full list.
 
 | Variable | Description | Example |
 |---|---|---|
@@ -15,12 +15,12 @@ Synclet is configured entirely through environment variables. Set them in your s
 
 ## Production Secrets
 
-Two variables have safe-for-local defaults that you should still override for any real deployment.
+Outside local development Synclet refuses to start without these two variables.
 
-| Variable | Default behavior | Why you should set it |
+| Variable | Local development (`ENVIRONMENT` unset or `development`, not in a container) | Everywhere else |
 |---|---|---|
-| `AUTH_JWT_SECRET` | A new 32-byte secret is generated on every startup (logged as `WARN`). | Without an explicit value, **every restart invalidates all sessions** because the signing key changes. |
-| `SECRET_ENCRYPTION_KEY` | Generated once and persisted to `<UserConfigDir>/synclet/encryption.key`. | Losing that file makes every stored connector credential **unrecoverable**. Setting the env var explicitly (from your secret manager) is safer than relying on the on-disk file. |
+| `AUTH_JWT_SECRET` | A new secret is generated on every startup (logged as `WARN`), so **every restart ends all sessions**. | Required, at least 32 characters. |
+| `SECRET_ENCRYPTION_KEY` | Generated once and persisted to `<UserConfigDir>/synclet/encryption.key`. Losing that file makes every stored connector credential **unrecoverable**. | Required: base64 of 32 bytes. Keep it in your secret manager and back it up. |
 
 Generate either with `openssl rand -base64 32`.
 
@@ -126,5 +126,5 @@ Workspaces and roles are managed through the dashboard. No environment variables
 
 ## Next Steps
 
-- [Quick Start](/docs/getting-started/quick-start/) — Create your first sync with the configuration in place.
-- [Installation](/docs/getting-started/installation/) — Go back to installation if you haven't set up Synclet yet.
+- [Quick Start](/synclet-site/docs/getting-started/quick-start/) — Create your first sync with the configuration in place.
+- [Installation](/synclet-site/docs/getting-started/installation/) — Go back to installation if you haven't set up Synclet yet.
