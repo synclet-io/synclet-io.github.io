@@ -9,6 +9,9 @@ Synclet is a self-hosted data synchronization platform that moves data between d
 
 You define sources, destinations, and connections through a web dashboard or API. Synclet handles schema detection, incremental synchronization, state management, scheduling, and monitoring — so you can focus on what to sync rather than how.
 
+<img src="/synclet-site/screenshots/dashboard-light.png" alt="The Synclet dashboard: sync totals, success rate, timeline and throughput for a demo workspace" width="1440" height="900" loading="lazy" class="dark:sl-hidden" />
+<img src="/synclet-site/screenshots/dashboard-dark.png" alt="The Synclet dashboard: sync totals, success rate, timeline and throughput for a demo workspace" width="1440" height="900" loading="lazy" class="light:sl-hidden" />
+
 ## Who is Synclet For?
 
 - **Data engineers** who need a lightweight, self-hosted alternative to managed ELT platforms.

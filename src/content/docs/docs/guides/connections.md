@@ -84,6 +84,9 @@ Each connection displays a status:
 
 The dashboard shows an overview of all connection statuses so you can address issues quickly.
 
+<img src="/synclet-site/screenshots/connection-light.png" alt="A connection page: source and destination, status, schedule and replication stats" width="1440" height="900" loading="lazy" class="dark:sl-hidden" />
+<img src="/synclet-site/screenshots/connection-dark.png" alt="A connection page: source and destination, status, schedule and replication stats" width="1440" height="900" loading="lazy" class="light:sl-hidden" />
+
 ## Next Steps
 
 - [Stream Configuration](/synclet-site/docs/guides/stream-configuration/) — Deep dive into sync modes, field selection, primary keys, and cursors.

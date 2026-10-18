@@ -69,6 +69,8 @@ After saving the connection:
 
 That's it! Your data is now flowing from source to destination.
 
+<img src="/synclet-site/screenshots/demo-first-sync.gif" alt="Creating a connection from a Faker source to PostgreSQL and running its first sync" width="960" height="600" loading="lazy" />
+
 ## Alternative: Standalone Binary
 
 If you prefer running Synclet without Docker Compose, download the pre-built binary and start it manually.

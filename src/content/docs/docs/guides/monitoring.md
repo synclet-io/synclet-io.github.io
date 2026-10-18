@@ -26,6 +26,11 @@ Each connection shows a status badge:
 | **Inactive** | Connection is disabled. No syncs are scheduled. |
 | **Paused** | Connection is temporarily paused (e.g., due to schema change policy). |
 
+The **Topology** page draws every source, connection and destination as one graph, coloured by health, with filters for failing and enabled connections only.
+
+<img src="/synclet-site/screenshots/topology-light.png" alt="Topology of sources, connections and destinations; the failing partner feed and its destination are red" width="1440" height="900" loading="lazy" class="dark:sl-hidden" />
+<img src="/synclet-site/screenshots/topology-dark.png" alt="Topology of sources, connections and destinations; the failing partner feed and its destination are red" width="1440" height="900" loading="lazy" class="light:sl-hidden" />
+
 ### Sync Timeline
 
 The dashboard includes a timeline chart showing sync activity over the past 24 hours, 7 days, or 30 days. Each bar represents a sync job, color-coded by status. Hover over a bar to see the connection name, duration, and record count.
@@ -58,6 +63,9 @@ Click any job to view its details.
 ## Job Detail
 
 The job detail page shows everything about a specific sync run.
+
+<img src="/synclet-site/screenshots/job-logs-light.png" alt="A job page: the run timeline with its attempt, and the combined source and destination logs" width="1440" height="900" loading="lazy" class="dark:sl-hidden" />
+<img src="/synclet-site/screenshots/job-logs-dark.png" alt="A job page: the run timeline with its attempt, and the combined source and destination logs" width="1440" height="900" loading="lazy" class="light:sl-hidden" />
 
 ### Attempt Breakdown
 

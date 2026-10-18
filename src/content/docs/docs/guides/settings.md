@@ -143,6 +143,13 @@ Revoked keys stop working immediately. Store the key value securely — if compr
 Never commit API keys to version control. Use environment variables or a secrets manager in your CI/CD system.
 :::
 
+## Audit Log
+
+**Settings → Audit log** lists every configuration change in the workspace, and logins and syncs, newest first. Only admins see it. Filter by action, resource type and date range; expand an event to see the fields it changed, before and after. The retention in days is set per workspace, up to the server's `AUDIT_RETENTION_MAX_DAYS` (see [Environment Variables](/synclet-site/docs/reference/environment-variables/#audit-log)).
+
+<img src="/synclet-site/screenshots/audit-log-light.png" alt="The audit log filtered to connection updates, with one event expanded to show the streams it changed" width="1440" height="900" loading="lazy" class="dark:sl-hidden" />
+<img src="/synclet-site/screenshots/audit-log-dark.png" alt="The audit log filtered to connection updates, with one event expanded to show the streams it changed" width="1440" height="900" loading="lazy" class="light:sl-hidden" />
+
 ## Account Settings
 
 Account settings apply to your personal profile across all workspaces.
