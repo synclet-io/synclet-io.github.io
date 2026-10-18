@@ -40,6 +40,13 @@ export const sidebar = [
     ],
   },
   {
+    label: 'Connector Development',
+    items: [
+      { label: 'Writing a Connector', slug: 'docs/connector-development/writing-a-connector' },
+      { label: 'Publishing a Connector', slug: 'docs/connector-development/publishing-a-connector' },
+    ],
+  },
+  {
     label: 'Reference',
     items: [
       { label: 'CLI', slug: 'docs/reference/cli' },
