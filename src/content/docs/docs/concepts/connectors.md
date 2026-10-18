@@ -76,7 +76,6 @@ The failing pairs below were found in a manual run on 2026-10-18 and are not par
 - **Full refresh after a stateful run:** Synclet passes the saved stream state to a full-refresh stream on the next run, so a source that honours state in full refresh (`source-faker`) reads nothing and an overwrite destination empties the table.
 - **`ghcr.io/synclet-io/connectors/source-postgres:0.2.0` to `airbyte/destination-postgres` 3.0.23 and 3.0.12:** the destination fails with `sourceStats must be set with recordCount for state message`; Synclet does not add `sourceStats` to state messages.
 - **`airbyte/source-faker:6.2.38` to `airbyte/destination-dev-null:0.7.24`:** the destination fails on a stream status trace message it receives (`AirbyteStreamStatusTraceMessage ... status is null`).
-- **`airbyte/destination-duckdb:0.6.0`:** needs a writable `/local` mount, which Synclet does not provide to connector containers.
 
 Report a connector that works or fails in [GitHub issues](https://github.com/synclet-io/synclet/issues) with its image and version.
 
