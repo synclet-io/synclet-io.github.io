@@ -9,31 +9,49 @@ Synclet provides built-in tools for monitoring your data syncs — a real-time d
 
 The dashboard is the landing page after you log in. It provides a high-level view of your workspace's sync health.
 
-### Overview Stats
+<img src="/synclet-site/screenshots/dashboard-light.png" alt="The dashboard: five stat cards for the last 24 hours, the sync timeline and throughput charts" width="1440" height="900" loading="lazy" class="dark:sl-hidden" />
+<img src="/synclet-site/screenshots/dashboard-dark.png" alt="The dashboard: five stat cards for the last 24 hours, the sync timeline and throughput charts" width="1440" height="900" loading="lazy" class="light:sl-hidden" />
 
-- **Total connections** — How many connections exist in the workspace.
-- **Active syncs** — How many syncs are currently running.
-- **Recent failures** — Connections that failed in the last 24 hours.
-- **Records synced** — Total records moved over a selected time range.
+The **24h / 7d / 30d** selector in the top right sets the time range of the stat cards and charts; 24h is the default.
 
-### Health Indicators
+### Stat Cards
 
-Each connection shows a status badge:
-
-| Status | Meaning |
+| Card | What it counts |
 |---|---|
-| **Active** | Connection is enabled and syncs run on schedule. |
-| **Inactive** | Connection is disabled. No syncs are scheduled. |
-| **Paused** | Connection is temporarily paused (e.g., due to schema change policy). |
+| **Total Syncs** | Syncs that ran in the selected range. |
+| **Success Rate** | Share of those syncs that succeeded. |
+| **Records Synced** | Records read from sources in the range. |
+| **Active Connections** | Connections whose status is active, whatever the range. |
+| **Failed Syncs** | Syncs that failed in the range. |
+
+Every card but Active Connections carries its range in the label, for example **Total Syncs (24h)**, and a trend line that compares it with the range before (the previous 24 hours, 7 days or 30 days): a percentage change, and for Success Rate the change in percentage points. Green means better and red worse, so for Failed Syncs a rise is red.
+
+### Charts
+
+| Chart | What it shows |
+|---|---|
+| **Sync Timeline** | Succeeded and failed syncs per hour (24h) or per day (7d, 30d). |
+| **Throughput** | Records read per hour or per day. |
+| **Duration Trends** | Average sync duration per hour or per day. |
+| **Failure Breakdown** | The range's failed jobs by cause: `connector`, `timeout`, `oom`, `infrastructure` or `unknown`, read from the error message. |
+
+**Top Connections** lists the five connections with the most records synced in the range, with their records, bytes, last sync and a trend sparkline.
+
+### Connection Health
+
+The **Connection Health** grid has one tile per connection, linked to the connection's page, with one of these labels:
+
+| Health | Meaning |
+|---|---|
+| **Healthy** | The last sync did not fail and the next one is not overdue, or the connection has not synced yet. A connection without a schedule is never overdue. |
+| **Warning** | More than twice the schedule's interval has passed since the last sync, or the schedule cannot be parsed. |
+| **Failing** | The last sync failed, or more than three times the schedule's interval has passed since the last sync. |
+| **Disabled** | The connection is not active (inactive or paused), so no syncs are scheduled. |
 
 The **Topology** page draws every source, connection and destination as one graph, coloured by health, with filters for failing and enabled connections only.
 
 <img src="/synclet-site/screenshots/topology-light.png" alt="Topology of sources, connections and destinations; the failing partner feed and its destination are red" width="1440" height="900" loading="lazy" class="dark:sl-hidden" />
 <img src="/synclet-site/screenshots/topology-dark.png" alt="Topology of sources, connections and destinations; the failing partner feed and its destination are red" width="1440" height="900" loading="lazy" class="light:sl-hidden" />
-
-### Sync Timeline
-
-The dashboard includes a timeline chart showing sync activity over the past 24 hours, 7 days, or 30 days. Each bar represents a sync job, color-coded by status. Hover over a bar to see the connection name, duration, and record count.
 
 ## Job History
 

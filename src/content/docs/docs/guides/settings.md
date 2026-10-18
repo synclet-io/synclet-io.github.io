@@ -51,11 +51,11 @@ For a detailed explanation of what each role can do, see [Workspaces & Roles](/s
 
 ## Connector Repositories
 
-Synclet discovers connectors from registries. By default, Airbyte's public OSS connector registry is included.
+Synclet discovers connectors from registries. Every new workspace gets two: Airbyte's public OSS registry and Synclet's own.
 
-### Default Registry
+### Default Registries
 
-Airbyte's OSS registry lists the source and destination connectors Airbyte publishes. It is enabled by default and requires no configuration. Most of its connectors are under ELv2 since 2025-07-22; read [Connector licenses](/synclet-site/docs/reference/connector-licenses/) before you rely on one.
+**Airbyte OSS** lists the source and destination connectors Airbyte publishes. **Synclet** (`https://synclet-io.github.io/connectors/registry.json`) lists the MIT-licensed Go connectors from [synclet-io/connectors](https://github.com/synclet-io/connectors). Both are added when the workspace is created and need no configuration; you can remove either. Most of Airbyte's connectors are under ELv2 since 2025-07-22; read [Connector licenses](/synclet-site/docs/reference/connector-licenses/) before you rely on one.
 
 ### Adding a Custom Repository
 

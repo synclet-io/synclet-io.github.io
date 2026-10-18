@@ -40,7 +40,7 @@ Browse the full catalog from **Settings > Connectors** in the Synclet dashboard.
 
 ### Step 1: Configure a Repository
 
-Synclet ships with Airbyte's public OSS registry pre-configured, so its catalog is available on first start; most of its connectors are ELv2, see [Connector licenses](/synclet-site/docs/reference/connector-licenses/). To add a private or custom registry, go to **Settings > Connectors > Repositories** and add the registry URL.
+Every new workspace gets two registries, so their catalogs are available on first start: Airbyte's public OSS registry, whose connectors are mostly ELv2 (see [Connector licenses](/synclet-site/docs/reference/connector-licenses/)), and Synclet's own, with the [native Go connectors](#native-go-connectors). To add a private or custom registry, go to **Settings > Connectors > Repositories** and add the registry URL.
 
 ### Step 2: Create a Source or Destination
 
@@ -91,15 +91,14 @@ See the [Stream Configuration](/synclet-site/docs/guides/stream-configuration/) 
 
 ## Native Go Connectors
 
-In addition to community Airbyte connectors, Synclet maintains a set of **native Go connectors** built with `airbyte-go-sdk`. They speak the same Airbyte protocol over stdin/stdout and ship as their own container images alongside the Synclet repo.
+Besides the community Airbyte connectors, Synclet has its own MIT-licensed connectors, written in Go on [synclet-go-sdk](https://github.com/synclet-io/synclet-go-sdk) and kept in the [synclet-io/connectors](https://github.com/synclet-io/connectors) repository. synclet-go-sdk is a small SDK for the Airbyte protocol: a connector implements a typed `Source` or `Destination` interface, and the SDK runs it as a process that answers `spec`, `check`, `discover`, `read` and `write`.
 
-| Connector | Type | Image directory |
-|---|---|---|
-| Google Sheets | Source & Destination | `connectors/source-google-sheets/`, `connectors/destination-google-sheets/` |
-| MySQL | Source | `connectors/source-mysql/` |
-| BigQuery | Destination | `connectors/destination-bigquery/` |
+Each connector ships as its own Docker image, `ghcr.io/synclet-io/connectors/<name>`, and runs like any other connector container. The repository publishes a registry at `https://synclet-io.github.io/connectors/registry.json`; every new workspace gets it as the **Synclet** repository, next to Airbyte OSS, so these connectors appear in the catalog and are configured the same way as the community ones. The [repository README](https://github.com/synclet-io/connectors#readme) lists the connectors.
 
-Native connectors appear in the catalog alongside Docker-based community connectors and are configured the same way — the difference is that the implementation is Go (with smaller image size and faster cold starts) instead of Python or Java.
+To write or publish one, see the Connector Development guides:
+
+- [Writing a connector](/synclet-site/docs/connector-development/writing-a-connector/) — spec, check, discover, read, state and the conformance suite, with source-postgres as the example.
+- [Publishing a connector](/synclet-site/docs/connector-development/publishing-a-connector/) — the release tag, the GHCR image, the registry entry, or your own connectors repository.
 
 ## Container Behavior
 

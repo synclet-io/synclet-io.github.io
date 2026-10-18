@@ -48,10 +48,11 @@ go 1.26.0
 
 require (
 	github.com/jackc/pgx/v5 v5.11.0
-	github.com/synclet-io/synclet-go-sdk v0.3.0
+	github.com/stretchr/testify v1.12.1
+	github.com/synclet-io/synclet-go-sdk v0.4.0
 	github.com/testcontainers/testcontainers-go v0.44.0
 	github.com/testcontainers/testcontainers-go/modules/postgres v0.44.0
-	...
+	golang.org/x/crypto v0.58.0
 )
 ```
 
@@ -69,7 +70,7 @@ or start an empty directory:
 ```bash
 mkdir connectors/source-acme && cd connectors/source-acme
 go mod init source-acme
-go get github.com/synclet-io/synclet-go-sdk@latest      # v0.3.1 at the time of writing; source-postgres is on v0.3.0, same API
+go get github.com/synclet-io/synclet-go-sdk@latest      # v0.4.0 at the time of writing
 go get github.com/stretchr/testify@latest               # require.NoError and friends in the tests below
 # a database source also takes its driver and testcontainers, for example:
 # go get github.com/jackc/pgx/v5 github.com/testcontainers/testcontainers-go github.com/testcontainers/testcontainers-go/modules/postgres
@@ -306,7 +307,7 @@ func (Source) Discover(ctx context.Context, cfg Config) (*synclet.Catalog, error
 ```
 
 - `Name` and `Namespace` identify the stream; `stream.Descriptor()` returns them as a `synclet.StreamDescriptor`, the key records and state are addressed by.
-- `JSONSchema` is raw JSON. `synclet.ObjectSchema` builds `{"type":"object","properties":{...}}` from `PropertySpec`s; you can also hand-write a schema. Every record a read emits must match it, with no undeclared top-level field.
+- `JSONSchema` is raw JSON. `synclet.ObjectSchema` builds `{"type":"object","properties":{...}}` from `PropertySpec`s; you can also hand-write a schema. Every record a read emits must match it. A schema that declares `properties` and does not set `additionalProperties` also allows no undeclared top-level field; a schema that sets `additionalProperties` decides that by its own value.
 - `SourceDefinedPrimaryKey` lets Synclet deduplicate; leave it empty when there is no key. Set `SourceDefinedCursor` and `DefaultCursorField` when the source, not the user, decides the cursor (an API's `updated_since`). source-postgres lets the user pick any column, so it sets neither.
 - Each column maps to a nullable JSON schema type in `types.go`: integers to `integer`, `numeric` to `number`, `timestamptz` to `string` with format `date-time` and airbyte_type `timestamp_with_timezone`, and so on. The [connector README](https://github.com/synclet-io/connectors/tree/main/connectors/source-postgres#types) has the full table.
 
@@ -355,9 +356,12 @@ The `*synclet.Emitter` writes the protocol stream, one message per call, and is 
 | `em.Record(desc, data)` | a `RECORD`; `data` is a struct, a map or a `json.RawMessage` passed through verbatim |
 | `em.StreamState(desc, state)` | a `STATE` of type `STREAM` for one stream |
 | `em.GlobalState(shared, streams)` | a `STATE` of type `GLOBAL` (shared state plus per-stream states) |
+| `em.State(msg)` | a `STATE` message as given (any type, `LEGACY` included) |
 | `em.Log(level, msg)` | a `LOG` |
 | `em.Trace(msg)` | a `TRACE` (estimate, stream status, analytics, or an error for a stream you recover from) |
 | `em.Control(config)` | a `CONTROL` with an updated configuration (a refreshed OAuth token) |
+
+Since v0.4.0 a source's emitter counts the records it writes and sets `sourceStats.recordCount` on every `STATE` itself: a `STREAM` state gets its stream's records since that stream's previous `STATE`, a `GLOBAL` or `LEGACY` state every record since the previous `STATE`, so no record is counted by two states. A connector writes no code for it; a destination's emitter passes `STATE` messages on as given.
 
 An error from the emitter means the output is gone; return it. For logging, `synclet.Logger(ctx)` returns a `*slog.Logger` whose records become `LOG` messages at INFO and above:
 
@@ -461,7 +465,7 @@ func readItems(ctx context.Context, items []Item, cs synclet.ConfiguredStream, s
 
 Here `Item` is your record struct with `UpdatedAt time.Time` tagged `json:"updated_at"`. The state is written once, after every record, because a STATE in the middle would hold the maximum of the records so far while later, older records still follow. To checkpoint during such a stream, request the items in cursor order from the API, when it can sort, and checkpoint as source-postgres does.
 
-Which cursor a configured stream uses: when the user picks it (`SourceDefinedCursor` false, as in source-postgres), the configured stream's `cursor_field`. When the source decides it (`SourceDefinedCursor: true` with `DefaultCursorField` set in Discover), the stream's `default_cursor_field`; the configured catalog need not carry a `cursor_field` then, and the conformance suite reads the cursor from `default_cursor_field`. Read the same way in your code: use `cs.CursorField`, and fall back to `cs.Stream.DefaultCursorField` when it is empty (source-postgres's `planStream` does exactly that).
+Which cursor a configured stream uses: when the user picks it (`SourceDefinedCursor` false, as in source-postgres), the configured stream's `cursor_field`. When the source decides it (`SourceDefinedCursor: true` with `DefaultCursorField` set in Discover), the stream's `default_cursor_field`; the configured catalog need not carry a `cursor_field` then, and the conformance suite reads the cursor from `default_cursor_field` even when the configured stream also sets a `cursor_field`. Read the same way in your code: use `cs.CursorField`, and fall back to `cs.Stream.DefaultCursorField` when it is empty (source-postgres's `planStream` does exactly that).
 
 ## Tests
 
@@ -622,9 +626,10 @@ The suite checks that:
 - `spec` returns a `connectionSpecification` that is a valid JSON schema;
 - `check` succeeds with `Config` and fails, with a message, with `BrokenConfig`;
 - `discover` returns streams whose `json_schema` is a valid JSON schema with properties;
-- `read` emits records (at least one) only for configured streams, each valid against its stream's `json_schema` with no undeclared top-level field; values of a `timestamp_without_timezone` or `time_without_timezone` property carry no zone;
+- `read` emits records (at least one) only for configured streams, each valid against its stream's `json_schema`, and with no undeclared top-level field when that schema does not set `additionalProperties`; values of a `timestamp_without_timezone` or `time_without_timezone` property carry no zone;
 - no record follows its stream's last STATE, and an incremental stream with records emits a STATE;
-- every incremental stream's records have a value at the cursor field, and a second read from the first read's last STATE emits nothing older than the first read's greatest cursor;
+- every STATE carries `sourceStats.recordCount` equal to the records it covers (a STREAM state its stream's records since that stream's previous STATE, a GLOBAL or LEGACY state every record since the previous STATE); the v0.4.0 emitter sets it, so this needs no connector code;
+- every incremental stream's records have a value at the cursor field (the stream's `default_cursor_field` when `SourceDefinedCursor` is set and it is not empty, otherwise the configured `cursor_field`, falling back to `default_cursor_field`), and a second read from the first read's last STATE emits nothing older than the first read's greatest cursor;
 - `read` returns within 5 seconds (`testkit.CancelTimeout`) after its context is cancelled at its first message.
 
 `SourceSuite` has optional fields for sources that need them: `State` (the first read's state), `CompareCursor` (how to order cursor values; by default numbers numerically, RFC 3339 timestamps as times, other strings lexically) and `Lookback` (for sources that re-read a window before the saved cursor).

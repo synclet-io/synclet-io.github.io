@@ -18,9 +18,7 @@ If you need a simple, fast data sync tool that works with Airbyte connectors, Sy
 
 ### Do I need Docker installed?
 
-**For Airbyte-protocol connectors: yes.** Synclet launches connector containers via Docker to run syncs. Docker must be available on the host (or configured via Kubernetes in distributed mode).
-
-**For native Go connectors: no.** Native connectors are compiled into the Synclet binary and run without Docker.
+**Yes, unless syncs run on Kubernetes.** Every connector, including Synclet's own Go connectors from [synclet-io/connectors](https://github.com/synclet-io/connectors), is a Docker image, and Synclet launches a container for each connector run. Docker must be available on the host. [On Kubernetes](/synclet-site/docs/deployment/kubernetes/) no Docker daemon is needed: each sync runs as a Kubernetes Job whose pod holds the connector containers.
 
 ### Can I use custom connectors?
 

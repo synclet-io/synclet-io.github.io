@@ -110,7 +110,7 @@ synclet server --standalone
 
 The dashboard is available at `http://localhost:8080`.
 
-> **Important:** Airbyte-protocol connectors still require Docker on the host. If you only use native Go connectors, Docker is not needed.
+> **Important:** Connectors still require Docker on the host: every connector, Synclet's own Go connectors included, runs as a Docker container.
 
 ## Health Checks
 
