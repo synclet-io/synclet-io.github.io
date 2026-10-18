@@ -63,8 +63,8 @@ These pairs were run end to end through Synclet 0.6.0 (`main` at `1b02969`) on 2
 |---|---|---|---|
 | `airbyte/source-faker:6.2.38` | `airbyte/destination-postgres:3.0.23` | `users`, incremental, append | Passed: 100 records; the second run read 0 new records and kept 100 rows |
 | `airbyte/source-postgres:3.8.7` | `airbyte/destination-postgres:3.0.23` | `public.cities`, incremental on `id`, append | Passed: 250 records; the second run re-read the row at the cursor (251 rows, at-least-once delivery) |
-| `airbyte/source-faker:6.2.38` | `airbyte/destination-postgres:3.0.23` | `users`, full refresh, overwrite | First run passed (100 rows); the repeat run read 0 records and left the table empty, see known issues |
-| `airbyte/source-faker:6.2.38` | `airbyte/destination-dev-null:0.7.24` | `users`, full refresh, overwrite | Passed: 100 records; the repeat run read 0 records, see known issues |
+| `airbyte/source-faker:6.2.38` | `airbyte/destination-postgres:3.0.23` | `users`, full refresh, overwrite | Passed: 100 records; the second run re-read all 100 and kept 100 rows |
+| `airbyte/source-faker:6.2.38` | `airbyte/destination-dev-null:0.7.24` | `users`, full refresh, overwrite | Passed: 100 records; the second run re-read all 100 |
 
 The matrix is produced by [`tests/e2e/tested_with_test.go`](https://github.com/synclet-io/synclet/blob/main/tests/e2e/tested_with_test.go), an opt-in end-to-end test. To regenerate it, run `task e2e:tested-with` with `E2E_DATABASE_URL` pointing at a PostgreSQL that connector containers can reach through `TESTED_WITH_PG_HOST` (default `host.docker.internal`); the test logs one `TESTED-WITH` line per run.
 
@@ -74,7 +74,6 @@ CI also runs the end-to-end suite on every push to `main` and every pull request
 
 The failing pairs below were found in a manual run on 2026-10-18 and are not part of the test yet.
 
-- **Full refresh after a stateful run:** Synclet passes the saved stream state to a full-refresh stream on the next run, so a source that honours state in full refresh (`source-faker`) reads nothing and an overwrite destination empties the table.
 - **`ghcr.io/synclet-io/connectors/source-postgres:0.2.0` to `airbyte/destination-postgres` 3.0.23 and 3.0.12:** the destination fails with `sourceStats must be set with recordCount for state message`; Synclet does not add `sourceStats` to state messages.
 
 Report a connector that works or fails in [GitHub issues](https://github.com/synclet-io/synclet/issues) with its image and version.
