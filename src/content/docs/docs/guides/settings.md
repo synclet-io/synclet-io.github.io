@@ -51,11 +51,11 @@ For a detailed explanation of what each role can do, see [Workspaces & Roles](/s
 
 ## Connector Repositories
 
-Synclet discovers connectors from registries. By default, the official Airbyte connector registry is included.
+Synclet discovers connectors from registries. By default, Airbyte's public OSS connector registry is included.
 
 ### Default Registry
 
-The Airbyte connector registry provides access to 300+ pre-built source and destination connectors. It is enabled by default and requires no configuration.
+Airbyte's OSS registry lists the source and destination connectors Airbyte publishes. It is enabled by default and requires no configuration. Most of its connectors are under ELv2 since 2025-07-22; read [Connector licenses](/synclet-site/docs/reference/connector-licenses/) before you rely on one.
 
 ### Adding a Custom Repository
 

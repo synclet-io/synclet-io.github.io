@@ -10,6 +10,8 @@ export const GET: APIRoute = async ({ site }) => {
     '> Synclet is a self-hosted data synchronization platform that runs Airbyte connectors without Airbyte: one Go binary and one PostgreSQL database. MIT licensed.',
     '',
     'Source code: https://github.com/synclet-io/synclet',
+    '',
+    'Airbyte is a trademark of Airbyte, Inc. Synclet is not affiliated with, endorsed by or sponsored by Airbyte, Inc.',
   ];
 
   for (const group of sidebar) {

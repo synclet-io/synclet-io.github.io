@@ -3,7 +3,7 @@ title: Managing Destinations
 description: Add, configure, test, and manage destinations.
 ---
 
-Destinations are where your data lands. Synclet writes synchronized data to databases, data warehouses, cloud storage, and other systems using Airbyte-compatible destination connectors.
+Destinations are where your data lands. Synclet writes synchronized data to databases, data warehouses, cloud storage, and other systems using destination connectors that implement the Airbyte Protocol.
 
 ## What is a Destination?
 

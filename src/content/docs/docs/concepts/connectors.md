@@ -1,11 +1,11 @@
 ---
 title: Connectors & Airbyte Protocol
-description: Using Airbyte connectors with Synclet — sources, destinations, native Go connectors.
+description: Connectors that implement the Airbyte Protocol in Synclet — how they run, which ones are tested, native Go connectors.
 ---
 
 ## What are Connectors?
 
-Connectors are Docker images that know how to read data from a specific system (source) or write data to one (destination). Every connector implements the [Airbyte connector protocol](https://docs.airbyte.com/understanding-airbyte/airbyte-protocol), which defines four standard operations:
+Connectors are Docker images that know how to read data from a specific system (source) or write data to one (destination). Every connector implements the [Airbyte Protocol](https://docs.airbyte.com/platform/understanding-airbyte/airbyte-protocol), which defines four standard operations:
 
 | Operation | Purpose |
 |---|---|
@@ -14,11 +14,11 @@ Connectors are Docker images that know how to read data from a specific system (
 | **discover** | Lists available streams (tables, endpoints, files) and their schemas |
 | **read** / **write** | Reads data from a source or writes data to a destination |
 
-Because Synclet speaks the Airbyte protocol, it works with the entire Airbyte connector ecosystem — over 300 connectors maintained by the community.
+Synclet runs connectors that implement the Airbyte Protocol. Which pairs are tested, with versions, is listed under [Tested with](#tested-with); each connector image keeps its own license, see [Connector licenses](/synclet-site/docs/reference/connector-licenses/).
 
 ## Popular Sources
 
-Synclet can pull data from any Airbyte-compatible source. Some commonly used ones:
+Source connectors that implement the Airbyte Protocol exist for many systems, for example:
 
 - **Databases** — PostgreSQL, MySQL, MongoDB, SQL Server, Oracle
 - **SaaS Platforms** — Salesforce, HubSpot, Stripe, Shopify, Zendesk, Jira
@@ -40,7 +40,7 @@ Browse the full catalog from **Settings > Connectors** in the Synclet dashboard.
 
 ### Step 1: Configure a Repository
 
-Synclet ships with the **default Airbyte registry** pre-configured, so you can use any public Airbyte connector immediately. To add a private or custom registry, go to **Settings > Connectors > Repositories** and add the registry URL.
+Synclet ships with Airbyte's public OSS registry pre-configured, so its catalog is available on first start; most of its connectors are ELv2, see [Connector licenses](/synclet-site/docs/reference/connector-licenses/). To add a private or custom registry, go to **Settings > Connectors > Repositories** and add the registry URL.
 
 ### Step 2: Create a Source or Destination
 
@@ -54,6 +54,31 @@ Synclet ships with the **default Airbyte registry** pre-configured, so you can u
 ### Step 3: Use It in a Connection
 
 Once a source or destination is saved, you can reference it when [creating a connection](/synclet-site/docs/guides/connections/). A single source or destination can be used in multiple connections.
+
+## Tested with
+
+These pairs were run end to end through Synclet 0.6.0 (`main` at `1b02969`) on 2026-10-18: Docker executor, PostgreSQL 16, two runs per pair so the second run starts from the saved state. A connector that is not listed here may work; it has not been tested.
+
+| Source | Destination | Streams and mode | Result |
+|---|---|---|---|
+| `airbyte/source-faker:6.2.38` | `airbyte/destination-postgres:3.0.23` | `users`, incremental, append | Passed: 100 records; the second run read 0 new records and kept 100 rows |
+| `airbyte/source-postgres:3.8.7` | `airbyte/destination-postgres:3.0.23` | `public.cities`, incremental on `id`, append | Passed: 250 records; the second run re-read the row at the cursor (251 rows, at-least-once delivery) |
+| `airbyte/source-faker:6.2.38` | `airbyte/destination-postgres:3.0.23` | `users`, full refresh, overwrite | First run passed (100 rows); the repeat run read 0 records and left the table empty, see known issues |
+
+The matrix is produced by [`tests/e2e/tested_with_test.go`](https://github.com/synclet-io/synclet/blob/main/tests/e2e/tested_with_test.go), an opt-in end-to-end test. To regenerate it, run `task e2e:tested-with` with `E2E_DATABASE_URL` pointing at a PostgreSQL that connector containers can reach through `TESTED_WITH_PG_HOST` (default `host.docker.internal`); the test logs one `TESTED-WITH` line per run.
+
+CI also runs the end-to-end suite on every push to `main` and every pull request, with Synclet's own protocol test connectors: full refresh, incremental state across runs, several streams and a failing connector, on the Docker executor.
+
+### Known issues
+
+The failing pairs below were found in a manual run on 2026-10-18 and are not part of the test yet.
+
+- **Full refresh after a stateful run:** Synclet passes the saved stream state to a full-refresh stream on the next run, so a source that honours state in full refresh (`source-faker`) reads nothing and an overwrite destination empties the table.
+- **`ghcr.io/synclet-io/connectors/source-postgres:0.2.0` to `airbyte/destination-postgres` 3.0.23 and 3.0.12:** the destination fails with `sourceStats must be set with recordCount for state message`; Synclet does not add `sourceStats` to state messages.
+- **`airbyte/source-faker:6.2.38` to `airbyte/destination-dev-null:0.7.24`:** the destination fails on a stream status trace message it receives (`AirbyteStreamStatusTraceMessage ... status is null`).
+- **`airbyte/destination-duckdb:0.6.0`:** needs a writable `/local` mount, which Synclet does not provide to connector containers.
+
+Report a connector that works or fails in [GitHub issues](https://github.com/synclet-io/synclet/issues) with its image and version.
 
 ## Configuring Streams
 

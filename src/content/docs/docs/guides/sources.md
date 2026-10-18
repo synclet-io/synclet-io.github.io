@@ -3,7 +3,7 @@ title: Managing Sources
 description: Add, configure, test, and manage data sources.
 ---
 
-Sources are where your data comes from. Synclet uses Airbyte-compatible connectors to pull data from databases, SaaS APIs, file systems, and more.
+Sources are where your data comes from. Synclet uses connectors that implement the Airbyte Protocol to pull data from databases, SaaS APIs, file systems, and more.
 
 ## What is a Source?
 

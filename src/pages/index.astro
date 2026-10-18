@@ -4,7 +4,7 @@ import Base from "../layouts/Base.astro";
 
 <Base
   title="Synclet — Lightweight Data Sync"
-  description="Self-hosted data synchronization. Compatible with 300+ Airbyte connectors. One binary, zero bloat."
+  description="Run Airbyte connectors without Airbyte: one Go binary, one PostgreSQL. Self-hosted data sync for connectors that implement the Airbyte Protocol."
 >
   <!-- Nav -->
   <nav class="fixed top-0 inset-x-0 z-50 border-b border-surface-800/60 bg-surface-950/80 backdrop-blur-lg">
@@ -48,9 +48,9 @@ import Base from "../layouts/Base.astro";
           <span class="text-primary-400">just works</span>
         </h1>
         <p class="mt-6 text-lg sm:text-xl text-surface-400 max-w-2xl mx-auto leading-relaxed">
-          Self-hosted data synchronization platform. One Go binary, compatible with
-          <strong class="text-surface-200">300+ Airbyte connectors</strong>, built for teams that
-          value simplicity.
+          Run Airbyte connectors without Airbyte. Synclet is a self-hosted control plane for
+          <strong class="text-surface-200">connectors that implement the Airbyte Protocol</strong>:
+          one Go binary and one PostgreSQL, built for teams that value simplicity.
         </p>
         <div class="mt-10 flex flex-col sm:flex-row items-center justify-center gap-4">
           <a
@@ -89,8 +89,8 @@ import Base from "../layouts/Base.astro";
                 <path stroke-linecap="round" stroke-linejoin="round" d="M13.5 16.875h3.375m0 0h3.375m-3.375 0V13.5m0 3.375v3.375M6 10.5h2.25a2.25 2.25 0 0 0 2.25-2.25V6a2.25 2.25 0 0 0-2.25-2.25H6A2.25 2.25 0 0 0 3.75 6v2.25A2.25 2.25 0 0 0 6 10.5Zm0 9.75h2.25A2.25 2.25 0 0 0 10.5 18v-2.25a2.25 2.25 0 0 0-2.25-2.25H6a2.25 2.25 0 0 0-2.25 2.25V18A2.25 2.25 0 0 0 6 20.25Zm9.75-9.75H18a2.25 2.25 0 0 0 2.25-2.25V6A2.25 2.25 0 0 0 18 3.75h-2.25A2.25 2.25 0 0 0 13.5 6v2.25a2.25 2.25 0 0 0 2.25 2.25Z" />
               </svg>
             </div>
-            <h3 class="text-lg font-semibold text-white">300+ Connectors</h3>
-            <p class="mt-2 text-sm text-surface-400 leading-relaxed">Drop-in compatible with the Airbyte connector ecosystem. MySQL, Postgres, BigQuery, Snowflake, Sheets, and hundreds more.</p>
+            <h3 class="text-lg font-semibold text-white">Airbyte Protocol connectors</h3>
+            <p class="mt-2 text-sm text-surface-400 leading-relaxed">Runs Docker images that implement the Airbyte Protocol, plus Synclet's own Go connectors. A public matrix lists the connectors and versions tested.</p>
           </div>
           <!-- Feature 2 -->
           <div class="group rounded-2xl border border-surface-800 bg-surface-900/50 p-6 hover:border-surface-700 transition-colors">
@@ -156,12 +156,12 @@ import Base from "../layouts/Base.astro";
           <div class="text-center">
             <div class="mx-auto mb-5 flex size-12 items-center justify-center rounded-full bg-primary-600/10 text-primary-400 text-lg font-bold ring-1 ring-primary-600/30">1</div>
             <h3 class="text-lg font-semibold text-white">Configure Source</h3>
-            <p class="mt-2 text-sm text-surface-400">Pick from 300+ connectors. Credentials are tested and encrypted at rest.</p>
+            <p class="mt-2 text-sm text-surface-400">Pick a source connector from a registry. Credentials are tested and encrypted at rest.</p>
           </div>
           <div class="text-center">
             <div class="mx-auto mb-5 flex size-12 items-center justify-center rounded-full bg-primary-600/10 text-primary-400 text-lg font-bold ring-1 ring-primary-600/30">2</div>
             <h3 class="text-lg font-semibold text-white">Pick Destination</h3>
-            <p class="mt-2 text-sm text-surface-400">BigQuery, Snowflake, Postgres, Google Sheets, or any Airbyte destination.</p>
+            <p class="mt-2 text-sm text-surface-400">Postgres, BigQuery, Google Sheets or another destination that implements the Airbyte Protocol.</p>
           </div>
           <div class="text-center">
             <div class="mx-auto mb-5 flex size-12 items-center justify-center rounded-full bg-primary-600/10 text-primary-400 text-lg font-bold ring-1 ring-primary-600/30">3</div>
@@ -201,42 +201,29 @@ import Base from "../layouts/Base.astro";
       </div>
     </section>
 
-    <!-- Airbyte compat callout -->
+    <!-- Airbyte Protocol callout -->
     <section class="py-20 sm:py-28 border-t border-surface-800/60">
       <div class="mx-auto max-w-4xl px-6 text-center">
         <h2 class="text-3xl sm:text-4xl font-bold text-white">
-          Full Airbyte protocol compatibility
+          Built on the Airbyte Protocol
         </h2>
         <p class="mt-6 text-lg text-surface-400 max-w-2xl mx-auto leading-relaxed">
-          Synclet implements the Airbyte connector protocol natively. Use any Docker-based Airbyte
-          source or destination — no forks, no patches. Plus built-in native Go connectors for
-          extra performance.
+          Synclet runs connectors that implement the Airbyte Protocol as Docker containers or
+          Kubernetes pods, without forks or patches. Connector images keep their own licenses:
+          most Airbyte connectors are ELv2 since 2025-07-22.
         </p>
-        <div class="mt-10 flex flex-wrap items-center justify-center gap-x-8 gap-y-4 text-surface-500">
-          <span class="flex items-center gap-2 text-sm">
-            <svg class="size-4 text-emerald-400" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="m4.5 12.75 6 6 9-13.5" /></svg>
-            MySQL
-          </span>
-          <span class="flex items-center gap-2 text-sm">
-            <svg class="size-4 text-emerald-400" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="m4.5 12.75 6 6 9-13.5" /></svg>
-            PostgreSQL
-          </span>
-          <span class="flex items-center gap-2 text-sm">
-            <svg class="size-4 text-emerald-400" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="m4.5 12.75 6 6 9-13.5" /></svg>
-            BigQuery
-          </span>
-          <span class="flex items-center gap-2 text-sm">
-            <svg class="size-4 text-emerald-400" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="m4.5 12.75 6 6 9-13.5" /></svg>
-            Snowflake
-          </span>
-          <span class="flex items-center gap-2 text-sm">
-            <svg class="size-4 text-emerald-400" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="m4.5 12.75 6 6 9-13.5" /></svg>
-            Google Sheets
-          </span>
-          <span class="flex items-center gap-2 text-sm">
-            <svg class="size-4 text-emerald-400" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="m4.5 12.75 6 6 9-13.5" /></svg>
-            300+ more
-          </span>
+        <p class="mt-8 text-sm font-medium text-surface-300">Tested end to end</p>
+        <div class="mt-4 flex flex-wrap items-center justify-center gap-x-8 gap-y-4 text-surface-500">
+          {["airbyte/source-faker 6.2.38", "airbyte/source-postgres 3.8.7", "airbyte/destination-postgres 3.0.23"].map((name) => (
+            <span class="flex items-center gap-2 text-sm font-mono">
+              <svg class="size-4 text-emerald-400" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" d="m4.5 12.75 6 6 9-13.5" /></svg>
+              {name}
+            </span>
+          ))}
+        </div>
+        <div class="mt-8 flex flex-wrap items-center justify-center gap-6 text-sm">
+          <a href={`${import.meta.env.BASE_URL}/docs/concepts/connectors/#tested-with`} class="text-primary-400 hover:text-primary-300 transition-colors">Tested-with matrix and known issues</a>
+          <a href={`${import.meta.env.BASE_URL}/docs/reference/connector-licenses/`} class="text-primary-400 hover:text-primary-300 transition-colors">Connector licenses</a>
         </div>
       </div>
     </section>
@@ -245,11 +232,16 @@ import Base from "../layouts/Base.astro";
   <!-- Footer -->
   <footer class="border-t border-surface-800/60 py-10">
     <div class="mx-auto max-w-6xl px-6 flex flex-col sm:flex-row items-center justify-between gap-4">
-      <p class="text-sm text-surface-500">&copy; 2026 Synclet. MIT License.</p>
+      <div class="text-center sm:text-left">
+        <p class="text-sm text-surface-500">&copy; 2026 Synclet. MIT License.</p>
+        <p class="mt-1 text-xs text-surface-500">Airbyte is a trademark of Airbyte, Inc. Synclet is not affiliated with, endorsed by or sponsored by Airbyte, Inc.</p>
+      </div>
       <div class="flex items-center gap-6">
         <a href="https://github.com/synclet-io/synclet" target="_blank" rel="noopener noreferrer" class="text-sm text-surface-500 hover:text-surface-300 transition-colors">GitHub</a>
         <a href="https://github.com/synclet-io/synclet/issues" target="_blank" rel="noopener noreferrer" class="text-sm text-surface-500 hover:text-surface-300 transition-colors">Issues</a>
         <a href="https://github.com/synclet-io/synclet/releases" target="_blank" rel="noopener noreferrer" class="text-sm text-surface-500 hover:text-surface-300 transition-colors">Releases</a>
+        <a href="https://github.com/synclet-io/synclet/blob/main/ROADMAP.md" target="_blank" rel="noopener noreferrer" class="text-sm text-surface-500 hover:text-surface-300 transition-colors">Roadmap</a>
+        <a href={`${import.meta.env.BASE_URL}/docs/reference/connector-licenses/`} class="text-sm text-surface-500 hover:text-surface-300 transition-colors">Connector licenses</a>
       </div>
     </div>
   </footer>

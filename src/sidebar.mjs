@@ -45,6 +45,7 @@ export const sidebar = [
       { label: 'CLI', slug: 'docs/reference/cli' },
       { label: 'Environment Variables', slug: 'docs/reference/environment-variables' },
       { label: 'Troubleshooting', slug: 'docs/reference/troubleshooting' },
+      { label: 'Connector Licenses', slug: 'docs/reference/connector-licenses' },
       { label: 'FAQ', slug: 'docs/reference/faq' },
     ],
   },

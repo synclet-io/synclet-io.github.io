@@ -7,10 +7,10 @@ description: Frequently asked questions.
 
 ### How does Synclet compare to Airbyte?
 
-Synclet is a lightweight, self-hosted alternative to Airbyte. Key differences:
+Synclet is a lightweight, self-hosted control plane for connectors that implement the Airbyte Protocol. Key differences from the Airbyte platform:
 
 - **Single binary** -- Synclet is one Go binary. No Java, no multi-container orchestration.
-- **Airbyte connector compatibility** -- Synclet runs any Airbyte-protocol connector (Docker images), so you get access to the same connector catalog.
+- **Airbyte Protocol connectors** -- Synclet runs connector images that implement the Airbyte Protocol; the pairs tested, with versions, are listed under [Tested with](/synclet-site/docs/concepts/connectors/#tested-with).
 - **Simpler operations** -- One container (or binary) plus PostgreSQL. No Temporal, no MinIO, no separate scheduler service.
 - **Fewer enterprise features** -- Synclet focuses on reliable data movement. It does not include a connector builder, dbt integration, or multi-tenant SaaS features.
 
@@ -29,6 +29,10 @@ Yes. Any Docker image that implements the [Airbyte connector protocol](https://d
 - Point Synclet at a custom Docker registry.
 - Reference any image by its full name (e.g., `my-registry.example.com/my-connector:v1.0`).
 - Build your own connectors using the Airbyte CDK or any language, as long as the image speaks the protocol.
+
+### Which licenses do the connectors have?
+
+Synclet is MIT; connector images keep their own licenses. Most Airbyte connectors are under ELv2 since 2025-07-22 and 51 remain MIT. See [Connector licenses](/synclet-site/docs/reference/connector-licenses/).
 
 ## Security
 
@@ -79,7 +83,7 @@ This means:
 
 ### Which Airbyte connector versions are supported?
 
-Synclet supports connectors that implement **Airbyte protocol v1**. This covers the vast majority of connectors in the Airbyte catalog.
+Synclet supports connectors that implement **Airbyte Protocol v1**. The connectors and versions tested, and the known issues, are listed under [Tested with](/synclet-site/docs/concepts/connectors/#tested-with).
 
 Connector versions are pinned per source/destination in your configuration. Synclet does not auto-upgrade connector images. To update a connector, change the image tag in the source or destination settings.
 

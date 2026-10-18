@@ -26,6 +26,9 @@ export default defineConfig({
         { icon: 'github', label: 'GitHub', href: 'https://github.com/synclet-io/synclet' },
       ],
       customCss: ['./src/styles/starlight.css'],
+      components: {
+        Footer: './src/components/Footer.astro',
+      },
       head: GOATCOUNTER_CODE
         ? [
             {
