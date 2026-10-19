@@ -177,7 +177,7 @@ curl -s http://localhost:8081/metrics
 
 ### Kubernetes ServiceMonitor
 
-With the Prometheus Operator, let the Helm chart create the `ServiceMonitor`. It scrapes `/metrics` on the internal Service port:
+With the Prometheus Operator, let the Helm chart create the `ServiceMonitor` instead of writing one by hand. `server.serviceMonitor.enabled` scrapes `/metrics` on the internal Service port, and `labels` go on the `ServiceMonitor` so your Prometheus selects it:
 
 ```yaml
 server:
@@ -186,6 +186,16 @@ server:
     interval: 30s
     labels:
       release: prometheus   # match your Prometheus selector
+```
+
+In distributed mode the executor pods serve their own metrics. `executor.serviceMonitor.enabled` adds a metrics Service and a `ServiceMonitor` for them, with the same keys (`interval`, `scrapeTimeout`, `path`, `port`, `labels`, `annotations`):
+
+```yaml
+executor:
+  serviceMonitor:
+    enabled: true
+    labels:
+      release: prometheus
 ```
 
 ## Health Endpoints
