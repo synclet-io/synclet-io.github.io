@@ -217,6 +217,7 @@ You can configure multiple providers by adding slugs to `AUTH_OIDC_PROVIDERS` (e
 | `DOCKER_EXECUTOR_HEARTBEAT_INTERVAL` | How often a running sync sends a heartbeat. | `5s` |
 | `DOCKER_EXECUTOR_JOB_RESOURCE_CLEANUP_INTERVAL` | How often orphaned containers are removed. | `5m` |
 | `DOCKER_EXECUTOR_TEMP_DIR_ROOT` | Scratch directory for connector config, catalog and state. Leave empty when running the binary natively (the OS temp dir is used). When Synclet runs in a container that talks to the host `docker.sock`, set it to a host-bind-mounted path that is identical inside and outside the container. | *empty* |
+| `DOCKER_EXECUTOR_LOCAL_ROOT` | Host directory mounted at `/local` in every connector container, where [file-writing destinations](/synclet-site/docs/concepts/connectors/#files-written-by-destinations) leave their files. Shared by all jobs and never cleaned. Empty gives each job its own `/local`, removed with the job. Like `DOCKER_EXECUTOR_TEMP_DIR_ROOT`, a containerised Synclet needs it mounted at the same path from the host. | *empty* |
 
 ## Kubernetes Executor
 
@@ -227,6 +228,7 @@ Used by `synclet k8s-executor`, and by `synclet server --standalone` inside a po
 | `K8S_EXECUTOR_NAMESPACE` | Namespace for connector pods. | *empty* |
 | `K8S_EXECUTOR_KUBECONFIG` | Kubeconfig path; empty uses the in-cluster config. | *empty* |
 | `K8S_EXECUTOR_IMAGE_PULL_SECRET` | Image pull secret for private registries. | *empty* |
+| `K8S_EXECUTOR_LOCAL_VOLUME_CLAIM` | Existing PersistentVolumeClaim mounted at `/local` in the connector containers, where [file-writing destinations](/synclet-site/docs/concepts/connectors/#files-written-by-destinations) leave their files (Helm: `k8s.localVolume`). Empty mounts a per-pod `emptyDir`. | *empty* |
 | `K8S_EXECUTOR_SYNCLET_IMAGE` | Synclet image of the orchestrator container in sync pods. | *empty* |
 | `K8S_EXECUTOR_SERVER_ADDR` | Internal server address the orchestrator containers call. | *empty* |
 | `K8S_EXECUTOR_DEFAULT_MEMORY` | Default memory of sync pods. | `2Gi` |

@@ -109,6 +109,13 @@ When running Docker-based connectors, Synclet manages the container lifecycle au
 - **Stale cleanup** — A background process checks for stale or orphaned containers every **5 minutes** and removes them.
 - **Graceful shutdown** — When a sync is cancelled, Synclet sends `SIGTERM` to the container and waits up to **30 seconds** before forcing termination.
 
+### Files written by destinations
+
+Destinations that write files, such as `destination-duckdb`, `destination-csv`, `destination-local-json` and `destination-sqlite`, write under `/local` inside the connector container, as on the Airbyte platform. Where the files end up depends on the executor:
+
+- **Docker** — Set `DOCKER_EXECUTOR_LOCAL_ROOT` to a host directory. It is mounted at `/local` in every connector container, so a destination path of `/local/x.duckdb` lands at `<root>/x.duckdb` on the host. The directory is shared by all jobs and connectors and never cleaned; give each connection its own file name in the destination's config. The directory must be writable by the connector images' user: a root Synclet creates is made `1777` (world-writable and sticky, like `/tmp`, so users cannot remove each other's files), and an existing one keeps its permissions, with a warning at startup when it is not writable by others. The `docker-compose.yml` quickstart sets it to `/tmp/synclet_local` on the host and makes it `1777`. Unset, each job gets its own `/local`, removed with the job, and the files are lost.
+- **Kubernetes** — Set the Helm value `k8s.localVolume` to the name of an existing PersistentVolumeClaim (the executor reads it as `K8S_EXECUTOR_LOCAL_VOLUME_CLAIM`). The claim is mounted at `/local` in the connector containers and the files land on that volume. Connector pods can run on several nodes at once, so the claim needs `ReadWriteMany` unless they all run on one node, and it must be writable by the connector image's user. Unset, each pod gets an `emptyDir`, removed with the pod.
+
 ## Next Steps
 
 - [Sync Modes](/synclet-site/docs/concepts/sync-modes/) — Understand how data is read from sources and written to destinations.
