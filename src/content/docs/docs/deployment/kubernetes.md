@@ -145,6 +145,7 @@ Make sure [cert-manager](https://cert-manager.io/) is installed in your cluster.
 | `server.gateway.hostnames` | Hostnames the route matches; empty matches every hostname of the listener | `[]` |
 | `server.gateway.paths` | Path matches (`type`, `value`) | `PathPrefix /` |
 | `server.gateway.tls` | The Gateway listener terminates TLS; makes the derived public URL `https` | `false` |
+| `server.gateway.timeouts.request`, `server.gateway.timeouts.backendRequest` | Timeouts of the route's rule (e.g. `300s`). Gateways default to short ones (Envoy: 15s) that a connector check, spec or discover pulling its image can exceed; `backendRequest` must not exceed `request` | Gateway default |
 | `server.gateway.labels`, `server.gateway.annotations` | Extra metadata on the route | `{}` |
 | `server.publicUrl` | URL users reach Synclet at; default for `frontend.url` (invite links) and `oidc.callbackBaseURL` | empty |
 
