@@ -77,6 +77,11 @@ helm upgrade synclet oci://ghcr.io/synclet-io/charts/synclet -f values.yaml -n s
 | `pipeline.serviceAccount.create` | Separate connector pod account | `false` |
 | `logArchive.backend` | Job log archive: `none`, `filesystem`, `s3`, `gcs` | `none` |
 | `logArchive.garage.enabled` | Run the bundled Garage S3 store | `false` |
+| `cors.*` | CORS of the public API, see [CORS](#cors) | server defaults |
+| `corsAllowAllOrigins` | Deprecated alias of `cors.allowAllOrigins` | unset |
+| `extraEnv` | Env vars for every Synclet container, see [Extra environment variables](#extra-environment-variables) | `[]` |
+| `server.extraEnv`, `jobs.extraEnv`, `executor.extraEnv` | Env vars for one component, applied after `extraEnv` | `[]` |
+| `server.extraEnvFrom`, `jobs.extraEnvFrom`, `executor.extraEnvFrom` | Extra `envFrom` sources (ConfigMap or Secret) | `[]` |
 
 ## Standalone vs Distributed
 
@@ -226,6 +231,53 @@ kubectl delete namespace <gateway-namespace>
 kubectl patch gatewayclass <class> --type merge -p '{"metadata":{"finalizers":null}}'
 # CRDs, only when nothing else in the cluster uses them (Gateway API CRDs are shared):
 kubectl get crd -o name | grep -E '\.gateway\.envoyproxy\.io$' | xargs kubectl delete
+```
+
+## CORS
+
+The `cors` block configures CORS on the public API (`PUBLIC_HTTP_SERVER_CORS_*`). The chart renders only the keys you set; the others keep the server defaults.
+
+| Value | Description | Server default |
+|---|---|---|
+| `cors.allowAllOrigins` | Accept every origin | `false` |
+| `cors.allowedOrigins` | Origin hostnames to accept, without scheme or port | `[]` |
+| `cors.allowedOriginGlobs` | Hostname globs; `*` matches one dot-separated label | `[]` |
+| `cors.allowedMethods` | Methods allowed in preflight requests | `GET`, `POST`, `HEAD` |
+| `cors.allowedHeaders` | Request headers allowed in preflight requests | `["*"]` |
+| `cors.exposedHeaders` | Response headers exposed to the browser | `[]` |
+| `cors.allowCredentials` | Allow cookies and other credentials | `false` |
+| `cors.allowPrivateNetwork` | Answer Private Network Access preflights | `false` |
+| `cors.maxAge` | Seconds a browser caches a preflight response | `0` |
+
+Lists are passed to the server comma-separated, so an entry cannot contain a comma. `corsAllowAllOrigins` still works as an alias of `cors.allowAllOrigins`; when both are set, `cors.allowAllOrigins` wins.
+
+```yaml
+cors:
+  allowedOrigins: [app.example.com]
+  allowedOriginGlobs: ["*.example.com"]
+  allowCredentials: true
+  maxAge: 600
+```
+
+## Extra Environment Variables
+
+`extraEnv` adds environment variables to every Synclet container: the server, jobs and executor, and the `migrate` init containers of the server and jobs pods. The connector pods the executor launches do not get them. Entries are Kubernetes `EnvVar` objects, so both `value` and `valueFrom` work.
+
+`server.extraEnv`, `jobs.extraEnv` and `executor.extraEnv` apply to one component and come after `extraEnv`, so a component entry wins over a global entry of the same name. Both are rendered as the container's `env`, which takes precedence over `envFrom`: an entry overrides a key of the chart's ConfigMap or of an `extraEnvFrom` source.
+
+```yaml
+extraEnv:
+  - name: HTTPS_PROXY
+    valueFrom:
+      secretKeyRef:
+        name: synclet-proxy   # a proxy URL with credentials
+        key: url
+  - name: NO_PROXY
+    value: .svc,.cluster.local
+server:
+  extraEnv:
+    - name: LOG_LEVEL
+      value: debug          # overrides the chart's ConfigMap for the server only
 ```
 
 ## Health Checks
