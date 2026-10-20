@@ -328,6 +328,24 @@ A Set field that returns a timestamp is written as an RFC 3339 string with a `da
 
 `coalesce(a, b, ...)` returns the first argument that is present and not null. See [Missing Fields and Null](#missing-fields-and-null).
 
+### catch
+
+`catch(value, fallback)` returns `value`, or `fallback` when evaluating `value` fails: a conversion of a bad string, a missing field, division by zero.
+
+| Expression | Record | Result |
+|---|---|---|
+| `catch(int(r.qty), 0)` | `"qty": " asd"` | `0` |
+| `catch(int(r.qty), 0)` | `"qty": "42"` | `42` |
+| `catch(r.discount * 2, -1)` | no `discount` key | `-1` |
+| `catch(r.total / r.count, 0)` | `"count": 0` | `0` |
+| `catch(int(" asd"), 0) + 10` | any | `10` |
+
+Both arguments must have the same type: `catch(int(r.qty), "n/a")` is rejected. A null value is not an error, so `catch` returns it; use `coalesce` for nulls. An error in the fallback is not caught and fails the step.
+
+`catch` hides every error inside its first argument, including ones you did not expect. Wrap only the part that can fail: `catch(int(r.qty), 0) * r.price` rather than `catch(int(r.qty) * r.price, 0)`.
+
+The checks Synclet runs while you edit still apply inside `catch`: `catch(int(r.created_at), 0)` on a date-time field and `catch(parseTimestamp(r.day, "QQ"), now())` are rejected, because the inner call would fail on every record.
+
 ### parseTimestamp
 
 `parseTimestamp(value, format)` and `parseTimestamp(value, format, timezone)` read a string as a timestamp. The value must be a string: for an integer field write `parseTimestamp(string(r.created), "unix")`.
@@ -418,7 +436,7 @@ These depend on the values and fail only when a record is processed:
 - a list index past the end, such as `r.tags[5]`;
 - hashing or masking an object or a list.
 
-A failure is handled by the step's [on error](#on-error).
+A failure is handled by the step's [on error](#on-error), or by [`catch`](#catch) around the part that failed.
 
 When a new schema discovery makes a connection's steps invalid, for example because a field they read was removed, Synclet pauses the connection with a reason naming the stream and the step.
 
@@ -458,7 +476,7 @@ One Set step with:
 
 The new columns are not nullable, because `coalesce` ends with a value that cannot be null.
 
-To write `null` instead of failing the sync when a value cannot be computed, set the step's on error to **Write null**.
+To write a default instead of failing the sync when a value cannot be computed, wrap the part that can fail in [`catch`](#catch): `qty` = `catch(int(r.qty), 0)`. To write `null` instead, set the step's on error to **Write null**.
 
 ### Filtering Rows
 
