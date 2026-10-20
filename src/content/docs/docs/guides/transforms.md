@@ -1,6 +1,6 @@
 ---
 title: Transforms
-description: Rename, set, cast, hash, mask and filter record fields with a list of steps and CEL expressions.
+description: Rename, set, cast, hash, mask, filter and drop record fields with a list of steps and CEL expressions.
 ---
 
 Transforms change records on their way from the source to the destination. You set them per stream in the **Transform** tab of the stream's settings. The tab appears once the connection is saved.
@@ -14,7 +14,7 @@ A stream's transform is a list of steps. Synclet runs them in the router, the pa
 - After the last step, [field selection](/synclet-site/docs/guides/stream-configuration/#field-selection) is applied. Fields you did not select are still readable by the steps. Every field a step writes is kept, even if it is not selected.
 - The destination receives the schema the steps produce: renamed fields under their new names, new fields with the type their expression returns, cast fields with their new type.
 
-The tab shows three columns: the input columns of the stream, the steps, and the output columns with marks such as **new**, **renamed**, **type changed** and **dropped** (not selected and not written by any step). To drop a field, unselect it on the **Fields** tab; there is no drop step.
+The tab shows three columns: the input columns of the stream, the steps, and the output columns with marks such as **new**, **renamed**, **type changed** and **dropped** (not selected and not written by any step). A field removed by a **Drop** step is not listed at all.
 
 If a rename changes a primary key or cursor field, Synclet uses the new name. In **Append + Dedup** mode, every primary key field must be selected or written by a step.
 
@@ -28,6 +28,7 @@ If a rename changes a primary key or cursor field, Synclet uses the new name. In
 | **Hash** | Replaces values with a salted SHA-256 hex string. | fail, null, skip |
 | **Mask** | Replaces characters with `*`, keeping some at the start and end. | fail, null, skip |
 | **Filter** | Keeps only records for which an expression is true. | fail, skip |
+| **Drop** | Removes fields from the record. | Not available |
 
 ### Rename
 
@@ -76,6 +77,23 @@ One expression that must return a boolean, for example `r.status != "test"`. Rec
 In **Append + Dedup** mode (and for CDC streams) Synclet warns that "rows filtered out later stay in the destination": if a record passed the filter in an earlier sync and is filtered out now, the row written earlier is not deleted.
 :::
 
+### Drop
+
+Lists fields to remove from the record. A dropped field is not written to the destination and is not in its schema, even when it is selected on the **Fields** tab. Later steps cannot read it: `r.amount` after a drop of `amount` is rejected with `field "amount" was dropped by step 0`. A later Set step can write the name again as a new field.
+
+Drop is how you compute a value from a field without writing that field. Some sources send only the selected fields, so a field you want to read must stay selected. Select it, use it, then drop it:
+
+1. **Set** `total_cents` = `int(r.amount * 100.0)`
+2. **Drop** `amount`
+
+The destination gets `total_cents` and no `amount`.
+
+A primary key field cannot be dropped in **Append + Dedup** mode. In other modes, dropping it removes it from the primary key the destination receives.
+
+:::note
+When fields are selected, a step whose expression reads a field that is not selected gets a warning: `field "amount" is not selected; sources that honour field selection will not send it — select it and drop it after use`. Many sources send every field anyway, so this is a warning, not an error. Fields written by an earlier step do not get it.
+:::
+
 ### On Error
 
 A step fails for one record when an expression or a conversion fails on its values, for example a cast of `"n/a"` to number or `r.id / 0`. What happens then depends on the step's **On error**:
@@ -86,7 +104,7 @@ A step fails for one record when an expression or a conversion fails on its valu
 | **Write null** | The field that failed gets `null`; the record goes on. The output column becomes nullable. Not available on Filter. |
 | **Skip the record** | The record is dropped and the sync goes on. |
 
-Rename has no on error: it cannot fail on a record. On Cast, each field can set its own on error; **As the step** uses the step's value.
+Rename and Drop have no on error: they cannot fail on a record. On Cast, each field can set its own on error; **As the step** uses the step's value.
 
 ## Expressions
 
@@ -380,7 +398,7 @@ Punctuation and spaces are copied as is. Put a literal `T` in single quotes: `yy
 
 Synclet checks the steps while you edit them and again when you save. A stream whose steps have errors cannot be saved. The check catches:
 
-- a field that does not exist, or one renamed by an earlier step;
+- a field that does not exist, or one renamed or dropped by an earlier step;
 - a new field name that is empty, has leading or trailing spaces, or already exists;
 - syntax errors, unknown functions and type mismatches, such as `r.id * 1.5` or `r.version_id + "-x"`;
 - `int()`, `uint()` or `double()` of a date, time or date-time field;
@@ -388,7 +406,7 @@ Synclet checks the steps while you edit them and again when you save. A stream w
 - an unknown cast target, a `parseTimestamp` or Cast format that is not one of the [formats](#timestamp-formats), or an unknown timezone, when written as text in the step;
 - `coalesce` with one argument, mixed types or a `null` argument;
 - on error values a step does not allow;
-- primary key fields that are neither selected nor written, in Append + Dedup mode.
+- primary key fields that are neither selected nor written, or that a Drop step removes, in Append + Dedup mode.
 
 These depend on the values and fail only when a record is processed:
 
