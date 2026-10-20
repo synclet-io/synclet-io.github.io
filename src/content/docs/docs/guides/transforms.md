@@ -90,6 +90,8 @@ The destination gets `total_cents` and no `amount`.
 
 A primary key field cannot be dropped in **Append + Dedup** mode. In other modes, dropping it removes it from the primary key the destination receives.
 
+An **Incremental** stream cannot drop its cursor field, under its original name or a name a rename gave it; choose another cursor in the stream settings or keep the field. A **Full Refresh** stream can drop it.
+
 :::note
 When fields are selected, a step whose expression reads a field that is not selected gets a warning: `field "amount" is not selected; sources that honour field selection will not send it — select it and drop it after use`. Many sources send every field anyway, so this is a warning, not an error. Fields written by an earlier step do not get it.
 :::
