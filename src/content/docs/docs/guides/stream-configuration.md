@@ -53,6 +53,8 @@ Field selection is useful for:
 - Excluding sensitive columns (e.g., PII) from the destination.
 - Keeping destination schemas clean.
 
+To rename, convert, hash, mask or filter fields instead of only choosing them, use the stream's **Transform** tab. See [Transforms](/synclet-site/docs/guides/transforms/).
+
 :::caution
 If you re-enable a previously excluded field, a full refresh of that stream may be required to backfill the missing data. Synclet will prompt you if this is needed.
 :::
@@ -109,5 +111,6 @@ You can reset individual streams without affecting others in the same connection
 ## Next Steps
 
 - [Creating Connections](/synclet-site/docs/guides/connections/) — Set up a connection using these stream options.
+- [Transforms](/synclet-site/docs/guides/transforms/) — Rename, set, cast, hash, mask and filter fields.
 - [Sync Modes](/synclet-site/docs/concepts/sync-modes/) — Learn more about how each sync mode works under the hood.
 - [Scheduling & Triggers](/synclet-site/docs/guides/scheduling/) — Configure when syncs run.
