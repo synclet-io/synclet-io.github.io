@@ -171,6 +171,8 @@ Each tool takes the same JSON as the matching API request and returns the API re
 | `list_workflows`, `get_workflow`, `list_workflow_runs`, `get_workflow_run` | Workflows, their runs and step runs |
 | `get_connection_stats` | Sync statistics of a connection |
 | `get_schema_changes` | Pending schema changes of a connection |
+| `get_configured_catalog` | A connection's current stream configuration: sync modes, cursor, primary key, selected fields and mappers of each stream |
+| `get_discovered_catalog` | The streams the connection's source offers, as last discovered |
 | `list_connectors`, `get_connector_spec` | Installed connectors and their config spec |
 
 **Operational** (Editor):
@@ -185,7 +187,9 @@ Each tool takes the same JSON as the matching API request and returns the API re
 
 **Write** (Editor, only with `MCP_WRITE_TOOLS=true`):
 
-`create_source`, `update_source`, `create_destination`, `update_destination`, `create_connection`, `update_connection`, `configure_streams`, `create_workflow`, `update_workflow`, `delete_source`, `delete_destination`, `delete_connection`, `delete_workflow`.
+`create_source`, `update_source`, `create_destination`, `update_destination`, `create_connection`, `update_connection`, `configure_streams`, `configure_stream`, `create_workflow`, `update_workflow`, `delete_source`, `delete_destination`, `delete_connection`, `delete_workflow`.
+
+`configure_streams` replaces a connection's whole stream configuration: a stream left out stops syncing. To change one stream, read `get_configured_catalog`, change that stream and send every stream back. `configure_stream` does this for you: it changes or adds the one stream named by `namespace` and `stream_name`, keeps every other stream as configured, and removes the stream when called with `enabled: false`.
 
 Operational and write tools are marked as not read-only, and the deletes and edits as destructive, so clients such as Claude ask you before each call. Turn write tools off with `MCP_WRITE_TOOLS=false` (`mcp.writeTools: false` in the chart) if an assistant should only observe and operate.
 
