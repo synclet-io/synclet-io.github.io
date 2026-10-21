@@ -32,6 +32,7 @@ export const sidebar = [
       { label: 'Monitoring', slug: 'docs/guides/monitoring' },
       { label: 'Notifications', slug: 'docs/guides/notifications' },
       { label: 'Webhooks', slug: 'docs/guides/webhooks' },
+      { label: 'AI Clients (MCP)', slug: 'docs/guides/ai-clients' },
       { label: 'Managing Connectors', slug: 'docs/guides/connectors' },
       { label: 'Settings', slug: 'docs/guides/settings' },
     ],
