@@ -35,7 +35,7 @@ In a run, A syncs first. When A has succeeded, B and C start together (fan-out).
 5. For each step, check the steps it **Runs after**. A step with none starts the run. A box that would make a cycle is disabled.
 6. Click **Create workflow**.
 
-The server rejects a workflow without a name or without steps, a cycle, a connection listed twice, and a connection from another workspace. A connection can be a step of several workflows.
+The server rejects a workflow without a name or without steps, a cycle, a connection listed twice, a connection from another workspace, and a connection without [configured streams](/synclet-site/docs/guides/connections/#streams-are-required-to-run). A connection can be a step of several workflows.
 
 Adding a connection to a workflow turns off the connection's own schedule; see [Schedules](#schedules).
 
@@ -49,7 +49,7 @@ A run starts on the workflow's schedule or when an editor clicks **Run now** (or
 - A step succeeds when its job completes. It fails when its job fails after its last attempt, or is cancelled. A failed attempt that is retried keeps the step running.
 - The run ends `succeeded` when no step failed, and `failed` when at least one step failed.
 
-Only one run of a workflow is active at a time. A scheduled start while a run is still active is skipped, and the workflow waits for the next scheduled time. **Run now** and `RunWorkflow` are rejected while a run is active.
+Only one run of a workflow is active at a time. A scheduled start while a run is still active is skipped, and the workflow waits for the next scheduled time. **Run now** and `RunWorkflow` are rejected while a run is active, and when a step's connection has no configured streams; `RerunWorkflowRun` is rejected when a step it would sync again has none.
 
 ### When a Step Fails
 
@@ -60,6 +60,8 @@ A failed run sends a [notification](/synclet-site/docs/guides/notifications/#not
 ### Disabled and Paused Connections
 
 When a step is ready but its connection is not active (disabled, or [paused by Synclet](/synclet-site/docs/guides/schema-changes/#paused-by-synclet)), the step is skipped with everything downstream of it. A skipped step does not fail the run by itself: a run whose other steps all succeed ends `succeeded`.
+
+A step whose connection has lost its configured streams since the run started fails with the reason "has no configured streams", and everything downstream of it is skipped.
 
 ### Rerunning Failed Steps
 

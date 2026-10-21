@@ -173,6 +173,7 @@ Each tool takes the same JSON as the matching API request and returns the API re
 | `get_schema_changes` | Pending schema changes of a connection |
 | `get_configured_catalog` | A connection's current stream configuration: sync modes, cursor, primary key, selected fields and mappers of each stream |
 | `get_discovered_catalog` | The streams the connection's source offers, as last discovered |
+| `get_source_catalog` | The streams a source offers, as last discovered; read it before `create_connection` with `streams` |
 | `list_connectors`, `get_connector_spec` | Installed connectors and their config spec |
 
 **Operational** (Editor):
@@ -188,6 +189,8 @@ Each tool takes the same JSON as the matching API request and returns the API re
 **Write** (Editor, only with `MCP_WRITE_TOOLS=true`):
 
 `create_source`, `update_source`, `create_destination`, `update_destination`, `create_connection`, `update_connection`, `configure_streams`, `configure_stream`, `create_workflow`, `update_workflow`, `delete_source`, `delete_destination`, `delete_connection`, `delete_workflow`.
+
+`create_connection` takes `streams`, in the shape `configure_streams` takes, and configures them in the same call. Read the stream names with `get_source_catalog`. A connection without a configured stream cannot sync, run in a workflow or be added to one. If the source's catalog is not discovered yet, a call with streams fails and creates nothing: retry once discovery finishes.
 
 `configure_streams` replaces a connection's whole stream configuration: a stream left out stops syncing. To change one stream, read `get_configured_catalog`, change that stream and send every stream back. `configure_stream` does this for you: it changes or adds the one stream named by `namespace` and `stream_name`, keeps every other stream as configured, and removes the stream when called with `enabled: false`.
 

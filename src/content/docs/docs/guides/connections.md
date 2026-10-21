@@ -30,6 +30,10 @@ Each connection maintains its own sync state, job history, and health status.
 7. **Review** — Check the summary and add [tags](#tags) if you want.
 8. **Create** — Click **Create Connection**. The connection is created in an active, enabled state.
 
+### Streams Are Required to Run
+
+A connection syncs only once at least one of its streams is configured. A connection created without streams (through the API, or when you skip the stream step) shows **Streams not configured** in the connection list and header, with a link to its stream settings, and **Sync Now** is disabled until you save at least one stream. The scheduler skips it, a workflow cannot list it as a step, and `TriggerSync`, `RunWorkflow` and `RerunWorkflowRun` fail with `failed_precondition`. Saving an empty stream list is rejected: to stop a connection from syncing, disable it instead.
+
 To receive alerts when syncs fail, create notification rules under **Settings > Notifications**. See [Notifications](/synclet-site/docs/guides/notifications/).
 
 :::tip
@@ -40,7 +44,7 @@ Start with a manual schedule and run a test sync before enabling a cron schedule
 
 ### Manual Sync
 
-Click the **Sync Now** button on any connection to trigger an immediate sync. This works regardless of whether the connection has a cron schedule.
+Click the **Sync Now** button on any connection to trigger an immediate sync. This works regardless of whether the connection has a cron schedule, as long as it has [configured streams](#streams-are-required-to-run).
 
 ### Scheduled Sync
 

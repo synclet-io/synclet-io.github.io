@@ -126,7 +126,7 @@ A failed call returns a non-200 status and a JSON body:
 | `not_found` | 404 | The ID doesn't exist or belongs to another workspace. |
 | `invalid_argument` | 400 | Malformed ID, missing or invalid field. Also "connection already has an active job" from `TriggerSync`. |
 | `already_exists` | 409 | A resource with that name already exists. |
-| `failed_precondition` | 400 | The resource is in use, the connector has no cached spec, or a workflow has an active run. |
+| `failed_precondition` | 400 | The resource is in use, the connector has no cached spec, a workflow has an active run, a connection to run has no configured streams, or streams were given before the source's catalog is discovered. |
 | `resource_exhausted` | 429 | Rate limit exceeded (see below). |
 | `internal` | 500 | Server-side failure. The details are in the server log, not the response. |
 
@@ -227,7 +227,7 @@ Exceeding a limit returns `resource_exhausted`. Behind a reverse proxy, set `RAT
 
 | RPC | Description | Access |
 |---|---|---|
-| `CreateConnection` | Create a connection between a source and a destination. | Editor |
+| `CreateConnection` | Create a connection between a source and a destination. `streams` configures its streams in the same call, as `ConfigureStreams` does; before the source's catalog is discovered that fails with `failed_precondition` and creates nothing. A connection without configured streams cannot run (`streams_configured` is false). | Editor |
 | `UpdateConnection` | Update schedule, namespace, retries, tags and other settings. A schedule on a connection that is a workflow step is rejected. | Editor |
 | `DeleteConnection` | Delete a connection. Fails with `failed_precondition` while it is a workflow step. | Editor |
 | `GetConnection` | Get a connection, with the workflows it is a step of in `workflows`. | Viewer |
@@ -236,7 +236,7 @@ Exceeding a limit returns `resource_exhausted`. Behind a reverse proxy, set `RAT
 | `EnableConnection` | Activate a connection's schedule. | Editor |
 | `DisableConnection` | Deactivate a connection. | Editor |
 | `DiscoverSchema` | Start schema discovery for the connection's source. | Editor |
-| `ConfigureStreams` | Save the selected streams, sync modes and mappers. | Editor |
+| `ConfigureStreams` | Save the selected streams, sync modes and mappers. An empty list is rejected with `invalid_argument`. | Editor |
 | `GetDiscoveredCatalog` | Get the latest discovered catalog. | Viewer |
 | `GetConfiguredCatalog` | Get the saved stream configuration. | Viewer |
 | `ValidateMappers` | Compile unsaved mappers, optionally against a sample record. | Viewer |
@@ -256,7 +256,7 @@ Exceeding a limit returns `resource_exhausted`. Behind a reverse proxy, set `RAT
 
 | RPC | Description | Access |
 |---|---|---|
-| `TriggerSync` | Queue a sync job for a connection. | Editor |
+| `TriggerSync` | Queue a sync job for a connection. Fails with `failed_precondition` when the connection has no configured streams. | Editor |
 | `CancelJob` | Cancel a scheduled or running job. | Editor |
 | `GetJob` | Get a job with its attempts. | Viewer |
 | `ListJobs` | List jobs, filtered by connection and status. | Viewer |
