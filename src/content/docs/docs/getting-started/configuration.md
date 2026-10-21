@@ -25,7 +25,7 @@ Outside local development Synclet refuses to start without these two variables.
 Generate either with `openssl rand -base64 32`.
 
 :::tip
-Run `synclet generate dotenv` to dump every available environment variable (with its current default) to a `.env` file — handy as a starting template.
+Run `synclet generate dotenv` to append every available environment variable missing from `.env` (with its default) — handy as a starting template.
 :::
 
 ## Sync Behavior
@@ -42,12 +42,13 @@ Control how Synclet schedules and runs sync jobs.
 
 ## Email Notifications
 
-To enable email notifications for sync failures and completions, configure an SMTP server.
+To enable email notifications for sync failures, configure an SMTP server.
 
 | Variable | Description |
 |---|---|
 | `NOTIFY_SMTP_HOST` | SMTP server hostname (e.g., `smtp.gmail.com`). |
-| `NOTIFY_SMTP_PORT` | SMTP server port. Defaults to `587`. |
+| `NOTIFY_SMTP_PORT` | SMTP server port. Defaults to `465`. |
+| `NOTIFY_SMTP_TLS` | `implicit` (default, TLS from the first byte, port 465), `starttls` (usually port 587), or `none`. |
 | `NOTIFY_SMTP_USER` | SMTP authentication username. |
 | `NOTIFY_SMTP_PASSWORD` | SMTP authentication password or app-specific password. |
 | `NOTIFY_SMTP_FROM` | Sender email address. Defaults to `noreply@synclet.io`. |

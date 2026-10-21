@@ -63,20 +63,20 @@ When a sync fails, Synclet can automatically retry it based on the connection's 
 
 ### Configuration
 
-Each connection has two retry settings:
+Each connection has one retry setting:
 
 | Setting | Description |
 |---|---|
 | **Max Attempts** | The maximum number of attempts for a sync job (including the initial attempt). Set to 1 to disable retries. |
-| **Retry Delay (minutes)** | The fixed delay in minutes between retry attempts. |
+
+There is no delay or backoff between attempts yet: a failed attempt is rescheduled right away.
 
 ### How Retries Work
 
 1. A sync job fails (connector error, timeout, network issue).
-2. Synclet waits for the configured retry delay.
-3. A new attempt is created within the same job.
-4. If the attempt succeeds, the job is marked as completed.
-5. If all attempts are exhausted, the job is marked as failed and notifications are sent.
+2. A new attempt is scheduled immediately within the same job. A connector that exits with code 137 (out of memory), 139 (segfault) or 143 (SIGTERM) stops the retries.
+3. If the attempt succeeds, the job is marked as completed.
+4. If all attempts are exhausted, the job is marked as failed and notifications are sent.
 
 Each attempt is recorded separately in the job history, so you can see exactly what happened on each try.
 

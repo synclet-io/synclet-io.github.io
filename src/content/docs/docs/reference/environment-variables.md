@@ -1,6 +1,6 @@
 ---
 title: Environment Variables
-description: Every environment variable Synclet 0.5 reads, grouped by area, with defaults.
+description: Every environment variable Synclet reads, grouped by area, with defaults.
 ---
 
 Synclet is configured entirely through environment variables. Set them in your shell, a `.env` file, Docker Compose, or Kubernetes Secrets. Every command also accepts `--dotenv <file>` (repeatable) to load environment files first.
@@ -103,7 +103,7 @@ Email is disabled while `NOTIFY_SMTP_HOST` is empty; the "Forgot password?" link
 | Variable | Description | Default |
 |---|---|---|
 | `NOTIFY_SMTP_HOST` | SMTP server hostname. | *empty* |
-| `NOTIFY_SMTP_PORT` | SMTP server port. | `587` |
+| `NOTIFY_SMTP_PORT` | SMTP server port. Port `587` usually needs `NOTIFY_SMTP_TLS=starttls`. | `465` |
 | `NOTIFY_SMTP_TLS` | `implicit` (TLS from the first byte), `starttls`, or `none` (plain text, for local catchers such as Mailpit). | `implicit` |
 | `NOTIFY_SMTP_USER` | SMTP username. | *empty* |
 | `NOTIFY_SMTP_PASSWORD` | SMTP password. | *empty* |
@@ -119,6 +119,7 @@ Email is disabled while `NOTIFY_SMTP_HOST` is empty; the "Forgot password?" link
 | `PIPELINE_IDLE_TIMEOUT` | Cancel a sync that receives no records for this long. | `10m` |
 | `PIPELINE_DEFAULT_MAX_ATTEMPTS` | Attempts per sync job before it fails. | `3` |
 | `PIPELINE_HEARTBEAT_TIMEOUT` | A running job without a heartbeat for this long is treated as lost. | `30s` |
+| `PIPELINE_EXECUTOR_SILENCE_TIMEOUT` | How long an executor stays listed after its last registration heartbeat. | `60s` |
 | `PIPELINE_CONNECTION_CHECK_TIMEOUT` | Timeout of a connection check. | `2m` |
 | `PIPELINE_REGISTRY_FETCH_TIMEOUT` | Timeout for fetching a connector registry. | `60s` |
 | `PIPELINE_EVENT_EMIT_TIMEOUT` | Timeout for publishing a pipeline event. | `30s` |
@@ -220,6 +221,7 @@ The role variables (`ROLE_CLAIM`, `ROLE_MAP_*`, `DEFAULT_ROLE`, `ROLE_SYNC`) set
 | `DOCKER_EXECUTOR_HEARTBEAT_INTERVAL` | How often a running sync sends a heartbeat. | `5s` |
 | `DOCKER_EXECUTOR_JOB_RESOURCE_CLEANUP_INTERVAL` | How often orphaned containers are removed. | `5m` |
 | `DOCKER_EXECUTOR_TEMP_DIR_ROOT` | Scratch directory for connector config, catalog and state. Leave empty when running the binary natively (the OS temp dir is used). When Synclet runs in a container that talks to the host `docker.sock`, set it to a host-bind-mounted path that is identical inside and outside the container. | *empty* |
+| `DOCKER_EXECUTOR_OWNER_ID` | Executor ID, stamped as the `synclet.io/owner` label on every connector container; orphan cleanup removes only containers carrying it. Executors sharing one Docker daemon need distinct values. | hostname |
 | `DOCKER_EXECUTOR_LOCAL_ROOT` | Host directory mounted at `/local` in every connector container, where [file-writing destinations](/synclet-site/docs/concepts/connectors/#files-written-by-destinations) leave their files. Shared by all jobs and never cleaned. Empty gives each job its own `/local`, removed with the job. Like `DOCKER_EXECUTOR_TEMP_DIR_ROOT`, a containerised Synclet needs it mounted at the same path from the host. | *empty* |
 
 ## Kubernetes Executor
@@ -238,15 +240,17 @@ Used by `synclet k8s-executor`, and by `synclet server --standalone` inside a po
 | `K8S_EXECUTOR_DEFAULT_CPU` | Default CPU of sync pods. | `1` |
 | `K8S_EXECUTOR_JOB_WORKER_INTERVAL` | How often the executor polls for pending work. | `5s` |
 | `K8S_EXECUTOR_JOB_RESOURCE_CLEANUP_INTERVAL` | How often orphaned pods are removed. | `5m` |
+| `K8S_EXECUTOR_OWNER_ID` | Executor ID, stamped as the `synclet.io/owner` label on every Job and Secret the executor creates; it reconciles only those carrying it. Executors sharing one namespace need distinct values. | hostname |
 
 ## Distributed Mode
 
-Executors started without `--standalone` reach the server over the internal API instead of the database.
+`synclet docker-executor` and `synclet k8s-executor` never open the database: they reach the server over the internal API.
 
 | Variable | Description | Default |
 |---|---|---|
 | `EXECUTOR_API_URL` | Internal server URL. | *empty* |
 | `EXECUTOR_API_TOKEN` | Token the executor presents; must match the server's `PIPELINE_EXECUTOR_API_TOKEN`. | *empty* |
+| `EXECUTOR_REGISTRATION_INTERVAL` | How often an executor reports itself (ID, type, version, capacity) to the server's executor registry. | `15s` |
 
 ## Event Bus
 

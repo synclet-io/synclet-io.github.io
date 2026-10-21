@@ -79,20 +79,20 @@ Wire this into your uptime monitor (Pingdom, UptimeRobot, etc.).
 
 ### Prometheus
 
-Synclet exposes metrics at `/metrics`. Scrape it with Prometheus:
+Synclet exposes metrics at `/metrics` on the internal port (`8081` by default). Scrape it with Prometheus:
 
 ```yaml
 scrape_configs:
   - job_name: synclet
     static_configs:
-      - targets: ["synclet:8080"]
+      - targets: ["synclet:8081"]
 ```
 
 On Kubernetes, enable the ServiceMonitor in the [Helm chart](/synclet-site/docs/deployment/kubernetes/).
 
 ### Grafana dashboards
 
-Import the bundled Grafana dashboards or build your own from the exposed metrics. Key panels to track:
+Synclet does not ship Grafana dashboards; build your own from the [exposed metrics](/synclet-site/docs/guides/monitoring/#key-metrics). Key panels to track:
 
 - Active syncs and queue depth
 - Sync duration (p50, p95, p99)

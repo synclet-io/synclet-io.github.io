@@ -45,7 +45,8 @@ First, configure the SMTP server using environment variables:
 
 ```bash
 NOTIFY_SMTP_HOST="smtp.gmail.com"
-NOTIFY_SMTP_PORT="587"
+NOTIFY_SMTP_PORT="465"
+NOTIFY_SMTP_TLS="implicit"
 NOTIFY_SMTP_USER="alerts@yourcompany.com"
 NOTIFY_SMTP_PASSWORD="your-app-password"
 NOTIFY_SMTP_FROM="noreply@yourcompany.com"

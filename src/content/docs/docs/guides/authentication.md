@@ -52,6 +52,7 @@ For each slug listed in `AUTH_OIDC_PROVIDERS`, set the following environment var
 | `AUTH_OIDC_<SLUG>_ROLE_MAP_EDITOR` | Claim value → Editor role | No |
 | `AUTH_OIDC_<SLUG>_ROLE_MAP_VIEWER` | Claim value → Viewer role | No |
 | `AUTH_OIDC_<SLUG>_ROLE_SYNC` | When the claim is applied to an existing member: `login` or `first_login` | No (defaults to `login`) |
+| `AUTH_OIDC_<SLUG>_BOUND_CLAIM_<NAME>` | Reject the login unless the ID token has claim `<NAME>` (lowercased, e.g. `..._BOUND_CLAIM_DEPARTMENT` checks `department`) equal to this value. Exact string match; repeat for several claims, all must match | No |
 
 The role settings apply in single-workspace mode only; see [Role mapping](#role-mapping).
 
@@ -149,11 +150,14 @@ API keys allow programmatic access to the Synclet API, useful for CI/CD pipeline
 
 ### Using an API Key
 
-Include the key in the `Authorization` header of your HTTP requests:
+The API is [ConnectRPC](https://connectrpc.com/): every call is a `POST` to `/<package>.<Service>/<Method>` with a JSON body. Include the key in the `Authorization` header; the key already carries its workspace:
 
 ```bash
-curl -H "Authorization: Bearer synclet_sk_your_api_key_here" \
-  https://synclet.example.com/api/v1/connections
+curl -X POST \
+  -H "Authorization: Bearer synclet_sk_your_api_key_here" \
+  -H "Content-Type: application/json" \
+  -d '{}' \
+  https://synclet.example.com/synclet.publicapi.pipeline.v1.ConnectionService/ListConnections
 ```
 
 ### Revoking an API Key

@@ -15,10 +15,11 @@ Synclet is distributed as a single binary. All operations — running the server
 | `synclet docker-executor` | Run the Docker sync executor daemon. |
 | `synclet k8s-executor` | Run the Kubernetes sync executor daemon. |
 | `synclet migrate up` | Apply all pending database migrations. |
-| `synclet migrate down` | Roll back the last applied migration. |
+| `synclet migrate down --module <name>` | Roll back the latest migration of one module (`--all` for every module). |
 | `synclet migrate status` | Show migration status. |
 | `synclet migrate create <module> <name>` | Create a new migration file. |
-| `synclet generate dotenv` | Generate a `.env` file with all available environment variables and their defaults. |
+| `synclet generate dotenv` | Append every environment variable missing from the first `--dotenv` file (`.env` by default), with its default. |
+| `synclet users reset-link --email <email>` | Print a single-use password reset link for a user. |
 
 ## Global Flags
 
@@ -64,18 +65,19 @@ synclet docker-executor
 synclet k8s-executor
 ```
 
-The `docker-executor` and `k8s-executor` commands also accept a `--standalone` flag to use direct DB access instead of connecting to the API server via RPC.
+The `docker-executor` and `k8s-executor` commands never open the database: they claim work from the API server through `EXECUTOR_API_URL` and `EXECUTOR_API_TOKEN`.
 
 ## Migrations
 
-Database migrations run automatically when the server starts. You can also run them manually:
+The server does not apply migrations when it starts. Run `migrate up` before starting it; Docker Compose runs it as the `migrate` service and the Helm chart as an init container.
 
 ```bash
 # Apply all pending migrations
 synclet migrate up
 
-# Roll back the last migration
-synclet migrate down
+# Roll back the latest migration of one module, or of every module
+synclet migrate down --module pipeline
+synclet migrate down --all
 
 # Check migration status
 synclet migrate status
@@ -84,7 +86,9 @@ synclet migrate status
 synclet migrate create auth add_api_tokens
 ```
 
-The `--module` flag can be used with `up`, `down`, and `status` to target a specific module.
+The `--module` flag can be used with `up` and `status` to target a specific module. `down` requires either `--module` or `--all`, and when `ENVIRONMENT` is not `development` it also requires `--yes` to confirm the rollback.
+
+Each module's migrations hold a Postgres advisory lock while they run, so concurrent `migrate up` runs (one per replica) take turns instead of failing.
 
 Migrations are idempotent — running `migrate up` on an already up-to-date database is a no-op.
 
@@ -92,13 +96,26 @@ Migrations are idempotent — running `migrate up` on an already up-to-date data
 
 ### `synclet generate dotenv`
 
-Generates a `.env` file containing all available environment variables with their default values. If a `.env` file already exists, new variables are appended without overwriting existing values.
+Appends every environment variable the binary reads, with its default, to the first `--dotenv` file (`.env` when none is given). Variables already set in that file are left alone; variables without a default are written commented out.
 
 Aliases: `synclet gen dotenv`, `synclet generate env`
 
 ```bash
-# Generate a .env file with all variables
+# Append missing variables to ./.env
 synclet generate dotenv
+
+# Append to another file
+synclet generate dotenv --dotenv config/synclet.env
 ```
 
 This is useful when setting up a new environment or after upgrading to discover newly added configuration options.
+
+## Users
+
+### `synclet users reset-link`
+
+Prints a password reset link for the user with the given email. The link expires in 1 hour and can be used once; issuing a new link invalidates the previous one. It works with or without SMTP configured.
+
+```bash
+synclet users reset-link --email jane@example.com
+```

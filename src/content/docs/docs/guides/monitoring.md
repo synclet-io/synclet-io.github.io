@@ -73,8 +73,7 @@ Every sync run creates a job. You can browse all jobs from the **Jobs** page in 
 You can filter the job list by:
 
 - **Connection** — Show jobs for a specific connection.
-- **Status** — Show only failed, succeeded, or running jobs.
-- **Date range** — Narrow down to a specific time period.
+- **Status** — Show only active (scheduled, starting or running), completed, failed, or cancelled jobs.
 
 Click any job to view its details.
 
@@ -169,6 +168,7 @@ curl -s http://localhost:8081/metrics
 | `synclet_bytes_synced_total` | Counter | Total bytes synced by workspace and connection. |
 | `synclet_active_syncs` | Gauge | Number of currently running syncs. |
 | `synclet_failed_syncs_total` | Counter | Total number of failed syncs by workspace and connection. |
+| `synclet_zero_record_syncs_total` | Counter | Total number of completed syncs that read zero records, by workspace and connection. Counted by the Docker executor. |
 | `synclet_pending_jobs` | Gauge | Number of pending jobs in the queue. |
 | `synclet_connector_sync_duration_seconds` | Histogram | Duration of sync operations by connector type. |
 | `synclet_log_archive_failures_total` | Counter | Job attempts whose logs failed to archive, by archive backend (`filesystem`, `s3`, `gcs`). |

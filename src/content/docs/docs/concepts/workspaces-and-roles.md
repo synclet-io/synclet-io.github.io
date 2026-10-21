@@ -26,7 +26,7 @@ Full control over the workspace. Admins can manage every aspect of data pipeline
 - Create, edit, and delete sources, destinations, and connections.
 - Trigger and cancel syncs.
 - Manage workspace members (invite, change roles, remove).
-- Configure workspace settings, API keys, and notifications.
+- Configure workspace settings, notification channels, webhooks, and connector repositories.
 
 ### Editor
 
@@ -58,10 +58,14 @@ Read-only access. Viewers can monitor pipeline status and review logs but cannot
 | Create / edit destinations | &#10003; | &#10003; | &#10007; |
 | Create / edit connections | &#10003; | &#10003; | &#10007; |
 | Trigger / cancel syncs | &#10003; | &#10003; | &#10007; |
-| Manage API keys | &#10003; | &#10007; | &#10007; |
-| Manage members | &#10003; | &#10007; | &#10007; |
-| Workspace settings | &#10003; | &#10007; | &#10007; |
-| Notification settings | &#10003; | &#10007; | &#10007; |
+| Manage connectors (add, update, delete) | &#10003; | &#10003; | &#10007; |
+| Create / edit notification rules | &#10003; | &#10003; | &#10007; |
+| Create / revoke your own API keys | &#10003; | &#10003; | &#10003; |
+| Manage members & invites | &#10003; | &#10007; | &#10007; |
+| Workspace settings, config export / import | &#10003; | &#10007; | &#10007; |
+| Connector repositories | &#10003; | &#10007; | &#10007; |
+| Notification channels & webhooks | &#10003; | &#10007; | &#10007; |
+| Audit log | &#10003; | &#10007; | &#10007; |
 
 ## Managing Members
 
@@ -70,7 +74,7 @@ Read-only access. Viewers can monitor pipeline status and review logs but cannot
 1. Navigate to **Settings > Members** in the workspace.
 2. Click **Invite Member**.
 3. Enter the user's email address and select a role (Admin, Editor, or Viewer).
-4. The user receives an email invitation. If they already have a Synclet account, the workspace appears in their workspace selector immediately. New users are prompted to create an account first.
+4. The user receives an invitation link (`/invite/<token>`). They open it, sign in with the invited email (or create an account first), and click **Accept**. The workspace appears in their workspace selector only after they accept; they can also decline.
 
 ### Changing a Role
 
@@ -87,7 +91,7 @@ Read-only access. Viewers can monitor pipeline status and review logs but cannot
 
 ## Default Workspace
 
-When you first install Synclet, the initial setup wizard creates a **default workspace** and assigns the first user as its **Admin**. This workspace is ready to use immediately — you can start adding sources, destinations, and connections right away.
+In single-workspace mode (`WORKSPACE_MODE=single`, the default), the API server creates a **default workspace** when it starts, and every user joins it on sign-up: the first user as its **Admin**, later users as **Viewer** (OIDC logins take their role from the provider's role settings). This workspace is ready to use immediately — you can start adding sources, destinations, and connections right away.
 
 Additional users can join the default workspace (if invited) or create their own workspaces. There is no limit on the number of workspaces.
 

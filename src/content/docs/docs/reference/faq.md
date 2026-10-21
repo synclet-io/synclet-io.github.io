@@ -42,7 +42,7 @@ See [Environment Variables](/synclet-site/docs/reference/environment-variables/)
 
 ### Is data encrypted in transit?
 
-Synclet itself does not terminate TLS. To encrypt traffic between users and Synclet, place a reverse proxy (Nginx, Caddy) or load balancer in front of it with a TLS certificate, or enable TLS on the [Kubernetes Ingress](/synclet-site/docs/deployment/kubernetes/).
+Synclet can serve TLS itself: set `PUBLIC_HTTP_SERVER_TLS_ENABLED=true` with `PUBLIC_HTTP_SERVER_TLS_CERT_PATH` and `PUBLIC_HTTP_SERVER_TLS_KEY_PATH` (the internal port has the same `INTERNAL_HTTP_SERVER_TLS_*` settings; see [Environment Variables](/synclet-site/docs/reference/environment-variables/#http-servers)). More often TLS is terminated by a reverse proxy (Nginx, Caddy) or load balancer in front of Synclet, or on the [Kubernetes Ingress](/synclet-site/docs/deployment/kubernetes/).
 
 Data between Synclet and your sources/destinations travels over whatever connection the connector establishes. Most database and API connectors support SSL/TLS natively through their configuration options.
 
@@ -65,7 +65,7 @@ It depends on your deployment mode and resources:
 
 In **standalone mode**, run only one instance to avoid duplicate scheduling.
 
-In **distributed mode** on Kubernetes, the API server is stateless and can be scaled horizontally. The scheduler and orchestrator run as single replicas with leader election. See [Kubernetes deployment](/synclet-site/docs/deployment/kubernetes/).
+In **distributed mode** on Kubernetes, the API server is stateless and can be scaled horizontally. There is no leader election: the scheduler takes a Postgres advisory lock on each run, so only one process schedules syncs at a time, and executors claim jobs with `SELECT ... FOR UPDATE SKIP LOCKED`, so each job is claimed once. See [Kubernetes deployment](/synclet-site/docs/deployment/kubernetes/).
 
 ### What happens if a sync is interrupted?
 
@@ -83,7 +83,7 @@ This means:
 
 Synclet supports connectors that implement **Airbyte Protocol v1**. The connectors and versions tested, and the known issues, are listed under [Tested with](/synclet-site/docs/concepts/connectors/#tested-with).
 
-Connector versions are pinned per source/destination in your configuration. Synclet does not auto-upgrade connector images. To update a connector, change the image tag in the source or destination settings.
+Connector versions are pinned per workspace connector, and every source or destination using that connector runs the same image tag. Synclet does not auto-upgrade connector images. To update, go to **Settings > Connectors**: connectors with a newer version in their repository show an **Update** button, and **Update All** updates every one of them. An update with breaking changes asks for confirmation first.
 
 ### Which databases can Synclet use as its backend?
 

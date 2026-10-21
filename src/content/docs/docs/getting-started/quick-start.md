@@ -85,8 +85,8 @@ You still need:
 # https://github.com/synclet-io/synclet/releases
 # (release tags are named `synclet-v<version>`; assets are
 # `synclet-v<version>-<os>-<arch>.tar.gz` plus a `SHA256SUMS` file.)
-tar -xzf synclet-v0.1.0-linux-amd64.tar.gz
-cd synclet-v0.1.0-linux-amd64
+tar -xzf synclet-v0.12.0-linux-amd64.tar.gz
+cd synclet-v0.12.0-linux-amd64
 
 # Only DB_DSN is strictly required — Synclet generates a key and picks defaults
 # for the rest at first boot.

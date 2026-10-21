@@ -12,12 +12,17 @@ This page covers the most common issues you may encounter when running Synclet a
 The source or destination connector could not reach the target system.
 
 - **Check credentials** -- Verify the username, password, and host in the connector configuration.
-- **Check network access** -- Ensure the Synclet host (or container) can reach the target system. Test with `curl` or `telnet` from inside the container.
+- **Check network access** -- Ensure the Synclet host (or container) can reach the target system. The Synclet image is distroless and has no shell, `curl` or `nslookup`, so test from the host or from a debug container that shares Synclet's network.
 - **Check Docker** -- Connectors run as Docker containers. Confirm Docker is running and Synclet has access to the Docker socket.
 
 ```bash
-# Test connectivity from the Synclet container
-docker exec -it synclet curl -v telnet://db.example.com:5432
+# Docker: run a debug container in the Synclet container's network namespace
+docker run --rm -it --network container:synclet nicolaka/netshoot \
+  curl -v telnet://db.example.com:5432
+
+# Kubernetes: attach an ephemeral debug container to the Synclet pod
+kubectl debug -n synclet -it <synclet-pod> --image=nicolaka/netshoot -- \
+  curl -v telnet://db.example.com:5432
 ```
 
 ### "Discovery failed"
@@ -59,7 +64,7 @@ Synclet cannot reach PostgreSQL on startup.
 Database migrations did not complete successfully.
 
 - **DDL permissions** -- The database user needs permission to create and alter tables, types, and indexes. Grant `CREATE` on the database and schema.
-- **Concurrent migrations** -- If two Synclet instances start simultaneously, one may fail with a lock error. This is safe to ignore; retry after the other instance finishes.
+- **Concurrent migrations** -- Each module's migrations hold a Postgres advisory lock while they run, so concurrent `migrate up` runs (for example, one per replica) wait for each other instead of failing.
 
 ## Kubernetes Issues
 
@@ -82,7 +87,7 @@ The orchestrator process (runs inside sync Job pods) exits unexpectedly.
 
 - **Check logs** -- `kubectl logs -n synclet <pod-name> -c orchestrator`
 - **Resource limits** -- The orchestrator may be OOMKilled. Increase memory limits in the Helm values.
-- **RBAC** -- The orchestrator needs permission to create and watch Jobs. Verify the ClusterRole and ClusterRoleBinding are applied.
+- **RBAC** -- The executor (or the server in standalone mode) needs permission to create and watch Jobs, pods, ConfigMaps and Secrets in the connector namespace. The chart grants it with a namespaced Role and RoleBindings (`<release>-connector-runner`); verify they exist with `kubectl get role,rolebinding -n <namespace>`.
 
 ## General Debugging Steps
 
@@ -111,11 +116,11 @@ When something is not working, follow these steps in order:
    df -h
    ```
 
-6. **Verify DNS and network** -- From inside the Synclet container, confirm you can resolve and reach the target host.
+6. **Verify DNS and network** -- From Synclet's network, confirm you can resolve and reach the target host. The Synclet image has no shell, so use a debug container (or `kubectl debug` on Kubernetes), or run the same checks from the host.
 
    ```bash
-   docker exec -it synclet nslookup db.example.com
-   docker exec -it synclet curl -v telnet://db.example.com:5432
+   docker run --rm -it --network container:synclet nicolaka/netshoot nslookup db.example.com
+   docker run --rm -it --network container:synclet nicolaka/netshoot curl -v telnet://db.example.com:5432
    ```
 
 ## Getting Help

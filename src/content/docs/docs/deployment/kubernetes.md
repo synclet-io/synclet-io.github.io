@@ -20,7 +20,7 @@ To install a specific version:
 
 ```bash
 helm install synclet oci://ghcr.io/synclet-io/charts/synclet \
-  --version 0.2.0 \
+  --version 0.7.0 \
   -f values.yaml \
   --namespace synclet \
   --create-namespace

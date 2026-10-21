@@ -22,15 +22,15 @@ You define sources, destinations, and connections through a web dashboard or API
 ## Key Features
 
 - **Airbyte Protocol connectors** — Run source and destination images that implement the Airbyte Protocol, plus Synclet's own Go connectors. Each image keeps its own license, see [Connector licenses](/synclet-site/docs/reference/connector-licenses/).
-- **Multiple Execution Modes** — Run connectors via Docker, Kubernetes, or the local CLI depending on your environment.
+- **Multiple Execution Modes** — Run connectors as Docker containers or Kubernetes pods depending on your environment.
 - **Incremental Sync** — Only transfer new or changed records. Synclet tracks sync state automatically between runs.
 - **Stream Configuration** — Select individual streams, choose sync modes (full refresh or incremental), pick specific fields, and rewrite destination namespaces or stream names.
 - **Workspaces** — Organize sources, destinations, and connections into isolated workspaces, one per team of your organization.
 - **Role-Based Access Control** — Three built-in roles per workspace: Admin, Editor, and Viewer.
 - **OIDC Single Sign-On** — Authenticate users through any OpenID Connect provider (Google, Okta, Keycloak, and others).
-- **Notifications** — Get alerted on sync failures and completions via Slack, Email, or Telegram.
+- **Notifications** — Get alerted on sync failures, consecutive failures, or syncs that read zero records via Slack, Email, or Telegram. Outbound webhooks also report completed syncs.
 - **Dashboard & Metrics** — Monitor sync status, job history, duration, and record counts from the built-in web UI. Export Prometheus metrics for external monitoring.
-- **Config Backup & Restore** — Export and import your entire Synclet configuration for disaster recovery or environment migration.
+- **Config Backup & Restore** — Export and import a workspace's sources, destinations and connections as YAML, with secrets redacted, for backups or environment migration.
 - **API Keys** — Automate operations and integrate with CI/CD pipelines using programmatic API access.
 
 ## How It Works

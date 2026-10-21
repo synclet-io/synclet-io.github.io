@@ -25,7 +25,7 @@ Each connection maintains its own sync state, job history, and health status.
 3. **Select a destination** — Choose an existing destination from the dropdown, or click **Add Destination** to create one inline.
 4. **Configure streams** — Synclet displays the streams discovered from the source. For each stream, choose whether to enable it, select a sync mode, pick fields, and configure namespace mapping. See [Stream Configuration](/synclet-site/docs/guides/stream-configuration/) for details.
 5. **Set a schedule** — Choose a cron schedule for automated syncs, or select **Manual** to only sync on demand. See [Scheduling & Triggers](/synclet-site/docs/guides/scheduling/) for cron syntax and examples.
-6. **Configure retry policy** — Set the maximum number of attempts and the retry delay (in minutes) for failed syncs.
+6. **Configure retry policy** — Set the maximum number of attempts for failed syncs. Retries start right away, with no delay between attempts.
 7. **Save** — Review your configuration and click **Save**. The connection is created in an active, enabled state.
 
 To receive alerts when syncs fail, create notification rules under **Settings > Notifications**. See [Notifications](/synclet-site/docs/guides/notifications/).

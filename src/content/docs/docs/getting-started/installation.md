@@ -42,11 +42,11 @@ Download a pre-compiled archive from the [GitHub Releases](https://github.com/sy
 
 ```bash
 # Download the archive for your platform and SHA256SUMS, e.g.
-# synclet-v0.1.0-linux-amd64.tar.gz
+# synclet-v0.12.0-linux-amd64.tar.gz
 sha256sum -c SHA256SUMS --ignore-missing            # Linux
 shasum -a 256 -c SHA256SUMS --ignore-missing        # macOS
-tar -xzf synclet-v0.1.0-linux-amd64.tar.gz
-cd synclet-v0.1.0-linux-amd64
+tar -xzf synclet-v0.12.0-linux-amd64.tar.gz
+cd synclet-v0.12.0-linux-amd64
 ```
 
 **2. Set required environment variables**
@@ -69,14 +69,16 @@ See [Environment Variables](/synclet-site/docs/reference/environment-variables/)
 **4. Start the server**
 
 ```bash
-./synclet server
+./synclet server --standalone
 ```
+
+`--standalone` runs the API, the background jobs and an in-process executor in one process. Without it, `server` serves only the API and no sync runs until you start `synclet jobs` and an executor separately (see the [CLI reference](/synclet-site/docs/reference/cli/)).
 
 Synclet is now running on port 8080 by default.
 
 ## Build from Source
 
-If you prefer to compile Synclet yourself, you need **Go 1.25+** installed.
+If you prefer to compile Synclet yourself, you need **Go 1.26+** installed.
 
 ```bash
 # Clone the repository

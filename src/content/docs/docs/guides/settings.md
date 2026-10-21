@@ -108,11 +108,14 @@ API keys inherit the permissions of the user who created them, scoped to the cur
 
 ### Using an API Key
 
-Include the key in the `Authorization` header:
+The API is [ConnectRPC](https://connectrpc.com/): every call is a `POST` to `/<package>.<Service>/<Method>` with a JSON body. Include the key in the `Authorization` header:
 
 ```bash
-curl -H "Authorization: Bearer synclet_sk_your_api_key_here" \
-  https://synclet.example.com/api/v1/connections
+curl -X POST \
+  -H "Authorization: Bearer synclet_sk_your_api_key_here" \
+  -H "Content-Type: application/json" \
+  -d '{}' \
+  https://synclet.example.com/synclet.publicapi.pipeline.v1.ConnectionService/ListConnections
 ```
 
 ### Common CI/CD Use Cases
@@ -123,12 +126,17 @@ API keys are ideal for automation:
 # Trigger a sync from a CI/CD pipeline
 curl -X POST \
   -H "Authorization: Bearer $SYNCLET_API_KEY" \
-  https://synclet.example.com/api/v1/connections/{id}/sync
+  -H "Content-Type: application/json" \
+  -d '{"connectionId": "<connection-id>"}' \
+  https://synclet.example.com/synclet.publicapi.pipeline.v1.JobService/TriggerSync
 
-# Check connection health in a deployment script
-curl -s -H "Authorization: Bearer $SYNCLET_API_KEY" \
-  https://synclet.example.com/api/v1/connections/{id} \
-  | jq '.status'
+# Check connection status in a deployment script
+curl -s -X POST \
+  -H "Authorization: Bearer $SYNCLET_API_KEY" \
+  -H "Content-Type: application/json" \
+  -d '{"id": "<connection-id>"}' \
+  https://synclet.example.com/synclet.publicapi.pipeline.v1.ConnectionService/GetConnection \
+  | jq '.connection.status'
 ```
 
 ### Revoking an API Key
@@ -156,23 +164,23 @@ Account settings apply to your personal profile across all workspaces.
 
 ### Profile
 
-Go to your avatar in the top-right corner and select **Account Settings** to update:
+Go to **Settings > Account**. The **Profile** card shows your email (read-only) and lets you update:
 
-- **Display name** — How your name appears to other workspace members.
+- **Name** — How your name appears to other workspace members.
 
 ### Password
 
 To change your password:
 
-1. Go to **Account Settings > Security**.
-2. Enter your current password and the new password.
-3. Click **Update Password**.
+1. Go to **Settings > Account**.
+2. In the **Change Password** card, enter your current password and the new password twice.
+3. Click **Change password**.
 
-If you signed up through OIDC, you may not have a password set. You can add one here to enable email/password login as a fallback.
+If you signed up through OIDC, you have no password, and **Change Password** cannot set one because it asks for the current password. To add one as an email/password fallback, use the **Forgot password?** link on the login page (requires SMTP), or ask an operator to run [`synclet users reset-link --email <your-email>`](/synclet-site/docs/reference/cli/#users).
 
 ## Config Export & Import
 
-Synclet supports exporting and importing your workspace configuration as a YAML file. This is useful for backups, environment migration, and disaster recovery.
+Admins can export and import a workspace's sources, destinations and connections as a YAML file. This is useful for backups, environment migration, and disaster recovery.
 
 ### Exporting
 
@@ -184,14 +192,13 @@ Synclet supports exporting and importing your workspace configuration as a YAML 
 
 | Included | Not Included |
 |---|---|
-| Sources (connector type, name, non-secret config) | Encrypted credentials and secrets |
-| Destinations (connector type, name, non-secret config) | API keys |
-| Connections (streams, schedule, retry, notifications) | Job history and sync state |
-| Notification channels (type, name) | Webhook URLs and tokens |
-| Workspace settings | Member list |
+| Sources: name, connector (managed connector ID, image and tag) and config | Connection names, streams, sync modes, transforms and namespace settings |
+| Destinations: name, connector (managed connector ID, image and tag) and config | Notification channels, rules and webhooks |
+| Connections: source, destination, schedule, max attempts, enabled flag and tags | Workspace settings, members and API keys |
+| | Job history and sync state |
 
 :::caution
-Credentials and secrets are excluded from exports for security. After importing a configuration, you will need to re-enter credentials for each source and destination.
+Config keys that look like secrets (names containing `password`, `secret`, `token`, `key`, `credential` or `private`) are written as `***REDACTED***`. Importing a redacted value into an existing source or destination keeps its stored secret; a new one needs its credentials re-entered.
 :::
 
 ### Importing
@@ -201,7 +208,7 @@ Credentials and secrets are excluded from exports for security. After importing 
 3. Select the YAML file.
 4. Review the changes and confirm.
 
-Importing merges the configuration into the current workspace. Existing items with matching names are updated; new items are created.
+Importing merges the configuration into the current workspace. Sources and destinations with matching names are updated, and a connection between the same source and destination is updated; anything else is created. New connections are named `<source> -> <destination>`.
 
 ## Next Steps
 
