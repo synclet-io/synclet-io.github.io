@@ -144,9 +144,10 @@ API keys allow programmatic access to the Synclet API, useful for CI/CD pipeline
 ### Creating an API Key
 
 1. Navigate to **Settings > API Keys** in the workspace you want to access.
-2. Click **Create API Key**.
-3. Give the key a descriptive name (e.g., `ci-pipeline` or `terraform`).
-4. Copy the key immediately — it is only shown once.
+2. Give the key a descriptive name (e.g., `ci-pipeline` or `terraform`).
+3. Choose when it expires: never, in 30 days, 90 days, a year, or on a custom date. An expired key gets `401 Unauthorized`.
+4. Click **Create key**.
+5. Copy the key immediately — it is only shown once.
 
 ### Using an API Key
 

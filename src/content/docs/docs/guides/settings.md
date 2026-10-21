@@ -72,9 +72,10 @@ API keys provide programmatic access to the Synclet API, scoped to the workspace
 ### Creating an API Key
 
 1. Go to **Settings > API Keys**.
-2. Click **Create API Key**.
-3. Enter a descriptive name (e.g., `github-actions`, `terraform-pipeline`).
-4. Copy the key immediately — it is displayed only once.
+2. Enter a descriptive name (e.g., `github-actions`, `terraform-pipeline`).
+3. Choose when it expires: never, in 30 days, 90 days, a year, or on a custom date.
+4. Click **Create key**.
+5. Copy the key immediately — it is displayed only once.
 
 ### Permissions
 
