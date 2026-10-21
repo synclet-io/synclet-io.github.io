@@ -109,7 +109,7 @@ Email is disabled while `NOTIFY_SMTP_HOST` is empty; the "Forgot password?" link
 | `NOTIFY_SMTP_PASSWORD` | SMTP password. | *empty* |
 | `NOTIFY_SMTP_FROM` | Sender address. | `noreply@synclet.io` |
 | `NOTIFY_WEBHOOK_HTTP_TIMEOUT` | Timeout of one webhook delivery. | `10s` |
-| `NOTIFY_WEBHOOK_MAX_RETRIES` | Retries of a failed webhook delivery. | `3` |
+| `NOTIFY_WEBHOOK_MAX_RETRIES` | Total delivery attempts per webhook event, with 1s, 2s, … waits between them. | `3` |
 
 ## Sync Pipeline
 

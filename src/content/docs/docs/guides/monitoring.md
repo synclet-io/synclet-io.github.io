@@ -84,46 +84,60 @@ The job detail page shows everything about a specific sync run.
 <img src="/synclet-site/screenshots/job-logs-light.png" alt="A job page: the run timeline with its attempt, and the combined source and destination logs" width="1440" height="900" loading="lazy" class="dark:sl-hidden" />
 <img src="/synclet-site/screenshots/job-logs-dark.png" alt="A job page: the run timeline with its attempt, and the combined source and destination logs" width="1440" height="900" loading="lazy" class="light:sl-hidden" />
 
-### Attempt Breakdown
+### Summary
 
-Each job may have multiple attempts if retries are configured. For each attempt, you can see:
+The cards at the top show the job's **Status**, its **Total duration**, **Records (latest)** (records read by the latest attempt, with **Filtered out** when transforms dropped records) and **Attempt** as the current attempt out of the connection's maximum, for example `2 / 3`. A failed job shows its error in a red banner below the cards.
 
-- **Start time** and **end time**.
-- **Duration**.
-- **Status** — whether the attempt succeeded or failed.
-- **Error message** — if the attempt failed, the connector's error output.
+### Timeline and Attempts
 
-### Sync Stats
+The **Timeline** card lists the job's steps in order: **Scheduled** (with the time spent waiting in the queue), **Job started**, one **Attempt N** entry per attempt, and **Job completed**, **Job failed** or **Job cancelled**. Each attempt shows when it started and how long it ran, and then either its error or the records it read and its duration.
 
-For each attempt, the job detail shows aggregate sync statistics:
-
-| Metric | Description |
-|---|---|
-| **Records read** | Number of records read from the source. |
-| **Bytes synced** | Data volume transferred. |
-| **Duration** | Time spent on this attempt. |
-
-### Errors
-
-If a job failed, the error section shows the connector's error output with timestamps. Common errors include authentication failures, schema mismatches, network timeouts, and rate limit violations.
+A job gets a new attempt when an attempt fails and the connection's retry policy allows another; see [Scheduling & Triggers](/synclet-site/docs/guides/scheduling/). The job fails only when its last attempt fails.
 
 ## Logs
 
-Synclet captures logs from each connector during a sync. Logs are available per attempt in the job detail view.
+Synclet stores the log lines of the source and destination connectors for every attempt. While the job runs, the job page polls for new lines and appends them.
 
-### Log Levels
+### Reading Logs
 
-| Level | Description |
+- **All logs** shows the combined log of every attempt in the order the lines were written.
+- **View attempt logs** on an attempt in the timeline opens the log inline under that attempt.
+- **Download logs** on an attempt saves the full log of that attempt, and only that attempt, as a plain-text file named `job-<job-id>-attempt-<n>.log`. The download includes lines that are already in the [log archive](#log-storage-and-archiving).
+
+The browser collects a download in memory and stops at 200 MB. For a larger attempt log, enable a log archive backend and read the attempt's object from the archive directly.
+
+### Log Lines
+
+Each line names the connector it came from and the level or type of the message:
+
+```text
+[src] INFO: Starting sync of stream users
+[dst] WARN: Column "legacy_id" is deprecated
+[src] ERROR: Connection refused
+[src] TRACE: ESTIMATE
+```
+
+| Prefix | Meaning |
 |---|---|
-| **INFO** | Normal operational messages — records processed, state checkpoints. |
-| **WARN** | Non-fatal issues — skipped records, deprecated features, approaching limits. |
-| **ERROR** | Failures that caused the sync to stop — authentication errors, connection drops. |
+| `[src]` | Message from the source connector. |
+| `[dst]` | Message from the destination connector. |
+| `[synclet]` | Line written by Synclet: the truncation line described under [Dropped Lines](#dropped-lines). |
 
-Logs can be filtered by level to focus on warnings and errors during troubleshooting.
+After the prefix comes the level of an Airbyte `LOG` message as the connector sent it: `FATAL`, `ERROR`, `WARN`, `INFO`, `DEBUG` or `TRACE`. Airbyte `TRACE` messages are logged too: error traces as `ERROR: <message>`, analytics traces as `TRACE: <type> = <value>`, and the source's estimate traces as `TRACE: ESTIMATE`. Stream status traces are not logged. Synclet stores every level the connector emits; the UI does not filter by level, so search the downloaded file to focus on warnings and errors.
+
+### Dropped Lines
+
+Each attempt keeps at most `PIPELINE_LOG_MAX_LINES_PER_ATTEMPT` lines (100,000 by default; `0` keeps every line). Lines past the cap are dropped and counted in a single line at the end of the attempt's log, updated as more lines are dropped:
+
+```text
+[synclet] log truncated: 25000 further lines dropped
+```
+
+The job page reports the count too: the timeline shows **N lines dropped** next to each attempt that hit the cap, and **All logs** shows the total for the job. Dropped lines are also counted in the `synclet_log_lines_dropped_total` metric.
 
 ### Log storage and archiving
 
-While a job runs, its log lines are stored in PostgreSQL and the UI tails them from there. Each attempt keeps at most `PIPELINE_LOG_MAX_LINES_PER_ATTEMPT` lines (100,000 by default, `0` disables the cap); later lines are dropped and counted in a single `[synclet] log truncated: N further lines dropped` line.
+While a job runs, its log lines are stored in PostgreSQL and the UI tails them from there.
 
 `PIPELINE_LOG_ARCHIVE_BACKEND` decides where the logs of finished jobs go:
 

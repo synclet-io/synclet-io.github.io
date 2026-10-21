@@ -3,7 +3,7 @@ title: Settings & API Keys
 description: Workspace settings, members, connector repos, API keys.
 ---
 
-The Settings page lets you manage your workspace configuration, team members, connector repositories, notification channels, and API keys.
+The Settings page lets you manage your workspace configuration, team members, connectors, notification channels, webhooks, and API keys.
 
 ## Workspace Settings
 
@@ -25,12 +25,11 @@ Go to **Settings > Members** to see all current workspace members, their email a
 
 ### Inviting Members
 
-1. Click **Invite Member**.
-2. Enter the user's email address.
-3. Select a role: **Admin**, **Editor**, or **Viewer**.
-4. Click **Send Invite**.
+1. Enter the user's email address in the form at the top of **Settings > Members**.
+2. Select a role: **Admin**, **Editor**, or **Viewer**.
+3. Click **Send Invite** (**Create Invite** when the server has no SMTP configured).
 
-The user receives an email with an invitation link containing a unique token. They can accept the invite to join the workspace. If they do not have a Synclet account yet, they will be prompted to create one (unless registration is disabled). You can also resend or revoke pending invitations from the members list.
+Synclet shows the invitation link and, with SMTP configured, emails it. The invitee opens the link, signs in or creates an account, and joins. Pending invitations are listed with the members, where you can resend or revoke them. See [Inviting a Member](/synclet-site/docs/concepts/workspaces-and-roles/#inviting-a-member) for the whole flow.
 
 ### Changing Roles
 
@@ -49,28 +48,9 @@ Removed members lose access to the workspace immediately. Their past actions (cr
 
 For a detailed explanation of what each role can do, see [Workspaces & Roles](/synclet-site/docs/concepts/workspaces-and-roles/).
 
-## Connector Repositories
+## Connectors
 
-Synclet discovers connectors from registries. Every new workspace gets two: Airbyte's public OSS registry and Synclet's own.
-
-### Default Registries
-
-**Airbyte OSS** lists the source and destination connectors Airbyte publishes. **Synclet** (`https://synclet-io.github.io/connectors/registry.json`) lists the MIT-licensed Go connectors from [synclet-io/connectors](https://github.com/synclet-io/connectors). Both are added when the workspace is created and need no configuration; you can remove either. Most of Airbyte's connectors are under ELv2 since 2025-07-22; read [Connector licenses](/synclet-site/docs/reference/connector-licenses/) before you rely on one.
-
-### Adding a Custom Repository
-
-If you maintain custom connectors or use a private registry:
-
-1. Go to **Settings > Connectors** and switch to the **Repositories** tab.
-2. Click **Add Repository**.
-3. Pick a repository preset (or choose a custom URL), enter the URL, and provide any required authentication header.
-4. Click **Save**.
-
-Custom connectors appear alongside default connectors when adding sources and destinations. Custom registries are checked in addition to the default registry.
-
-:::tip
-Custom repositories are useful for organizations that build proprietary connectors for internal systems or need to pin specific connector versions for stability.
-:::
+**Settings > Connectors** lists the workspace's installed source and destination connectors, with stars, updates and custom images, and its connector repositories. Every new workspace gets two repositories: Airbyte's public OSS registry and Synclet's own. See [Managing Connectors](/synclet-site/docs/guides/connectors/).
 
 ## Notifications
 
@@ -81,7 +61,7 @@ Manage your workspace's notification channels and rules from **Settings > Notifi
 - Test a channel to verify it works.
 - Create notification rules that link channels to connections and events.
 
-For outbound HTTP integrations (e.g., calling external systems on sync events), see **Settings > Webhooks**.
+For outbound HTTP integrations (e.g., calling external systems on sync events), see [Webhooks](/synclet-site/docs/guides/webhooks/).
 
 For detailed setup instructions, see the [Notifications](/synclet-site/docs/guides/notifications/) guide.
 

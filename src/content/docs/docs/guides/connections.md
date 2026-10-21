@@ -14,7 +14,8 @@ A connection ties together:
 - **Stream configuration** — which streams (tables/endpoints) to sync, with what sync mode, field selection, and mapping.
 - A **schedule** — when syncs run (cron or manual).
 - A **retry policy** — how failures are retried.
-- A **schema change policy** — how schema changes from the source are handled (propagate, ignore, or pause the connection).
+- A **schema change policy** — propagate, ignore or pause on source schema changes. See [Schema Changes](/synclet-site/docs/guides/schema-changes/).
+- **Tags** — labels for finding and filtering connections.
 
 Each connection maintains its own sync state, job history, and health status.
 
@@ -26,7 +27,8 @@ Each connection maintains its own sync state, job history, and health status.
 4. **Configure streams** — Synclet displays the streams discovered from the source. For each stream, choose whether to enable it, select a sync mode, pick fields, and configure namespace mapping. See [Stream Configuration](/synclet-site/docs/guides/stream-configuration/) for details.
 5. **Set a schedule** — Choose a cron schedule for automated syncs, or select **Manual** to only sync on demand. See [Scheduling & Triggers](/synclet-site/docs/guides/scheduling/) for cron syntax and examples.
 6. **Configure retry policy** — Set the maximum number of attempts for failed syncs. Retries start right away, with no delay between attempts.
-7. **Save** — Review your configuration and click **Save**. The connection is created in an active, enabled state.
+7. **Review** — Check the summary and add [tags](#tags) if you want.
+8. **Create** — Click **Create Connection**. The connection is created in an active, enabled state.
 
 To receive alerts when syncs fail, create notification rules under **Settings > Notifications**. See [Notifications](/synclet-site/docs/guides/notifications/).
 
@@ -49,12 +51,56 @@ You can always trigger a manual sync in addition to the scheduled ones.
 ## Editing a Connection
 
 1. Go to **Connections** and click the connection you want to edit.
-2. Modify any setting — streams, schedule, retry policy, or notifications.
-3. Click **Save**.
+2. On the **Settings** tab, change the name, schedule, max attempts, schema change policy or tags, then click **Save Settings**.
+3. To change which streams sync and how, click the **Streams** button in the connection header, edit them, and click **Save Configuration**.
 
 :::note
 If you change a stream's sync mode from incremental to full refresh (or vice versa), Synclet resets the sync state for that stream. The next sync will be a full refresh regardless of the new mode.
 :::
+
+## Tags
+
+Tags label connections, for example by team (`team:growth`), environment (`prod`) or data domain (`billing`), so you can find them in a long list.
+
+### Adding Tags
+
+Add tags in the **Tags** field on the review step of the connection wizard, or later in the **General** card of the connection's **Settings** tab. Type a tag and press Enter, or pick one of the workspace's existing tags from the suggestions. They are saved with the connection, or when you click **Save Settings**. Editors and admins can change tags; viewers see them read-only.
+
+Synclet normalises tags before it stores them: it trims spaces, lowercases them, removes duplicates and sorts them. A tag must then:
+
+- be 1 to 32 characters long;
+- start with a letter or digit;
+- contain only `a`–`z`, `0`–`9`, `_`, `.`, `:` and `-`.
+
+A connection can have up to 20 tags. An invalid tag or a 21st tag is rejected with a message under the **Tags** field, and nothing is saved.
+
+### Filtering by Tags
+
+The **Tags** filter above the **Connections** list offers the tags used in the workspace. Select one or more, or click a tag in a connection's **Tags** column to add it to the filter. A connection is listed only when it has **every** selected tag. The filter combines with the source and destination filters, and **Clear filters** removes them all.
+
+The filter is kept in the page URL, one `tags` parameter per tag, so a filtered list can be bookmarked or shared:
+
+```text
+/connections?tags=prod&tags=team:growth
+```
+
+The API filters the same way: `ListConnections` takes a `tags` list and returns connections that have all of them, and `ListConnectionTags` returns each tag in use with the number of connections that carry it.
+
+### Tags in Config Export
+
+[Config export](/synclet-site/docs/guides/settings/#config-export--import) writes each connection's tags under `tags`:
+
+```yaml
+connections:
+  - source: Production Postgres
+    destination: Analytics BigQuery
+    schedule: "0 * * * *"
+    max_attempts: 3
+    enabled: true
+    tags: [billing, prod]
+```
+
+On import, a connection entry with a `tags` key replaces the connection's tags with that list; an entry without it keeps the tags the connection already has. A connection without tags is exported without the key.
 
 ## Disabling and Enabling a Connection
 
@@ -80,7 +126,7 @@ Each connection displays a status:
 |---|---|
 | **Active** | The connection is enabled and syncs are running on schedule. |
 | **Inactive** | The connection is disabled. No syncs are scheduled. |
-| **Paused** | The connection is temporarily paused (e.g., due to schema changes when the schema change policy is set to pause). |
+| **Paused** | Synclet paused the connection because its transforms no longer compile against the source's latest schema. No syncs are scheduled until you fix them and click **Enable**. See [Paused by Synclet](/synclet-site/docs/guides/schema-changes/#paused-by-synclet). |
 
 The dashboard shows an overview of all connection statuses so you can address issues quickly.
 
@@ -90,5 +136,6 @@ The dashboard shows an overview of all connection statuses so you can address is
 ## Next Steps
 
 - [Stream Configuration](/synclet-site/docs/guides/stream-configuration/) — Deep dive into sync modes, field selection, primary keys, and cursors.
+- [Schema Changes](/synclet-site/docs/guides/schema-changes/) — Pending schema changes, policies, and connections paused by Synclet.
 - [Scheduling & Triggers](/synclet-site/docs/guides/scheduling/) — Learn about cron syntax, retries, and concurrency.
 - [Monitoring & Jobs](/synclet-site/docs/guides/monitoring/) — Track sync progress and diagnose failures.

@@ -99,7 +99,7 @@ When Synclet detects it is running inside Kubernetes, it automatically selects t
 
 ### Distributed mode
 
-Three separate Deployments run the server, jobs worker, and executor. The executor launches connector pods as Kubernetes Jobs, giving you native resource isolation and scaling.
+The server and jobs worker run as Deployments and the executor as a StatefulSet. The executor launches connector pods as Kubernetes Jobs, giving you native resource isolation and scaling. See [Executors](/synclet-site/docs/deployment/executors/) for how the parts talk to each other.
 
 ```yaml
 mode: distributed
@@ -115,6 +115,214 @@ Benefits of distributed mode:
 - **Observability** -- Each sync is a distinct Job with its own logs.
 
 See [Production Checklist](/synclet-site/docs/deployment/production/) for sizing guidance.
+
+### Replicas and disruption budget
+
+| Value | Description | Default |
+|---|---|---|
+| `server.replicaCount` | Server replicas. In standalone mode every replica also runs the background jobs and an embedded executor, all with the same owner ID | `1` |
+| `server.pdb.enabled` | Create a PodDisruptionBudget for the server pods. Use it only with more than one replica: with one replica and `minAvailable: 1`, it blocks node drains | `false` |
+| `server.pdb.minAvailable` | Server pods that must stay up during a voluntary disruption | `1` |
+| `server.pdb.maxUnavailable` | Alternative to `minAvailable`; takes precedence when set | unset |
+| `jobs.replicaCount` | Jobs worker replicas (distributed mode) | `1` |
+| `executor.enabled` | Run the executor StatefulSet in distributed mode. Set `false` to run the executor outside the chart | `true` |
+| `executor.replicaCount` | Executor replicas (distributed mode) | `1` |
+| `executor.updateStrategy` | StatefulSet update strategy: `type: RollingUpdate` or `OnDelete` | `RollingUpdate` |
+
+```yaml
+mode: distributed
+server:
+  replicaCount: 2
+  pdb:
+    enabled: true
+    minAvailable: 1
+executor:
+  replicaCount: 2
+```
+
+Executor pods start in parallel and update one at a time, highest ordinal first. Each keeps its pod name (`<fullname>-executor-0`, `-1`, …) as its owner ID unless `k8s.ownerId` is set. After a scale-down, the Jobs a removed ordinal left behind are cleaned up only when a pod with that ordinal runs again. More replicas add availability, not capacity: one executor launches any number of sync Jobs. See [Executors: scaling](/synclet-site/docs/deployment/executors/#scaling).
+
+With `executor.enabled: false`, point your own `synclet k8s-executor` at `http://<fullname>-internal.<namespace>.svc.cluster.local:8081` (`EXECUTOR_API_URL`) and give it the internal API token (`EXECUTOR_API_TOKEN`, the `internal-api-secret` key of the `<fullname>-secrets` Secret unless `internalApi.existingSecret` is set).
+
+### Connector Jobs
+
+`k8s.*` configures the Kubernetes executor, both the one embedded in a standalone server and the distributed executor.
+
+| Value | Description | Default |
+|---|---|---|
+| `k8s.namespace` | Namespace of the sync and connector task Jobs (`K8S_EXECUTOR_NAMESPACE`). It must exist before install | release namespace |
+| `k8s.ownerId` | Owner label stamped on the executor's Jobs and Secrets (`K8S_EXECUTOR_OWNER_ID`); the executor cleans up only its own. Empty uses the pod name of each executor replica (distributed) or the release's full name (standalone). Releases sharing one namespace need distinct values; a set value is shared by all executor replicas | empty |
+| `k8s.defaultMemory` | Memory request and limit of a sync container that gets neither from `pipeline.resources` or the connector's runtime config | `2Gi` |
+| `k8s.defaultCPU` | Same for CPU | `1` |
+| `k8s.imagePullSecret` | Image pull Secret for private connector registries | empty |
+| `k8s.localVolume` | Existing PVC mounted at `/local` in connector containers, for [file-writing destinations](/synclet-site/docs/concepts/connectors/#files-written-by-destinations); empty mounts an `emptyDir` | empty |
+
+See [Executors: owner IDs](/synclet-site/docs/deployment/executors/#owner-ids) for why the owner ID matters.
+
+## Secrets
+
+The chart keeps its secrets in the `<fullname>-secrets` Secret. Each one is set inline in the values or read from a Secret you create (`existingSecret`), in which case the chart writes nothing for it. The JWT secret, the encryption key, the internal API token and the bundled PostgreSQL password are generated on first install when left empty, and kept across upgrades.
+
+| Value | Secret | Default key of `existingSecret` |
+|---|---|---|
+| `auth.jwtSecret`, `auth.existingSecret`, `auth.existingSecretKey` | `AUTH_JWT_SECRET`, at least 32 bytes | `jwt-secret` |
+| `encryption.key`, `encryption.existingSecret`, `encryption.existingSecretKeyKey` | `SECRET_ENCRYPTION_KEY`, base64 of 32 bytes | `encryption-key` |
+| `encryption.keyPrevious`, `encryption.enableKeyPrevious`, `encryption.existingSecretKeyPreviousKey` | `SECRET_ENCRYPTION_KEY_PREVIOUS` during key rotation. With an `existingSecret` or VSO, set `enableKeyPrevious: true` once the Secret holds the key | `encryption-key-previous` |
+| `internalApi.secret`, `internalApi.existingSecret`, `internalApi.existingSecretKey` | Executor API token: `PIPELINE_EXECUTOR_API_TOKEN` of the server and jobs pods, `EXECUTOR_API_TOKEN` of the executor pods. See [Executors: the internal API](/synclet-site/docs/deployment/executors/#the-internal-api) | `internal-api-secret` |
+| `externalDatabase.existingSecret`, `externalDatabase.existingSecretKey` | A full `DB_DSN`; the `host`, `port`, `user`, `password`, `database` and `sslmode` fields are then ignored | `db-dsn` |
+| `smtp.password`, `smtp.existingSecret`, `smtp.existingSecretKey` | `NOTIFY_SMTP_PASSWORD` | `smtp-password` |
+| `oidc.providers[].clientSecret`, `oidc.existingSecret` | `AUTH_OIDC_<SLUG>_CLIENT_SECRET` of each provider | `oidc-<slug>-client-secret` |
+
+Back up the encryption key, generated or not: without it the connector credentials in the database cannot be decrypted. See [Backup and Restore](/synclet-site/docs/deployment/backup-and-restore/).
+
+```yaml
+postgresql:
+  enabled: false
+externalDatabase:
+  existingSecret: synclet-db     # key db-dsn: postgres://synclet:...@db.example.com:5432/synclet?sslmode=require
+encryption:
+  existingSecret: synclet-keys   # key encryption-key
+```
+
+### Vault Secrets Operator
+
+With `vso.enabled: true` the chart creates `VaultStaticSecret` resources and reads the secrets from the Kubernetes Secrets the [Vault Secrets Operator](https://developer.hashicorp.com/vault/docs/platform/k8s/vso) syncs them into. The operator must be installed and the Vault paths must hold the keys below.
+
+| Value | Description | Default |
+|---|---|---|
+| `vso.enabled` | Sync the application secrets from Vault into `<fullname>-vault-app`: keys `jwt-secret`, `encryption-key`, `internal-api-secret`, and `encryption-key-previous` when `encryption.enableKeyPrevious` is `true` | `false` |
+| `vso.vaultAuthRef` | Existing `VaultAuth` to use | empty |
+| `vso.auth.create` | Create a `VaultAuth` named `<fullname>` instead; set `vaultConnectionRef`, `method`, `mount`, `role`, and `serviceAccount` (the chart's account when empty). Set either this or `vaultAuthRef` | `false` |
+| `vso.appSecrets.mount`, `.path`, `.type`, `.refreshAfter` | Vault mount, path (required), `kv-v1` or `kv-v2`, refresh interval | `secret`, empty, `kv-v2`, `60s` |
+| `vso.database.enabled` | Also sync the database DSN, key `db-dsn`, into `<fullname>-vault-db` | `false` |
+| `vso.database.mount`, `.path`, `.type`, `.refreshAfter` | Same for the database path (required when enabled) | `secret`, empty, `kv-v2`, `60s` |
+
+An `existingSecret` set on `auth`, `encryption`, `internalApi` or `externalDatabase` takes precedence over the Vault-synced Secret. SMTP and OIDC secrets are not read from Vault.
+
+```yaml
+vso:
+  enabled: true
+  vaultAuthRef: synclet-vault-auth
+  appSecrets:
+    path: synclet/app-secrets
+  database:
+    enabled: true
+    path: synclet/database
+```
+
+## Authentication
+
+| Value | Description | Default |
+|---|---|---|
+| `auth.registrationEnabled` | Allow sign-up with email and password (`AUTH_REGISTRATION_ENABLED`) | `true` |
+| `auth.secureCookies` | Mark auth cookies `Secure`, sent only over HTTPS (`AUTH_SECURE_COOKIES`). Keep it on behind TLS; set `false` only when users reach Synclet over plain HTTP | `true` |
+| `auth.accessTokenTTL` | Access token lifetime | `15m` |
+| `auth.refreshTokenTTL` | Refresh token lifetime | `168h` |
+| `auth.oidcStateTTL` | Lifetime of the OIDC login state | `10m` |
+| `auth.minPasswordLength` | Minimum password length of local accounts | `8` |
+| `rateLimit.trustedProxies` | Proxies whose `X-Forwarded-For` identifies the client for login and register rate limits | `[]` |
+
+The server's own default for `AUTH_SECURE_COOKIES` is `false`; the chart sets `true`. The chart's default Ingress (`synclet.local`, no TLS) serves plain HTTP, so set either `server.ingress.tls: true` or `auth.secureCookies: false` there.
+
+### OIDC providers
+
+Each entry of `oidc.providers` becomes one provider. The chart lists the slugs in `AUTH_OIDC_PROVIDERS` and renders the entry's keys as `AUTH_OIDC_<SLUG>_*` variables, with the slug upper-cased. See [Authentication: single sign-on](/synclet-site/docs/guides/authentication/#single-sign-on-oidc) for what each one does.
+
+| Key | Variable |
+|---|---|
+| `slug` | Provider ID, used in `AUTH_OIDC_PROVIDERS`, the variable names and the callback path `/auth/oidc/<slug>/callback` |
+| `issuer`, `clientID` | `_ISSUER`, `_CLIENT_ID` |
+| `clientSecret` | `_CLIENT_SECRET`, stored in `<fullname>-secrets` unless `oidc.existingSecret` is set |
+| `displayName`, `scopes` | `_DISPLAY_NAME`, `_SCOPES` |
+| `roleClaim`, `roleMapAdmin`, `roleMapEditor`, `roleMapViewer`, `defaultRole`, `roleSync` | `_ROLE_CLAIM`, `_ROLE_MAP_ADMIN`, `_ROLE_MAP_EDITOR`, `_ROLE_MAP_VIEWER`, `_DEFAULT_ROLE`, `_ROLE_SYNC`; single-workspace mode only |
+| `autoCreateUser`, `allowedDomains` | `_AUTO_CREATE_USER`, `_ALLOWED_DOMAINS` |
+
+Keys you leave out are not rendered and keep the server defaults. `oidc.callbackBaseURL` sets `AUTH_OIDC_CALLBACK_BASE_URL`; it defaults to `frontend.url`, then to `server.publicUrl`. `oidc.existingSecret` names a Secret holding `oidc-<slug>-client-secret` for every provider.
+
+```yaml
+oidc:
+  providers:
+    - slug: google
+      issuer: https://accounts.google.com
+      clientID: 123456.apps.googleusercontent.com
+      clientSecret: "<client secret>"
+      displayName: Google
+      allowedDomains: example.com
+```
+
+## Email
+
+SMTP sends invitations, password resets and email notifications. With `smtp.host` empty the chart renders no `NOTIFY_SMTP_*` variables and email is off.
+
+| Value | Description | Default |
+|---|---|---|
+| `smtp.host` | SMTP server | empty |
+| `smtp.port` | Port; `465` with `implicit`, `587` with `starttls` | `465` |
+| `smtp.tls` | `implicit` (TLS from the first byte), `starttls` (upgrade a plain connection) or `none` (plain text, for local catchers such as Mailpit) | `implicit` |
+| `smtp.user` | Username | empty |
+| `smtp.password`, `smtp.existingSecret`, `smtp.existingSecretKey` | Password, inline or from a Secret | empty, empty, `smtp-password` |
+| `smtp.from` | Sender address | `noreply@synclet.io` |
+| `frontend.url` | Base URL of invitation links; defaults to `server.publicUrl` | empty |
+| `invites.ttl` | How long an invitation stays valid | `168h` |
+| `notify.webhookHTTPTimeout`, `notify.webhookMaxRetries` | Timeout and retries of webhook, Slack and Telegram deliveries | `10s`, `3` |
+
+```yaml
+smtp:
+  host: smtp.example.com
+  port: 587
+  tls: starttls
+  user: synclet
+  existingSecret: synclet-smtp
+  from: synclet@example.com
+```
+
+## Workspaces
+
+`workspaces.mode` sets `WORKSPACE_MODE`:
+
+- `single` (default): one shared workspace that every user joins. OIDC role mapping applies only here.
+- `multi`: users create workspaces and invite members.
+
+See [Workspaces & Roles](/synclet-site/docs/concepts/workspaces-and-roles/).
+
+## Pipeline Tuning
+
+`pipeline.*` values become environment variables of the Synclet pods. See [Environment Variables](/synclet-site/docs/reference/environment-variables/#sync-pipeline) for what each one does.
+
+| Value | Variable | Default |
+|---|---|---|
+| `pipeline.workerInterval` | `K8S_EXECUTOR_JOB_WORKER_INTERVAL`: how often the executor polls for jobs and connector tasks | `5s` |
+| `pipeline.resourceCleanupInterval` | `K8S_EXECUTOR_JOB_RESOURCE_CLEANUP_INTERVAL`: how often the executor reconciles its Jobs and Secrets | `5m` |
+| `pipeline.schedulerInterval` | `PIPELINE_JOB_SCHEDULER_INTERVAL` | `30s` |
+| `pipeline.watchdogInterval` | `PIPELINE_JOB_WATCHDOG_INTERVAL` | `10s` |
+| `pipeline.idleTimeout` | `PIPELINE_IDLE_TIMEOUT` | `10m` |
+| `pipeline.defaultMaxAttempts` | `PIPELINE_DEFAULT_MAX_ATTEMPTS` | `3` |
+| `pipeline.connectorTaskRetention` | `PIPELINE_CONNECTOR_TASK_RETENTION` | `24h` |
+| `pipeline.connectorTaskRunningTimeout` | `PIPELINE_CONNECTOR_TASK_RUNNING_TIMEOUT` | `5m` |
+| `pipeline.connectorTaskPendingTimeout` | `PIPELINE_CONNECTOR_TASK_PENDING_TIMEOUT` | `1m` |
+| `pipeline.connectionCheckTimeout` | `PIPELINE_CONNECTION_CHECK_TIMEOUT` | `2m` |
+| `pipeline.connectorTaskPollInterval` | `PIPELINE_CONNECTOR_TASK_POLL_INTERVAL` | `500ms` |
+| `pipeline.eventEmitTimeout` | `PIPELINE_EVENT_EMIT_TIMEOUT` | `30s` |
+| `pipeline.statsRollupHourlyLookback`, `pipeline.statsRollupDailyLookback` | `PIPELINE_STATS_ROLLUP_HOURLY_LOOKBACK`, `PIPELINE_STATS_ROLLUP_DAILY_LOOKBACK` | `2h`, `48h` |
+| `pipeline.registryFetchTimeout` | `PIPELINE_REGISTRY_FETCH_TIMEOUT` | `60s` |
+| `pipeline.logMaxLinesPerAttempt` | `PIPELINE_LOG_MAX_LINES_PER_ATTEMPT` | `100000` |
+| `pipeline.resources.cpuRequest`, `cpuLimit`, `memoryRequest`, `memoryLimit` | `PIPELINE_RUNTIME_*`: default connector resources; a source or destination overrides them in its runtime config | empty |
+| `pipeline.resources.serviceAccountName` | `PIPELINE_RUNTIME_SERVICE_ACCOUNT_NAME`, unless `pipeline.serviceAccount` creates or names one | empty |
+| `pipeline.serviceAccount.*` | Connector pod account, see [Service Accounts](#service-accounts) | `create: false` |
+| `pipeline.maxSyncDuration` | `DOCKER_EXECUTOR_MAX_SYNC_DURATION` | `24h` |
+| `pipeline.maxConcurrentJobs` | `DOCKER_EXECUTOR_MAX_CONCURRENT_JOBS` | `10` |
+| `pipeline.heartbeatInterval` | `DOCKER_EXECUTOR_HEARTBEAT_INTERVAL` | `5s` |
+| `pipeline.dockerOwnerId` | `DOCKER_EXECUTOR_OWNER_ID` | empty |
+
+:::note
+The last four are settings of the Docker executor, which the chart does not run: on Kubernetes, Synclet uses the Kubernetes executor. In particular `pipeline.maxConcurrentJobs` does not limit concurrent syncs. That limit is `PIPELINE_MAX_CONCURRENT_JOBS` (default `10`), which the chart does not render; set it through `extraEnv`:
+
+```yaml
+extraEnv:
+  - name: PIPELINE_MAX_CONCURRENT_JOBS
+    value: "25"
+```
+:::
 
 ## Exposing the Server
 

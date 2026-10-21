@@ -114,7 +114,7 @@ Recommended alerts:
 | PostgreSQL | `pg_dump` or managed-service snapshots | Daily (minimum) |
 | Restore test | Restore into a staging instance | Monthly |
 
-Automate all of the above and **test restores regularly**. A backup you have never restored is not a backup.
+Automate all of the above and **test restores regularly**. A backup you have never restored is not a backup. Back up `SECRET_ENCRYPTION_KEY` with the database; see [Backup and Restore](/synclet-site/docs/deployment/backup-and-restore/).
 
 ## Performance Tuning
 
@@ -177,4 +177,4 @@ See [Kubernetes deployment](/synclet-site/docs/deployment/kubernetes/) for the f
 4. **Run migrations and restart Synclet** -- run `synclet migrate up` before starting the new version. The Helm chart runs it in an init container of the server pod.
 5. **Verify** -- Check `/ready` on the internal port, review the dashboard, and confirm a test sync completes.
 
-For Kubernetes, use rolling updates (the default Helm strategy). The readiness probe ensures traffic only routes to healthy pods.
+For Kubernetes, use rolling updates (the default Helm strategy). The readiness probe ensures traffic only routes to healthy pods. See [Upgrading](/synclet-site/docs/deployment/upgrading/) for the per-version notes.

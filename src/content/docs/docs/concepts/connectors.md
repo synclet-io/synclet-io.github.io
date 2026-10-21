@@ -40,7 +40,7 @@ Browse the full catalog from **Settings > Connectors** in the Synclet dashboard.
 
 ### Step 1: Configure a Repository
 
-Every new workspace gets two registries, so their catalogs are available on first start: Airbyte's public OSS registry, whose connectors are mostly ELv2 (see [Connector licenses](/synclet-site/docs/reference/connector-licenses/)), and Synclet's own, with the [native Go connectors](#native-go-connectors). To add a private or custom registry, go to **Settings > Connectors > Repositories** and add the registry URL.
+Every new workspace gets two registries, so their catalogs are available on first start: Airbyte's public OSS registry, whose connectors are mostly ELv2 (see [Connector licenses](/synclet-site/docs/reference/connector-licenses/)), and Synclet's own, with the [native Go connectors](#native-go-connectors). To add a private or custom registry, go to **Settings > Connectors > Repositories** and add the registry URL. Installing, updating and deleting connectors, and adding custom images, are covered in [Managing Connectors](/synclet-site/docs/guides/connectors/).
 
 ### Step 2: Create a Source or Destination
 

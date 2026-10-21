@@ -143,3 +143,5 @@ pg_dump -Fc "$DB_DSN" > synclet_$(date +%Y%m%d).dump
 pg_restore -d "$DB_DSN" synclet_20260401.dump
 ```
 
+Keep `SECRET_ENCRYPTION_KEY` with every backup: without it the credentials in the dump cannot be decrypted. See [Backup and Restore](/synclet-site/docs/deployment/backup-and-restore/) for the full procedure.
+
