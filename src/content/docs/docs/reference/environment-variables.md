@@ -186,13 +186,14 @@ Configure one or more OIDC providers for single sign-on. Set `AUTH_OIDC_PROVIDER
 | `AUTH_OIDC_<SLUG>_CLIENT_SECRET` | OAuth client secret. |
 | `AUTH_OIDC_<SLUG>_DISPLAY_NAME` | Human-readable name shown in the UI. Defaults to the slug. |
 | `AUTH_OIDC_<SLUG>_SCOPES` | Comma-separated list of OIDC scopes. Default: `openid,profile,email`. |
-| `AUTH_OIDC_<SLUG>_DEFAULT_ROLE` | Default role for auto-created users. Default: `viewer`. |
+| `AUTH_OIDC_<SLUG>_DEFAULT_ROLE` | Role in the default workspace when the role claim matches no mapping: `admin`, `editor` or `viewer`. Single-workspace mode only. Default: `viewer`. |
 | `AUTH_OIDC_<SLUG>_AUTO_CREATE_USER` | Auto-create users on first login. Default: `true`. |
 | `AUTH_OIDC_<SLUG>_ALLOWED_DOMAINS` | Comma-separated list of allowed email domains. |
 | `AUTH_OIDC_<SLUG>_ROLE_CLAIM` | OIDC claim to use for role mapping (e.g., `groups`). |
 | `AUTH_OIDC_<SLUG>_ROLE_MAP_ADMIN` | Claim value that maps to the Admin role. |
 | `AUTH_OIDC_<SLUG>_ROLE_MAP_EDITOR` | Claim value that maps to the Editor role. |
 | `AUTH_OIDC_<SLUG>_ROLE_MAP_VIEWER` | Claim value that maps to the Viewer role. |
+| `AUTH_OIDC_<SLUG>_ROLE_SYNC` | When the role claim is applied to an existing member of the default workspace: `login` (every login, overwriting roles changed in the UI) or `first_login` (only when the user joins). Default: `login`. |
 | `AUTH_OIDC_<SLUG>_BOUND_CLAIM_<NAME>` | Require a specific claim value for authentication (e.g., `AUTH_OIDC_OKTA_BOUND_CLAIM_DEPARTMENT=engineering`). |
 
 ### Example: Google
@@ -206,6 +207,8 @@ export AUTH_OIDC_GOOGLE_ISSUER="https://accounts.google.com"
 ```
 
 You can configure multiple providers by adding slugs to `AUTH_OIDC_PROVIDERS` (e.g., `google,okta`) and setting the corresponding `AUTH_OIDC_<SLUG>_*` variables for each.
+
+The role variables (`ROLE_CLAIM`, `ROLE_MAP_*`, `DEFAULT_ROLE`, `ROLE_SYNC`) set the user's role in the default workspace and apply in single-workspace mode only; in multi-workspace mode the server ignores them and logs a warning. See [Role mapping](/synclet-site/docs/guides/authentication/#role-mapping) for an authentik `groups` example.
 
 ## Docker Executor
 

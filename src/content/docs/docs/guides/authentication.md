@@ -46,11 +46,14 @@ For each slug listed in `AUTH_OIDC_PROVIDERS`, set the following environment var
 | `AUTH_OIDC_<SLUG>_SCOPES` | Comma-separated scopes | No (defaults to `openid,profile,email`) |
 | `AUTH_OIDC_<SLUG>_ALLOWED_DOMAINS` | Restrict to email domains | No |
 | `AUTH_OIDC_<SLUG>_AUTO_CREATE_USER` | Create user on first login | No (defaults to `true`) |
-| `AUTH_OIDC_<SLUG>_DEFAULT_ROLE` | Role for new OIDC users | No (defaults to `viewer`) |
+| `AUTH_OIDC_<SLUG>_DEFAULT_ROLE` | Role when the claim matches no mapping: `admin`, `editor` or `viewer` | No (defaults to `viewer`) |
 | `AUTH_OIDC_<SLUG>_ROLE_CLAIM` | Claim to use for role mapping | No |
 | `AUTH_OIDC_<SLUG>_ROLE_MAP_ADMIN` | Claim value → Admin role | No |
 | `AUTH_OIDC_<SLUG>_ROLE_MAP_EDITOR` | Claim value → Editor role | No |
 | `AUTH_OIDC_<SLUG>_ROLE_MAP_VIEWER` | Claim value → Viewer role | No |
+| `AUTH_OIDC_<SLUG>_ROLE_SYNC` | When the claim is applied to an existing member: `login` or `first_login` | No (defaults to `login`) |
+
+The role settings apply in single-workspace mode only; see [Role mapping](#role-mapping).
 
 ### Example: Google
 
@@ -83,6 +86,45 @@ AUTH_OIDC_OKTA_DISPLAY_NAME="Company SSO"
 ```
 
 When OIDC is configured, a **Sign in with ...** button appears on the login page for each provider. Users who sign in through OIDC for the first time have an account created automatically (unless `AUTO_CREATE_USER` is set to `false`).
+
+### Role mapping
+
+In single-workspace mode (`WORKSPACE_MODE=single`, the default), every OIDC login sets the user's role in the default workspace from a claim of the ID token.
+
+- `ROLE_CLAIM` names the claim. It may hold a string or a list of strings, such as the `groups` claim of authentik, Keycloak or Okta.
+- `ROLE_MAP_ADMIN`, `ROLE_MAP_EDITOR` and `ROLE_MAP_VIEWER` name the claim value of each role. They are checked in that order, so a user whose claim matches both the admin and the editor value becomes admin.
+- A claim that matches no mapping, or a missing claim, gives `DEFAULT_ROLE` (`viewer` when unset). Any value other than `admin`, `editor` or `viewer` stops the server at startup.
+- The first member of the default workspace always joins as admin, whatever the claim says.
+- A user who signs in through OIDC and is not a member of the default workspace joins it with the mapped role. That includes an existing password user linked by email, and a user an admin removed from the workspace: revoke access in the identity provider instead.
+- `ROLE_SYNC` decides when the claim is applied to a user who is already a member:
+  - `login` (the default) applies it on every login. The identity provider is the source of truth, and a role changed in the Synclet UI is overwritten at the user's next login.
+  - `first_login` applies it only when the user joins. Later role changes are made in the UI.
+
+  Any other value stops the server at startup. Without `ROLE_CLAIM`, an existing member's role is never changed.
+- A role changed by a sync is written to the audit log as a member role change by the user logging in.
+- A sync never demotes the workspace's last admin: the role stays admin and the server logs a warning naming the user and the role the claim asked for.
+
+In multi-workspace mode the role settings are ignored: users join workspaces through invitations, and the server logs a warning at startup for each provider that sets `ROLE_CLAIM`, `ROLE_MAP_*`, `DEFAULT_ROLE` or `ROLE_SYNC`.
+
+#### Example: authentik groups
+
+authentik puts the names of the user's groups in the `groups` claim, a list, when the `profile` scope is requested.
+
+```bash
+AUTH_OIDC_PROVIDERS="authentik"
+AUTH_OIDC_CALLBACK_BASE_URL="https://synclet.example.com"
+AUTH_OIDC_AUTHENTIK_ISSUER="https://auth.example.com/application/o/synclet/"
+AUTH_OIDC_AUTHENTIK_CLIENT_ID="synclet"
+AUTH_OIDC_AUTHENTIK_CLIENT_SECRET="your-client-secret"
+AUTH_OIDC_AUTHENTIK_DISPLAY_NAME="authentik"
+AUTH_OIDC_AUTHENTIK_ROLE_CLAIM="groups"
+AUTH_OIDC_AUTHENTIK_ROLE_MAP_ADMIN="synclet-admins"
+AUTH_OIDC_AUTHENTIK_ROLE_MAP_EDITOR="synclet-editors"
+AUTH_OIDC_AUTHENTIK_DEFAULT_ROLE="viewer"
+AUTH_OIDC_AUTHENTIK_ROLE_SYNC="login"
+```
+
+A user in `synclet-admins` becomes admin, a user in `synclet-editors` editor, and everyone else viewer.
 
 ## Disabling Registration
 
