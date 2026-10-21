@@ -48,6 +48,10 @@ If a cron schedule is configured, Synclet automatically enqueues sync jobs accor
 
 You can always trigger a manual sync in addition to the scheduled ones.
 
+### Run by a Workflow
+
+A connection that is a step of a [workflow](/synclet-site/docs/guides/workflows/) has no schedule of its own. Adding it to a workflow turns its schedule off, and its **Settings** tab shows "This connection is run by" with the workflow's name in place of the cron editor. Setting a schedule on it is rejected. **Sync Now** still works. When the connection is removed from its last workflow, or the workflow is deleted, it stays without a schedule until you set one.
+
 ## Editing a Connection
 
 1. Go to **Connections** and click the connection you want to edit.
@@ -118,6 +122,8 @@ The connection retains all its configuration and job history. Scheduled syncs ar
 
 Deleting a connection removes its configuration, job history, and sync state. Data already written to the destination is not affected.
 
+A connection that is a step of a workflow cannot be deleted: the delete fails with "the connection is a step of a workflow; remove it from the workflow first". Remove the step from every workflow it is in, then delete the connection.
+
 ## Connection Status
 
 Each connection displays a status:
@@ -138,4 +144,5 @@ The dashboard shows an overview of all connection statuses so you can address is
 - [Stream Configuration](/synclet-site/docs/guides/stream-configuration/) — Deep dive into sync modes, field selection, primary keys, and cursors.
 - [Schema Changes](/synclet-site/docs/guides/schema-changes/) — Pending schema changes, policies, and connections paused by Synclet.
 - [Scheduling & Triggers](/synclet-site/docs/guides/scheduling/) — Learn about cron syntax, retries, and concurrency.
+- [Workflows](/synclet-site/docs/guides/workflows/) — Run connections in order as a graph of steps.
 - [Monitoring & Jobs](/synclet-site/docs/guides/monitoring/) — Track sync progress and diagnose failures.

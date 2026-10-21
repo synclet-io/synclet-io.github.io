@@ -23,8 +23,8 @@ Every workspace member is assigned one of three roles. Roles are scoped to a sin
 
 Full control over the workspace. Admins can manage every aspect of data pipelines and workspace membership.
 
-- Create, edit, and delete sources, destinations, and connections.
-- Trigger and cancel syncs.
+- Create, edit, and delete sources, destinations, connections, and workflows.
+- Trigger and cancel syncs, and run workflows.
 - Manage workspace members (invite, change roles, remove).
 - Configure workspace settings, notification channels, webhooks, and connector repositories.
 
@@ -32,8 +32,8 @@ Full control over the workspace. Admins can manage every aspect of data pipeline
 
 Can build and operate data pipelines but cannot manage team membership or workspace settings.
 
-- Create, edit, and delete sources, destinations, and connections.
-- Trigger and cancel syncs.
+- Create, edit, and delete sources, destinations, connections, and workflows.
+- Trigger and cancel syncs, and run workflows.
 - View logs, job history, and dashboard metrics.
 - Cannot invite or remove members, change roles, or modify workspace settings.
 
@@ -57,6 +57,7 @@ Read-only access. Viewers can monitor pipeline status and review logs but cannot
 | Create / edit sources | &#10003; | &#10003; | &#10007; |
 | Create / edit destinations | &#10003; | &#10003; | &#10007; |
 | Create / edit connections | &#10003; | &#10003; | &#10007; |
+| Create / edit / run workflows | &#10003; | &#10003; | &#10007; |
 | Trigger / cancel syncs | &#10003; | &#10003; | &#10007; |
 | Manage connectors (add, update, delete) | &#10003; | &#10003; | &#10007; |
 | Create / edit notification rules | &#10003; | &#10003; | &#10007; |

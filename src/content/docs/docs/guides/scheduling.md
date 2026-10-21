@@ -46,6 +46,8 @@ All cron schedules are evaluated in **UTC**. Adjust your expressions accordingly
 
 The scheduler evaluates cron expressions periodically and enqueues sync jobs when they are due.
 
+A connection that is a step of a [workflow](/synclet-site/docs/guides/workflows/) has no schedule of its own: the workflow's schedule starts its runs, and each step syncs after the steps it depends on. See [Schedules](/synclet-site/docs/guides/workflows/#schedules).
+
 ## Manual Triggers
 
 You can trigger a sync at any time, regardless of whether a cron schedule is configured.
@@ -106,5 +108,6 @@ Alternatively, you can [disable the connection](/synclet-site/docs/guides/connec
 ## Next Steps
 
 - [Creating Connections](/synclet-site/docs/guides/connections/) — Set up connections with scheduling.
+- [Workflows](/synclet-site/docs/guides/workflows/) — Run connections in order on one schedule.
 - [Monitoring & Jobs](/synclet-site/docs/guides/monitoring/) — View job history, attempts, and retry outcomes.
 - [Notifications](/synclet-site/docs/guides/notifications/) — Get alerted when syncs fail after all retries.

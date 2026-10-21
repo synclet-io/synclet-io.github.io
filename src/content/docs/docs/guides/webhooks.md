@@ -1,9 +1,9 @@
 ---
 title: Webhooks
-description: Send sync events to your own HTTP endpoint, signed with HMAC-SHA256.
+description: Send sync and workflow events to your own HTTP endpoint, signed with HMAC-SHA256.
 ---
 
-A webhook sends a JSON `POST` to a URL of yours when a sync job finishes. Use it to start downstream work, such as a dbt run after a load, or to feed your own alerting. For Slack, email and Telegram alerts, use [Notifications](/synclet-site/docs/guides/notifications/) instead.
+A webhook sends a JSON `POST` to a URL of yours when a sync job finishes or a [workflow](/synclet-site/docs/guides/workflows/) run fails. Use it to start downstream work, such as a dbt run after a load, or to feed your own alerting. For Slack, email and Telegram alerts, use [Notifications](/synclet-site/docs/guides/notifications/) instead.
 
 Webhooks belong to a workspace. Only admins can see and manage them: the **Webhooks** tab under **Settings** is hidden from editors and viewers, and every webhook API call requires the Admin role.
 
@@ -27,11 +27,12 @@ Deleting a webhook stops its deliveries immediately.
 |---|---|---|
 | `sync.completed` | Sync completed | A sync job finishes successfully. |
 | `sync.failed` | Sync failed | A sync job fails for good, after its last attempt. A failed attempt that is retried sends nothing. |
+| `workflow.failed` | Workflow failed | A workflow run ends `failed`: one of its steps failed, after the step's job used up its attempts or was cancelled. |
 | `connection.paused` | Connection paused | Never, in the current release. |
 | `schema.changed` | Schema changed | Never, in the current release. |
 | `*` | All events | Any of the events above. |
 
-The form offers **Connection paused** and **Schema changed**, and the API accepts them, but Synclet does not send either event yet; only `sync.completed` and `sync.failed` are delivered. A cancelled job sends no event.
+The form offers **Connection paused** and **Schema changed**, and the API accepts them, but Synclet does not send either event yet; only `sync.completed`, `sync.failed` and `workflow.failed` are delivered. A cancelled job sends no event.
 
 ## Payload
 
@@ -68,6 +69,26 @@ Every delivery is a `POST` with `Content-Type: application/json` and a body like
 | `attempt` | Number of the job's latest attempt, starting at 1. |
 | `records_read`, `bytes_synced`, `duration_ms` | Stats of the latest attempt. |
 | `error` | The job's error message. |
+
+`workflow.failed` carries the workflow run instead of a job:
+
+```json
+{
+  "event": "workflow.failed",
+  "timestamp": "2026-10-21T09:14:05.118Z",
+  "workspace_id": "6f1c…",
+  "workflow_id": "4d0a…",
+  "workflow_name": "Nightly",
+  "workflow_run_id": "e83b…",
+  "error": "source exited with code 1"
+}
+```
+
+| Field | Description |
+|---|---|
+| `workflow_id`, `workflow_run_id` | IDs of the workflow and of the run that failed. |
+| `workflow_name` | Name of the workflow. |
+| `error` | The error of the first step that failed. |
 
 Fields without a value are left out, so a field may be missing: `error` on most successful syncs, `records_read` when nothing was read, and the names and stats if Synclet could not load them when it built the event.
 

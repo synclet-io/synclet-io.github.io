@@ -126,7 +126,7 @@ A failed call returns a non-200 status and a JSON body:
 | `not_found` | 404 | The ID doesn't exist or belongs to another workspace. |
 | `invalid_argument` | 400 | Malformed ID, missing or invalid field. Also "connection already has an active job" from `TriggerSync`. |
 | `already_exists` | 409 | A resource with that name already exists. |
-| `failed_precondition` | 400 | The resource is in use, or the connector has no cached spec. |
+| `failed_precondition` | 400 | The resource is in use, the connector has no cached spec, or a workflow has an active run. |
 | `resource_exhausted` | 429 | Rate limit exceeded (see below). |
 | `internal` | 500 | Server-side failure. The details are in the server log, not the response. |
 
@@ -228,9 +228,9 @@ Exceeding a limit returns `resource_exhausted`. Behind a reverse proxy, set `RAT
 | RPC | Description | Access |
 |---|---|---|
 | `CreateConnection` | Create a connection between a source and a destination. | Editor |
-| `UpdateConnection` | Update schedule, namespace, retries, tags and other settings. | Editor |
-| `DeleteConnection` | Delete a connection. | Editor |
-| `GetConnection` | Get a connection. | Viewer |
+| `UpdateConnection` | Update schedule, namespace, retries, tags and other settings. A schedule on a connection that is a workflow step is rejected. | Editor |
+| `DeleteConnection` | Delete a connection. Fails with `failed_precondition` while it is a workflow step. | Editor |
+| `GetConnection` | Get a connection, with the workflows it is a step of in `workflows`. | Viewer |
 | `ListConnections` | List connections, filtered by source, destination or tags. | Viewer |
 | `ListConnectionTags` | List the tags in use with their connection counts. | Viewer |
 | `EnableConnection` | Activate a connection's schedule. | Editor |
@@ -262,6 +262,24 @@ Exceeding a limit returns `resource_exhausted`. Behind a reverse proxy, set `RAT
 | `ListJobs` | List jobs, filtered by connection and status. | Viewer |
 | `GetJobLogs` | Read a job's log lines from a cursor. | Viewer |
 | `DownloadJobLogs` | Stream the full log of one attempt as plain text (server streaming). | Viewer |
+
+### WorkflowService
+
+`synclet.publicapi.pipeline.v1.WorkflowService`
+
+| RPC | Description | Access |
+|---|---|---|
+| `CreateWorkflow` | Create a workflow from a name, an optional cron `schedule` and its steps. | Editor |
+| `UpdateWorkflow` | Replace a workflow's name, schedule and steps. | Editor |
+| `DeleteWorkflow` | Delete a workflow and its runs. | Editor |
+| `GetWorkflow` | Get a workflow with its steps. | Viewer |
+| `ListWorkflows` | List the workspace's workflows. | Viewer |
+| `RunWorkflow` | Start a run now (trigger `manual`). | Editor |
+| `RerunWorkflowRun` | Rerun a failed run from its failed and skipped steps. | Editor |
+| `ListWorkflowRuns` | List a workflow's runs with their step runs. | Viewer |
+| `GetWorkflowRun` | Get one run with its step runs. | Viewer |
+
+A step is `{"connectionId": "…", "afterConnectionIds": ["…"]}`: it runs after the steps of the listed connections. A cycle, a connection listed twice or a connection of another workspace is `invalid_argument`. `UpdateWorkflow`, `DeleteWorkflow` and `RunWorkflow` fail with `failed_precondition` while a run is active, and `RerunWorkflowRun` also for a run that did not fail. See [Workflows](/synclet-site/docs/guides/workflows/).
 
 ### ConnectorTaskService
 

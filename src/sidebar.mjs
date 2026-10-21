@@ -25,6 +25,7 @@ export const sidebar = [
       { label: 'Destinations', slug: 'docs/guides/destinations' },
       { label: 'Connections', slug: 'docs/guides/connections' },
       { label: 'Stream Configuration', slug: 'docs/guides/stream-configuration' },
+      { label: 'Workflows', slug: 'docs/guides/workflows' },
       { label: 'Schema Changes', slug: 'docs/guides/schema-changes' },
       { label: 'Transforms', slug: 'docs/guides/transforms' },
       { label: 'Scheduling', slug: 'docs/guides/scheduling' },

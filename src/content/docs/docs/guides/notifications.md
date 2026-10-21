@@ -102,9 +102,11 @@ Notifications are driven by rules. Each rule links a channel to a connection (or
 
 | Condition | When It Fires | Use Case |
 |---|---|---|
-| **On failure** | A sync job fails. | Catch any sync failure immediately. |
+| **On failure** | A sync job fails, or a workflow run fails. | Catch any sync or workflow failure immediately. |
 | **On consecutive failures** | A sync fails and the number of consecutive failures reaches a threshold you configure. | Avoid alert fatigue from transient errors; only notify after repeated failures. |
 | **On zero records** | A sync completes successfully but reads zero records. | Detect stale or broken source configurations early. |
+
+A failed workflow run notifies each channel with an **On failure** rule on any connection that is a step of the workflow, or a workspace-wide **On failure** rule, once per channel. The message names the workflow, the run and the error of the first step that failed. The failed step's sync also sends its own sync failure notification. See [Workflows](/synclet-site/docs/guides/workflows/#when-a-step-fails).
 
 Notifications are not sent for:
 
