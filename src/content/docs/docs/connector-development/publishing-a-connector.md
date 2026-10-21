@@ -1,6 +1,6 @@
 ---
 title: Publishing a connector
-description: Release a connector from synclet-io/connectors — meta.json, release-please, the <dir>-v<version> tag, the GHCR image and the registry entry — or run your own connectors repository and registry from synclet-io/synclet-connectors-template.
+description: Release a connector from synclet-io/connectors to GHCR and the registry, or run your own connectors repository and registry.
 ---
 
 A connector reaches Synclet in three pieces: a Docker image on GHCR, an entry in a connector registry (`registry.json`) that names the image and carries its spec, and a Synclet install that reads that registry. This page covers both ways to get there:

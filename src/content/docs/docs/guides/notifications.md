@@ -1,6 +1,6 @@
 ---
 title: Notifications
-description: Set up Slack, Email, Telegram notifications.
+description: Send Synclet sync alerts to Slack, email (SMTP) or Telegram, and choose with notification rules which events trigger them.
 ---
 
 Synclet can notify you when syncs fail, encounter warnings, or when connection health degrades. Notifications are configured at the workspace level and assigned to individual connections.

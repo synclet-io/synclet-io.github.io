@@ -1,0 +1,25 @@
+---
+import StarlightPage from '@astrojs/starlight/components/StarlightPage.astro';
+---
+
+<StarlightPage
+  frontmatter={{
+    title: 'Page not found',
+    description: 'This Synclet documentation page does not exist. Search the docs or start from the introduction.',
+    template: 'splash',
+    editUrl: false,
+    pagefind: false,
+    head: [{ tag: 'meta', attrs: { name: 'robots', content: 'noindex' } }],
+    hero: {
+      title: 'Page not found',
+      tagline: 'This page does not exist. Search the docs or start from the introduction.',
+      actions: [
+        {
+          text: 'Read the introduction',
+          link: `${import.meta.env.BASE_URL}/docs/getting-started/introduction/`,
+          icon: 'right-arrow',
+        },
+      ],
+    },
+  }}
+/>

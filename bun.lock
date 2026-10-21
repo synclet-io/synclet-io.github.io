@@ -5,6 +5,7 @@
     "": {
       "name": "synclet_site",
       "dependencies": {
+        "@astrojs/sitemap": "3.7.2",
         "@astrojs/starlight": "^0.38.2",
         "@astrojs/starlight-tailwind": "^5.0.0",
         "@tailwindcss/vite": "^4.2.2",

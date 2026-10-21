@@ -1,6 +1,6 @@
 ---
 title: Workspaces & Roles
-description: Multi-tenant workspace isolation and role-based access control.
+description: How Synclet isolates teams in workspaces, what the admin, editor and viewer roles may do, and how to manage workspace members.
 ---
 
 ## Workspaces

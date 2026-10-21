@@ -1,6 +1,6 @@
 ---
 title: Scheduling & Triggers
-description: Cron schedules, manual triggers, retry policies.
+description: Schedule Synclet syncs with cron expressions, trigger them manually, set retry policies and control concurrent syncs.
 ---
 
 Synclet gives you full control over when syncs run. You can set up automated cron schedules, trigger syncs manually, and configure retry behavior for failures.

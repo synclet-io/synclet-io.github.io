@@ -1,6 +1,6 @@
 ---
 title: Managing Sources
-description: Add, configure, test, and manage data sources.
+description: Add a data source in Synclet, configure and test its connector, discover its schema, edit or delete it, and fix common source errors.
 ---
 
 Sources are where your data comes from. Synclet uses connectors that implement the Airbyte Protocol to pull data from databases, SaaS APIs, file systems, and more.

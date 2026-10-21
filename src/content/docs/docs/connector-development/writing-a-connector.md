@@ -1,6 +1,6 @@
 ---
 title: Writing a connector
-description: Write a Synclet source connector in Go on synclet-go-sdk, using source-postgres as the worked example — spec, check, discover, read, state, the conformance suite and testcontainers.
+description: "Write a Synclet source connector in Go with synclet-go-sdk: spec, check, discover, read, state and the conformance test suite."
 ---
 
 Synclet's own connectors live in [synclet-io/connectors](https://github.com/synclet-io/connectors), one directory per connector, written in Go on [synclet-go-sdk](https://github.com/synclet-io/synclet-go-sdk) and shipped as Docker images that speak the [Airbyte protocol](https://docs.airbyte.com/platform/understanding-airbyte/airbyte-protocol). This page walks through [`connectors/source-postgres`](https://github.com/synclet-io/connectors/tree/main/connectors/source-postgres), the reference source, from an empty directory to a connector that passes the SDK's conformance suite. [Publishing a connector](/synclet-site/docs/connector-development/publishing-a-connector/) covers releasing it.

@@ -1,6 +1,6 @@
 ---
 title: Production Checklist
-description: Run Synclet reliably in production — SSL, monitoring, backups, performance.
+description: "Production checklist for Synclet: secrets and TLS, PostgreSQL sizing, monitoring, backups, performance tuning and high availability."
 ---
 
 This checklist covers the essentials for running Synclet in production. Work through each section before going live.

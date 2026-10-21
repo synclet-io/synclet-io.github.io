@@ -1,6 +1,6 @@
 ---
 title: Troubleshooting
-description: Common issues, error messages, debugging steps.
+description: "Troubleshoot Synclet: failing syncs, connector debugging in Docker and Kubernetes, database and cluster issues, and where to get help."
 ---
 
 This page covers the most common issues you may encounter when running Synclet and how to resolve them.

@@ -1,6 +1,6 @@
 ---
 title: Authentication & SSO
-description: Setting up authentication, OIDC SSO, and API keys.
+description: Sign in to Synclet with email and password or OIDC single sign-on (Google, Okta), disable registration, and manage API keys and sessions.
 ---
 
 Synclet supports multiple authentication methods: email and password for quick setup, OpenID Connect (OIDC) for enterprise single sign-on, and API keys for programmatic access.

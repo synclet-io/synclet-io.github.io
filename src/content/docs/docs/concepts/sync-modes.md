@@ -1,6 +1,6 @@
 ---
 title: Sync Modes
-description: Understanding sync modes — full refresh, incremental, and destination write modes.
+description: "Synclet sync modes: full refresh and incremental reads, append, overwrite and deduped writes, and how primary keys and cursors fit in."
 ---
 
 ## Overview

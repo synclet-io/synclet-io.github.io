@@ -1,6 +1,6 @@
 ---
 title: Settings & API Keys
-description: Workspace settings, members, connector repos, API keys.
+description: "Synclet workspace settings: members, connector repositories, notifications, API keys, the audit log, account settings and config export."
 ---
 
 The Settings page lets you manage your workspace configuration, team members, connectors, notification channels, webhooks, and API keys.

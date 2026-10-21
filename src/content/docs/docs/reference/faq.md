@@ -1,6 +1,6 @@
 ---
-title: FAQ
-description: Frequently asked questions.
+title: Frequently Asked Questions
+description: "Answers to common questions about Synclet: what it is, how it compares to Airbyte, security, scalability and connector compatibility."
 ---
 
 ## General

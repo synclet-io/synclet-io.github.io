@@ -1,6 +1,6 @@
 ---
-title: Docker
-description: Deploy Synclet with Docker Compose or standalone Docker.
+title: Docker Deployment
+description: Deploy Synclet with Docker Compose, a standalone Docker container or the binary, with health checks, monitoring and backups.
 ---
 
 Synclet ships as a single container image. The fastest way to get running is Docker Compose, which bundles PostgreSQL alongside Synclet. You can also run the container standalone or skip Docker entirely with a bare binary.

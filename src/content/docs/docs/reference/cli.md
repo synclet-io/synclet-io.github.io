@@ -1,6 +1,6 @@
 ---
 title: CLI Commands
-description: Complete reference for the synclet CLI.
+description: "Reference for the synclet command line: running the server in standalone or distributed mode, global flags and database migrations."
 ---
 
 Synclet is distributed as a single binary. All operations — running the server, managing migrations, and executing syncs — are subcommands of `synclet`.

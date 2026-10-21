@@ -1,6 +1,6 @@
 ---
 title: Monitoring & Jobs
-description: Dashboard, job history, logs, Prometheus metrics.
+description: "Monitor Synclet: the dashboard, job history and job details, sync logs, Prometheus metrics and the health endpoints."
 ---
 
 Synclet provides built-in tools for monitoring your data syncs — a real-time dashboard, detailed job history, per-connector logs, and Prometheus-compatible metrics for external observability.

@@ -1,6 +1,6 @@
 ---
-title: Kubernetes
-description: Deploy on Kubernetes with Helm chart.
+title: Kubernetes Deployment
+description: "Install Synclet on Kubernetes with the Helm chart: key values, standalone or distributed mode, secrets, SSO, ingress and health checks."
 ---
 
 Synclet provides a Helm chart for Kubernetes deployments, supporting both a simple single-pod setup and a distributed architecture where each sync runs as a separate Kubernetes Job.

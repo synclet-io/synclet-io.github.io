@@ -1,6 +1,6 @@
 ---
 title: Creating Connections
-description: Create and manage connections between sources and destinations.
+description: Create a Synclet connection between a source and a destination, run and edit syncs, tag, disable or delete it, and read its status.
 ---
 
 A connection is the core unit of data synchronization in Synclet. It links a source to a destination and defines what data to sync, how to sync it, and when.
