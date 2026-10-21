@@ -14,6 +14,8 @@ The MCP server is off by default. It runs on its own HTTP server, separate from 
 | `MCP_ENABLED` | `false` | Start the MCP server. |
 | `MCP_HTTP_SERVER_ADDR` | `0.0.0.0:8082` | Address the MCP server listens on. The endpoint is `/mcp`. |
 | `MCP_WRITE_TOOLS` | `true` | Offer the tools that create, edit and delete entities. `false` leaves the read and operational tools only. |
+| `MCP_PUBLIC_URL` | `http://localhost:8082` | Base URL AI clients reach the MCP server at. OAuth discovery, client registration and tokens are served there. |
+| `MCP_UI_URL` | `AUTH_OIDC_CALLBACK_BASE_URL` | Base URL of the web UI that serves the OAuth consent page, `/oauth/authorize`. The Helm chart always sets it: `mcp.uiUrl`, or else the chart's frontend URL. |
 
 With `MCP_ENABLED=true`, the server answers at `http://<host>:8082/mcp` over Streamable HTTP. It keeps no session state, so any number of server replicas can serve it behind a load balancer.
 
@@ -23,18 +25,25 @@ With `MCP_ENABLED=true`, the server answers at `http://<host>:8082/mcp` over Str
 mcp:
   enabled: true
   writeTools: true
+  publicUrl: https://mcp.synclet.example.com   # MCP_PUBLIC_URL
+  uiUrl: https://synclet.internal.example.com  # MCP_UI_URL; empty takes the chart's frontend URL
   ingress:
     mode: shared   # or: separate
 ```
 
 The chart adds a `<release>-mcp` Service and exposes it in one of two ways:
 
-- **`shared`** (default): the main Ingress (or the HTTPRoute, with `server.gateway.enabled`) routes `/mcp` and the two `/.well-known/oauth-*` paths to the MCP Service. One host, one Ingress.
-- **`separate`**: a second Ingress, on `mcp.ingress.hostname`, routes only the MCP paths. Use it to make MCP public while the main Ingress stays behind a VPN. It takes its own `ingressClassName`, `tls`, `tlsSecretName` and `annotations` under `mcp.ingress`.
+- **`shared`** (default): the main Ingress (or the HTTPRoute, with `server.gateway.enabled`) routes `/mcp`, the two `/.well-known/oauth-*` paths, `/oauth/register` and `/oauth/token` to the MCP Service. One host, one Ingress.
+- **`separate`**: a second Ingress, on `mcp.ingress.hostname`, routes only those MCP paths. Use it to make MCP public while the main Ingress stays behind a VPN (see [Synclet behind a VPN](#synclet-behind-a-vpn)). It takes its own `ingressClassName`, `tls`, `tlsSecretName` and `annotations` under `mcp.ingress`.
 
 ## Authentication and permissions
 
-The MCP server accepts [workspace API keys](/synclet-site/docs/guides/authentication/#api-keys) only, sent as `Authorization: Bearer synclet_sk_…`. A request without a key, or with an unknown, revoked or expired key, gets `401 Unauthorized`.
+A client authenticates in one of two ways:
+
+- **OAuth**: clients that support MCP authorization, such as Claude's custom connectors, sign you in through your browser and get a key for the workspace and access level you pick. Nothing to copy. See [Add Synclet as a connector](#add-synclet-as-a-connector).
+- **API key**: a [workspace API key](/synclet-site/docs/guides/authentication/#api-keys) sent as `Authorization: Bearer synclet_sk_…`, for clients configured by hand such as Claude Code.
+
+A request without a key, or with an unknown, revoked or expired key, gets `401 Unauthorized` with a `WWW-Authenticate` header that points OAuth clients to the discovery document.
 
 A key carries its workspace and acts with the role of the user who created it:
 
@@ -43,9 +52,52 @@ A key carries its workspace and acts with the role of the user who created it:
 
 A tool the role does not allow returns a `permission_denied` error to the client. Actions taken through MCP are recorded in the [audit log](/synclet-site/docs/guides/settings/#audit-log) like the same actions in the UI or API.
 
+A key issued through OAuth also carries the access level chosen on the consent page: the client lists and calls only the tools of that level, and the user's role applies on top of it. It works only on the MCP server; the public API rejects it.
+
 Create a dedicated key for each AI client, so you can revoke it on its own.
 
+## Add Synclet as a connector
+
+Claude (claude.ai, Claude Desktop and the mobile apps) and other clients that support MCP authorization connect with OAuth: you give them the MCP URL, and they register themselves and send you to Synclet to approve access.
+
+1. In Claude, open **Settings > Connectors**, choose **Add custom connector**, enter a name and the MCP URL, `https://mcp.synclet.example.com/mcp`, and choose **Add**. Leave the OAuth client ID and secret empty: Claude registers itself.
+2. Choose **Connect**. Your browser opens Synclet's consent page. Sign in first if needed, with your password or your single sign-on provider as usual.
+3. The consent page names the client asking for access. Pick the **workspace** it may use and the **access level**:
+
+   | Level | Allows |
+   |---|---|
+   | Read | The read tools: list and inspect connections, sources, destinations, jobs, workflows. |
+   | Read + actions | Also the operational tools: trigger and cancel syncs, pause and resume connections, run and rerun workflows. |
+   | Read + actions + write | Every tool, including creating, editing and deleting entities (when `MCP_WRITE_TOOLS` is on). |
+
+4. Choose **Allow**. The browser returns to Claude, which now lists the Synclet tools. **Deny** returns to Claude without granting anything.
+
+The client gets a key valid for one hour and a refresh token valid for 30 days, and renews the key on its own. Each grant is a single entry in **Settings > API Keys**, with the client's name and the access level; renewing replaces the key rather than adding one. **Revoke** ends the grant: the key stops working at once, the refresh token too, and the client has to ask for consent again. Grants whose refresh token has expired are deleted automatically.
+
+The level is fixed per grant. To change it, revoke the key and connect again.
+
+### Synclet behind a VPN
+
+The client's servers call the MCP server, so the MCP host must be reachable from the internet. Signing in and the consent page only have to be reachable from your browser, so the web UI and API can stay behind a VPN:
+
+| Address | Serves | Reachable from |
+|---|---|---|
+| `https://mcp.synclet.example.com` (`MCP_PUBLIC_URL`) | `/mcp`, `/.well-known/oauth-*`, `/oauth/register`, `/oauth/token` | The internet (the AI client's servers) |
+| `https://synclet.internal.example.com` (`MCP_UI_URL`) | The web UI, the API, sign-in, `/oauth/authorize` and the consent page | Your browser, through the VPN |
+
+Connect to the VPN before choosing **Connect** in the client. The browser opens the consent page on the private address, and the code it returns travels to the client through the browser's redirect, so the client never has to reach the private address. Sign-in, passwords and SSO never leave the private side; the public host only issues and checks keys.
+
+With Helm, set `mcp.ingress.mode: separate`, put the MCP host in `mcp.ingress.hostname` and `mcp.publicUrl`, and the private UI address in `mcp.uiUrl` (or leave it empty to use the chart's frontend URL: `frontend.url`, else `server.publicUrl`). Keep the main Ingress on the VPN-only ingress class.
+
 ## Claude Code
+
+Claude Code supports OAuth: add the server without a header, then run `/mcp` in Claude Code and choose **Authenticate** to open the consent page.
+
+```bash
+claude mcp add --transport http synclet https://synclet.example.com/mcp
+```
+
+To use an API key instead:
 
 ```bash
 claude mcp add --transport http synclet https://synclet.example.com/mcp \
