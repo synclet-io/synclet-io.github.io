@@ -31,10 +31,39 @@ mcp:
     mode: shared   # or: separate
 ```
 
-The chart adds a `<release>-mcp` Service and exposes it in one of two ways:
+The chart adds a `<release>-mcp` Service and exposes it in one of two ways. In both, MCP follows the way the server is exposed. The chart's Ingress (`server.ingress`) and Gateway API HTTPRoute (`server.gateway`) can run alone or side by side, so you can migrate from one to the other gradually, and MCP moves along with the UI.
 
-- **`shared`** (default): the main Ingress (or the HTTPRoute, with `server.gateway.enabled`) routes `/mcp`, the two `/.well-known/oauth-*` paths, `/oauth/register` and `/oauth/token` to the MCP Service. One host, one Ingress.
-- **`separate`**: a second Ingress, on `mcp.ingress.hostname`, routes only those MCP paths. Use it to make MCP public while the main Ingress stays behind a VPN (see [Synclet behind a VPN](#synclet-behind-a-vpn)). It takes its own `ingressClassName`, `tls`, `tlsSecretName` and `annotations` under `mcp.ingress`.
+
+- **`shared`** (default): every enabled main route, the main Ingress and the main HTTPRoute, routes `/mcp`, the two `/.well-known/oauth-*` paths, `/oauth/register` and `/oauth/token` to the MCP Service. MCP shares the UI's host.
+- **`separate`**: MCP gets routes of its own that carry only those MCP paths, and the main Ingress and HTTPRoute carry none. Use it to make MCP public while the UI stays behind a VPN (see [Synclet behind a VPN](#synclet-behind-a-vpn)). Each way the server is exposed gets its MCP twin:
+  - with `server.ingress.enabled`, a second Ingress, `<release>-mcp`, on `mcp.ingress.hostname` (required). It takes its own `ingressClassName`, `tls`, `tlsSecretName` and `annotations` under `mcp.ingress`;
+  - with `server.gateway.enabled`, a second HTTPRoute, `<release>-mcp`, attached to the Gateways in `mcp.gateway.parentRefs` (required), on `mcp.gateway.hostnames` if you list any, with its own `mcp.gateway.timeouts`.
+
+  With both enabled, as during a migration, you get both twins; with neither, only the MCP Service, for you to expose yourself.
+
+```yaml
+mcp:
+  enabled: true
+  publicUrl: https://mcp.synclet.example.com
+  ingress:
+    mode: separate
+  gateway:
+    parentRefs:
+      - name: public-gateway
+        namespace: gateway-system
+    hostnames:
+      - mcp.synclet.example.com
+server:
+  ingress:
+    enabled: false
+  gateway:
+    enabled: true
+    parentRefs:
+      - name: private-gateway   # reachable only through the VPN
+        namespace: gateway-system
+    hostnames:
+      - synclet.internal.example.com
+```
 
 ## Authentication and permissions
 
@@ -87,7 +116,9 @@ The client's servers call the MCP server, so the MCP host must be reachable from
 
 Connect to the VPN before choosing **Connect** in the client. The browser opens the consent page on the private address, and the code it returns travels to the client through the browser's redirect, so the client never has to reach the private address. Sign-in, passwords and SSO never leave the private side; the public host only issues and checks keys.
 
-With Helm, set `mcp.ingress.mode: separate`, put the MCP host in `mcp.ingress.hostname` and `mcp.publicUrl`, and the private UI address in `mcp.uiUrl` (or leave it empty to use the chart's frontend URL: `frontend.url`, else `server.publicUrl`). Keep the main Ingress on the VPN-only ingress class.
+With Helm, set `mcp.ingress.mode: separate`, put the MCP host in `mcp.ingress.hostname` and `mcp.publicUrl`, and the private UI address in `mcp.uiUrl` (or leave it empty to use the chart's frontend URL: `frontend.url`, else `server.publicUrl`). Keep the main Ingress on the VPN-only ingress class. With the Gateway API, put the MCP host in `mcp.gateway.hostnames` and `mcp.publicUrl`, attach `mcp.gateway.parentRefs` to a public Gateway and keep `server.gateway.parentRefs` on a private one.
+
+The public MCP route can also be limited to the addresses the AI client's servers connect from. For Claude's connectors, those are Anthropic's published outbound IP ranges; see [Anthropic's IP addresses](https://platform.claude.com/docs/en/api/ip-addresses) for the current list. With an Ingress, set the restriction through `mcp.ingress.annotations`, for example ingress-nginx's `nginx.ingress.kubernetes.io/whitelist-source-range` with those ranges. With the Gateway API, attach your Gateway implementation's IP-filtering policy (for example an Envoy Gateway `SecurityPolicy` with an authorization rule on client CIDRs) to the `<release>-mcp` HTTPRoute.
 
 ## Claude Code
 
