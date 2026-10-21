@@ -8,7 +8,7 @@ Documentation website for [Synclet](https://github.com/synclet-io/synclet) — a
 bun install
 bun run dev          # http://localhost:4321
 bun run build        # Production build to ./dist/
-bun run check:links  # Fails on links outside the /synclet-site base or to missing pages
+bun run check:links  # Fails on links to missing pages or anchors
 ```
 
 ## Analytics

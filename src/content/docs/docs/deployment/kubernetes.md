@@ -99,7 +99,7 @@ When Synclet detects it is running inside Kubernetes, it automatically selects t
 
 ### Distributed mode
 
-The server and jobs worker run as Deployments and the executor as a StatefulSet. The executor launches connector pods as Kubernetes Jobs, giving you native resource isolation and scaling. See [Executors](/synclet-site/docs/deployment/executors/) for how the parts talk to each other.
+The server and jobs worker run as Deployments and the executor as a StatefulSet. The executor launches connector pods as Kubernetes Jobs, giving you native resource isolation and scaling. See [Executors](/docs/deployment/executors/) for how the parts talk to each other.
 
 ```yaml
 mode: distributed
@@ -114,7 +114,7 @@ Benefits of distributed mode:
 - **Resource control** -- Set CPU/memory limits per sync via Helm values.
 - **Observability** -- Each sync is a distinct Job with its own logs.
 
-See [Production Checklist](/synclet-site/docs/deployment/production/) for sizing guidance.
+See [Production Checklist](/docs/deployment/production/) for sizing guidance.
 
 ### Replicas and disruption budget
 
@@ -140,7 +140,7 @@ executor:
   replicaCount: 2
 ```
 
-Executor pods start in parallel and update one at a time, highest ordinal first. Each keeps its pod name (`<fullname>-executor-0`, `-1`, …) as its owner ID unless `k8s.ownerId` is set. After a scale-down, the Jobs a removed ordinal left behind are cleaned up only when a pod with that ordinal runs again. More replicas add availability, not capacity: one executor launches any number of sync Jobs. See [Executors: scaling](/synclet-site/docs/deployment/executors/#scaling).
+Executor pods start in parallel and update one at a time, highest ordinal first. Each keeps its pod name (`<fullname>-executor-0`, `-1`, …) as its owner ID unless `k8s.ownerId` is set. After a scale-down, the Jobs a removed ordinal left behind are cleaned up only when a pod with that ordinal runs again. More replicas add availability, not capacity: one executor launches any number of sync Jobs. See [Executors: scaling](/docs/deployment/executors/#scaling).
 
 With `executor.enabled: false`, point your own `synclet k8s-executor` at `http://<fullname>-internal.<namespace>.svc.cluster.local:8081` (`EXECUTOR_API_URL`) and give it the internal API token (`EXECUTOR_API_TOKEN`, the `internal-api-secret` key of the `<fullname>-secrets` Secret unless `internalApi.existingSecret` is set).
 
@@ -155,9 +155,9 @@ With `executor.enabled: false`, point your own `synclet k8s-executor` at `http:/
 | `k8s.defaultMemory` | Memory request and limit of a sync container that gets neither from `pipeline.resources` or the connector's runtime config | `2Gi` |
 | `k8s.defaultCPU` | Same for CPU | `1` |
 | `k8s.imagePullSecret` | Image pull Secret for private connector registries | empty |
-| `k8s.localVolume` | Existing PVC mounted at `/local` in connector containers, for [file-writing destinations](/synclet-site/docs/concepts/connectors/#files-written-by-destinations); empty mounts an `emptyDir` | empty |
+| `k8s.localVolume` | Existing PVC mounted at `/local` in connector containers, for [file-writing destinations](/docs/concepts/connectors/#files-written-by-destinations); empty mounts an `emptyDir` | empty |
 
-See [Executors: owner IDs](/synclet-site/docs/deployment/executors/#owner-ids) for why the owner ID matters.
+See [Executors: owner IDs](/docs/deployment/executors/#owner-ids) for why the owner ID matters.
 
 ## Secrets
 
@@ -168,12 +168,12 @@ The chart keeps its secrets in the `<fullname>-secrets` Secret. Each one is set 
 | `auth.jwtSecret`, `auth.existingSecret`, `auth.existingSecretKey` | `AUTH_JWT_SECRET`, at least 32 bytes | `jwt-secret` |
 | `encryption.key`, `encryption.existingSecret`, `encryption.existingSecretKeyKey` | `SECRET_ENCRYPTION_KEY`, base64 of 32 bytes | `encryption-key` |
 | `encryption.keyPrevious`, `encryption.enableKeyPrevious`, `encryption.existingSecretKeyPreviousKey` | `SECRET_ENCRYPTION_KEY_PREVIOUS` during key rotation. With an `existingSecret` or VSO, set `enableKeyPrevious: true` once the Secret holds the key | `encryption-key-previous` |
-| `internalApi.secret`, `internalApi.existingSecret`, `internalApi.existingSecretKey` | Executor API token: `PIPELINE_EXECUTOR_API_TOKEN` of the server and jobs pods, `EXECUTOR_API_TOKEN` of the executor pods. See [Executors: the internal API](/synclet-site/docs/deployment/executors/#the-internal-api) | `internal-api-secret` |
+| `internalApi.secret`, `internalApi.existingSecret`, `internalApi.existingSecretKey` | Executor API token: `PIPELINE_EXECUTOR_API_TOKEN` of the server and jobs pods, `EXECUTOR_API_TOKEN` of the executor pods. See [Executors: the internal API](/docs/deployment/executors/#the-internal-api) | `internal-api-secret` |
 | `externalDatabase.existingSecret`, `externalDatabase.existingSecretKey` | A full `DB_DSN`; the `host`, `port`, `user`, `password`, `database` and `sslmode` fields are then ignored | `db-dsn` |
 | `smtp.password`, `smtp.existingSecret`, `smtp.existingSecretKey` | `NOTIFY_SMTP_PASSWORD` | `smtp-password` |
 | `oidc.providers[].clientSecret`, `oidc.existingSecret` | `AUTH_OIDC_<SLUG>_CLIENT_SECRET` of each provider | `oidc-<slug>-client-secret` |
 
-Back up the encryption key, generated or not: without it the connector credentials in the database cannot be decrypted. See [Backup and Restore](/synclet-site/docs/deployment/backup-and-restore/).
+Back up the encryption key, generated or not: without it the connector credentials in the database cannot be decrypted. See [Backup and Restore](/docs/deployment/backup-and-restore/).
 
 ```yaml
 postgresql:
@@ -226,7 +226,7 @@ The server's own default for `AUTH_SECURE_COOKIES` is `false`; the chart sets `t
 
 ### OIDC providers
 
-Each entry of `oidc.providers` becomes one provider. The chart lists the slugs in `AUTH_OIDC_PROVIDERS` and renders the entry's keys as `AUTH_OIDC_<SLUG>_*` variables, with the slug upper-cased. See [Authentication: single sign-on](/synclet-site/docs/guides/authentication/#single-sign-on-oidc) for what each one does.
+Each entry of `oidc.providers` becomes one provider. The chart lists the slugs in `AUTH_OIDC_PROVIDERS` and renders the entry's keys as `AUTH_OIDC_<SLUG>_*` variables, with the slug upper-cased. See [Authentication: single sign-on](/docs/guides/authentication/#single-sign-on-oidc) for what each one does.
 
 | Key | Variable |
 |---|---|
@@ -283,11 +283,11 @@ smtp:
 - `single` (default): one shared workspace that every user joins. OIDC role mapping applies only here.
 - `multi`: users create workspaces and invite members.
 
-See [Workspaces & Roles](/synclet-site/docs/concepts/workspaces-and-roles/).
+See [Workspaces & Roles](/docs/concepts/workspaces-and-roles/).
 
 ## Pipeline Tuning
 
-`pipeline.*` values become environment variables of the Synclet pods. See [Environment Variables](/synclet-site/docs/reference/environment-variables/#sync-pipeline) for what each one does.
+`pipeline.*` values become environment variables of the Synclet pods. See [Environment Variables](/docs/reference/environment-variables/#sync-pipeline) for what each one does.
 
 | Value | Variable | Default |
 |---|---|---|
@@ -491,7 +491,7 @@ server:
 
 ## Health Checks
 
-The server's startup, liveness and readiness probes call `/live`, `/live` and `/ready` on the `internal` container port (`8081`). Each probe takes `path` and `port` (`server.startupProbe.*`, `server.livenessProbe.*`, `server.readinessProbe.*`); `port` is a container port name (`public`, `internal`) or a number. See [Monitoring: health endpoints](/synclet-site/docs/guides/monitoring/#health-endpoints) for what each one checks.
+The server's startup, liveness and readiness probes call `/live`, `/live` and `/ready` on the `internal` container port (`8081`). Each probe takes `path` and `port` (`server.startupProbe.*`, `server.livenessProbe.*`, `server.readinessProbe.*`); `port` is a container port name (`public`, `internal`) or a number. See [Monitoring: health endpoints](/docs/guides/monitoring/#health-endpoints) for what each one checks.
 
 Images up to 0.4.0 serve only `/health` on the public port. To run such an image with this chart, point the probes there instead of disabling them:
 
@@ -537,7 +537,7 @@ On GKE, grant `roles/iam.workloadIdentityUser` to `serviceAccount:<project>.svc.
 
 ## Log Archive
 
-`logArchive.*` sets where the logs of finished jobs are stored; while a job runs, its logs are always in PostgreSQL. See [Monitoring: log storage](/synclet-site/docs/guides/monitoring/#log-storage-and-archiving) for how archiving works.
+`logArchive.*` sets where the logs of finished jobs are stored; while a job runs, its logs are always in PostgreSQL. See [Monitoring: log storage](/docs/guides/monitoring/#log-storage-and-archiving) for how archiving works.
 
 | Value | Description | Default |
 |---|---|---|
@@ -614,4 +614,4 @@ server:
       release: prometheus   # match your Prometheus selector
 ```
 
-Prometheus then scrapes `/metrics` on the internal Service port. See [Production Checklist](/synclet-site/docs/deployment/production/) for recommended Grafana dashboards and alerting rules.
+Prometheus then scrapes `/metrics` on the internal Service port. See [Production Checklist](/docs/deployment/production/) for recommended Grafana dashboards and alerting rules.

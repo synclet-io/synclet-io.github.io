@@ -3,7 +3,7 @@ title: Managing Connectors
 description: Install, star, update and delete connectors, manage connector repositories, and add custom images.
 ---
 
-A workspace has its own set of installed connectors. Sources and destinations are built on them, and the **Add Source** and **Add Destination** pages offer only installed connectors. Manage them under **Settings > Connectors**, which has three tabs: **Sources**, **Destinations** and **Repositories**. For what a connector is and how it runs, see [Connectors & Airbyte Protocol](/synclet-site/docs/concepts/connectors/).
+A workspace has its own set of installed connectors. Sources and destinations are built on them, and the **Add Source** and **Add Destination** pages offer only installed connectors. Manage them under **Settings > Connectors**, which has three tabs: **Sources**, **Destinations** and **Repositories**. For what a connector is and how it runs, see [Connectors & Airbyte Protocol](/docs/concepts/connectors/).
 
 | Action | Who |
 |---|---|
@@ -53,7 +53,7 @@ Any Docker image that implements the Airbyte protocol can be installed directly,
 
 Synclet runs the image's `spec` command before saving it, so the dialog waits until the image has been pulled and has answered. If `spec` fails, the connector is not added and the dialog shows the error.
 
-A custom connector appears under the **Custom** repository filter. Synclet does not track new versions of it. To publish your own connectors with versions and updates instead, put them in a registry and add it as a repository; see [Publishing a connector](/synclet-site/docs/connector-development/publishing-a-connector/).
+A custom connector appears under the **Custom** repository filter. Synclet does not track new versions of it. To publish your own connectors with versions and updates instead, put them in a registry and add it as a repository; see [Publishing a connector](/docs/connector-development/publishing-a-connector/).
 
 ## Connector Repositories
 
@@ -64,7 +64,7 @@ A repository is a registry URL that lists connectors with their images, versions
 | **Airbyte OSS** | `https://connectors.airbyte.com/files/registries/v0/oss_registry.json` |
 | **Synclet** | `https://synclet-io.github.io/connectors/registry.json` |
 
-Both are added to every new workspace and can be deleted like any other. Most of Airbyte's connectors are under ELv2; read [Connector licenses](/synclet-site/docs/reference/connector-licenses/) before you rely on one.
+Both are added to every new workspace and can be deleted like any other. Most of Airbyte's connectors are under ELv2; read [Connector licenses](/docs/reference/connector-licenses/) before you rely on one.
 
 ### Adding a Repository
 
@@ -75,7 +75,7 @@ Both are added to every new workspace and can be deleted like any other. Most of
 
 ### Syncing
 
-Synclet syncs every repository in the background once an hour (`PIPELINE_JOB_REPOSITORY_SYNC_INTERVAL`, see [Background job intervals](/synclet-site/docs/reference/environment-variables/#background-job-intervals)). **Sync Now** on a repository's row syncs it right away. A sync refreshes the repository's list of connectors and versions, which is where update availability comes from, and installs the connectors the workspace does not have yet. If the registry cannot be fetched, the repository is marked `failed` with the error and its previous list is kept.
+Synclet syncs every repository in the background once an hour (`PIPELINE_JOB_REPOSITORY_SYNC_INTERVAL`, see [Background job intervals](/docs/reference/environment-variables/#background-job-intervals)). **Sync Now** on a repository's row syncs it right away. A sync refreshes the repository's list of connectors and versions, which is where update availability comes from, and installs the connectors the workspace does not have yet. If the registry cannot be fetched, the repository is marked `failed` with the error and its previous list is kept.
 
 ### Deleting a Repository
 
@@ -83,6 +83,6 @@ Click **Delete** and confirm. The installed connectors that came from it stay, a
 
 ## Next Steps
 
-- [Sources](/synclet-site/docs/guides/sources/) and [Destinations](/synclet-site/docs/guides/destinations/) — Build on the installed connectors.
-- [Writing a connector](/synclet-site/docs/connector-development/writing-a-connector/) — Build your own connector image.
-- [Connector licenses](/synclet-site/docs/reference/connector-licenses/) — Licenses of the connector images.
+- [Sources](/docs/guides/sources/) and [Destinations](/docs/guides/destinations/) — Build on the installed connectors.
+- [Writing a connector](/docs/connector-development/writing-a-connector/) — Build your own connector image.
+- [Connector licenses](/docs/reference/connector-licenses/) — Licenses of the connector images.

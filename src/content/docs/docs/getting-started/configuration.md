@@ -7,7 +7,7 @@ Synclet is configured entirely through environment variables. Set them in your s
 
 ## Required Settings
 
-`DB_DSN` is the only variable Synclet truly requires — everything else has a built-in default. See [Environment Variables](/synclet-site/docs/reference/environment-variables/) for the full list.
+`DB_DSN` is the only variable Synclet truly requires — everything else has a built-in default. See [Environment Variables](/docs/reference/environment-variables/) for the full list.
 
 | Variable | Description | Example |
 |---|---|---|
@@ -127,5 +127,5 @@ Workspaces and roles are managed through the dashboard. No environment variables
 
 ## Next Steps
 
-- [Quick Start](/synclet-site/docs/getting-started/quick-start/) — Create your first sync with the configuration in place.
-- [Installation](/synclet-site/docs/getting-started/installation/) — Go back to installation if you haven't set up Synclet yet.
+- [Quick Start](/docs/getting-started/quick-start/) — Create your first sync with the configuration in place.
+- [Installation](/docs/getting-started/installation/) — Go back to installation if you haven't set up Synclet yet.

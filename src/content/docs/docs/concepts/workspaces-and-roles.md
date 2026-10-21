@@ -96,11 +96,11 @@ Pending invitations appear in the members list as **Pending**, or **Expired** on
 
 ## Workspace Modes
 
-`WORKSPACE_MODE` decides whether a Synclet installation has one workspace or many. It is read when the server starts; see [Environment Variables: Workspaces](/synclet-site/docs/reference/environment-variables/#workspaces).
+`WORKSPACE_MODE` decides whether a Synclet installation has one workspace or many. It is read when the server starts; see [Environment Variables: Workspaces](/docs/reference/environment-variables/#workspaces).
 
 ### Single-Workspace Mode
 
-In single-workspace mode (`WORKSPACE_MODE=single`, the default), the API server creates a **default workspace** when it starts, and every user joins it on sign-up: the first user as its **Admin**, later users as **Viewer** (OIDC logins take their role from the provider's role settings, see [Authentication](/synclet-site/docs/guides/authentication/)). This workspace is ready to use immediately — you can start adding sources, destinations, and connections right away.
+In single-workspace mode (`WORKSPACE_MODE=single`, the default), the API server creates a **default workspace** when it starts, and every user joins it on sign-up: the first user as its **Admin**, later users as **Viewer** (OIDC logins take their role from the provider's role settings, see [Authentication](/docs/guides/authentication/)). This workspace is ready to use immediately — you can start adding sources, destinations, and connections right away.
 
 The UI offers no way to create more workspaces in this mode and shows no workspace selector. Admins can still invite people who have no account yet, but signing up already makes them a **Viewer**, and accepting the invitation afterwards does not change that role; an admin sets the role under **Settings > Members**.
 
@@ -120,6 +120,6 @@ There is no limit on the number of workspaces.
 
 ## Next Steps
 
-- [Authentication](/synclet-site/docs/guides/authentication/) — Configure OIDC single sign-on and user management.
-- [Quick Start](/synclet-site/docs/getting-started/quick-start/) — Set up your first sync in under 5 minutes.
-- [Architecture Overview](/synclet-site/docs/concepts/architecture/) — Learn how Synclet is structured under the hood.
+- [Authentication](/docs/guides/authentication/) — Configure OIDC single sign-on and user management.
+- [Quick Start](/docs/getting-started/quick-start/) — Set up your first sync in under 5 minutes.
+- [Architecture Overview](/docs/concepts/architecture/) — Learn how Synclet is structured under the hood.

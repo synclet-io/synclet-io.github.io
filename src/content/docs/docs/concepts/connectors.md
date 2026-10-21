@@ -14,7 +14,7 @@ Connectors are Docker images that know how to read data from a specific system (
 | **discover** | Lists available streams (tables, endpoints, files) and their schemas |
 | **read** / **write** | Reads data from a source or writes data to a destination |
 
-Synclet runs connectors that implement the Airbyte Protocol. Which pairs are tested, with versions, is listed under [Tested with](#tested-with); each connector image keeps its own license, see [Connector licenses](/synclet-site/docs/reference/connector-licenses/).
+Synclet runs connectors that implement the Airbyte Protocol. Which pairs are tested, with versions, is listed under [Tested with](#tested-with); each connector image keeps its own license, see [Connector licenses](/docs/reference/connector-licenses/).
 
 ## Popular Sources
 
@@ -40,7 +40,7 @@ Browse the full catalog from **Settings > Connectors** in the Synclet dashboard.
 
 ### Step 1: Configure a Repository
 
-Every new workspace gets two registries, so their catalogs are available on first start: Airbyte's public OSS registry, whose connectors are mostly ELv2 (see [Connector licenses](/synclet-site/docs/reference/connector-licenses/)), and Synclet's own, with the [native Go connectors](#native-go-connectors). To add a private or custom registry, go to **Settings > Connectors > Repositories** and add the registry URL. Installing, updating and deleting connectors, and adding custom images, are covered in [Managing Connectors](/synclet-site/docs/guides/connectors/).
+Every new workspace gets two registries, so their catalogs are available on first start: Airbyte's public OSS registry, whose connectors are mostly ELv2 (see [Connector licenses](/docs/reference/connector-licenses/)), and Synclet's own, with the [native Go connectors](#native-go-connectors). To add a private or custom registry, go to **Settings > Connectors > Repositories** and add the registry URL. Installing, updating and deleting connectors, and adding custom images, are covered in [Managing Connectors](/docs/guides/connectors/).
 
 ### Step 2: Create a Source or Destination
 
@@ -53,7 +53,7 @@ Every new workspace gets two registries, so their catalogs are available on firs
 
 ### Step 3: Use It in a Connection
 
-Once a source or destination is saved, you can reference it when [creating a connection](/synclet-site/docs/guides/connections/). A single source or destination can be used in multiple connections.
+Once a source or destination is saved, you can reference it when [creating a connection](/docs/guides/connections/). A single source or destination can be used in multiple connections.
 
 ## Tested with
 
@@ -82,12 +82,12 @@ Report a connector that works or fails in [GitHub issues](https://github.com/syn
 When you create a connection, Synclet runs **discover** on the source to list all available streams. For each stream, you can configure:
 
 - **Enabled/disabled** — Choose which streams to include in the sync.
-- **Sync mode** — Set the [source read mode and destination write mode](/synclet-site/docs/concepts/sync-modes/) independently per stream.
+- **Sync mode** — Set the [source read mode and destination write mode](/docs/concepts/sync-modes/) independently per stream.
 - **Field selection** — Pick only the columns you need instead of syncing the entire schema.
 - **Primary key override** — Specify a custom primary key if the connector's default is not correct (required for deduplication).
 - **Namespace rewriting** — Change the destination schema or dataset name where the stream's data lands.
 
-See the [Stream Configuration](/synclet-site/docs/guides/stream-configuration/) guide for detailed instructions.
+See the [Stream Configuration](/docs/guides/stream-configuration/) guide for detailed instructions.
 
 ## Native Go Connectors
 
@@ -97,15 +97,15 @@ Each connector ships as its own Docker image, `ghcr.io/synclet-io/connectors/<na
 
 To write or publish one, see the Connector Development guides:
 
-- [Writing a connector](/synclet-site/docs/connector-development/writing-a-connector/) — spec, check, discover, read, state and the conformance suite, with source-postgres as the example.
-- [Publishing a connector](/synclet-site/docs/connector-development/publishing-a-connector/) — the release tag, the GHCR image, the registry entry, or your own connectors repository.
+- [Writing a connector](/docs/connector-development/writing-a-connector/) — spec, check, discover, read, state and the conformance suite, with source-postgres as the example.
+- [Publishing a connector](/docs/connector-development/publishing-a-connector/) — the release tag, the GHCR image, the registry entry, or your own connectors repository.
 
 ## Container Behavior
 
 When running Docker-based connectors, Synclet manages the container lifecycle automatically:
 
 - **Image pull** — Connector images are pulled on first use. The pull has a **10-minute timeout** to handle slow registries.
-- **Resource limits** — Containers are started with default limits of **2 GB memory** and **1 CPU**. These can be overridden in the [configuration](/synclet-site/docs/getting-started/configuration/).
+- **Resource limits** — Containers are started with default limits of **2 GB memory** and **1 CPU**. These can be overridden in the [configuration](/docs/getting-started/configuration/).
 - **Stale cleanup** — A background process checks for stale or orphaned containers every **5 minutes** and removes them.
 - **Graceful shutdown** — When a sync is cancelled, Synclet sends `SIGTERM` to the container and waits up to **30 seconds** before forcing termination.
 
@@ -118,6 +118,6 @@ Destinations that write files, such as `destination-duckdb`, `destination-csv`, 
 
 ## Next Steps
 
-- [Sync Modes](/synclet-site/docs/concepts/sync-modes/) — Understand how data is read from sources and written to destinations.
-- [Sources Guide](/synclet-site/docs/guides/sources/) — Step-by-step guide for adding and managing sources.
-- [Destinations Guide](/synclet-site/docs/guides/destinations/) — Step-by-step guide for adding and managing destinations.
+- [Sync Modes](/docs/concepts/sync-modes/) — Understand how data is read from sources and written to destinations.
+- [Sources Guide](/docs/guides/sources/) — Step-by-step guide for adding and managing sources.
+- [Destinations Guide](/docs/guides/destinations/) — Step-by-step guide for adding and managing destinations.

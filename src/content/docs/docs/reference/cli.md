@@ -45,7 +45,7 @@ synclet server --standalone --dotenv .env
 
 In standalone mode, the executor is automatically selected: Docker on regular hosts, Kubernetes when running inside a K8s pod (detected via the in-cluster environment).
 
-The public HTTP server binds to `0.0.0.0:8080` by default (configurable via `PUBLIC_HTTP_SERVER_ADDR`). See [Environment Variables](/synclet-site/docs/reference/environment-variables/) for the full list of configuration options.
+The public HTTP server binds to `0.0.0.0:8080` by default (configurable via `PUBLIC_HTTP_SERVER_ADDR`). See [Environment Variables](/docs/reference/environment-variables/) for the full list of configuration options.
 
 ### Distributed Mode
 

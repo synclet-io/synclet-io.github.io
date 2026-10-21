@@ -21,7 +21,7 @@ Synclet is one binary with several commands:
 
 **Distributed** splits the same work: one or more `synclet server` replicas for the API, `synclet jobs` for the background work, and one or more executors. An executor never opens the database: it claims work, reports progress and sends logs through the server's internal API.
 
-The Helm chart runs both layouts (`mode: standalone` or `mode: distributed`), see [Kubernetes](/synclet-site/docs/deployment/kubernetes/#standalone-vs-distributed). Docker Compose runs standalone.
+The Helm chart runs both layouts (`mode: standalone` or `mode: distributed`), see [Kubernetes](/docs/deployment/kubernetes/#standalone-vs-distributed). Docker Compose runs standalone.
 
 ## Docker vs Kubernetes executor
 
@@ -36,7 +36,7 @@ The Helm chart runs both layouts (`mode: standalone` or `mode: distributed`), se
 
 The sync pods of the Kubernetes executor call the internal API themselves, at `K8S_EXECUTOR_SERVER_ADDR`, with the executor's token.
 
-All variables are listed in [Environment Variables](/synclet-site/docs/reference/environment-variables/#docker-executor).
+All variables are listed in [Environment Variables](/docs/reference/environment-variables/#docker-executor).
 
 ## The internal API
 
@@ -60,7 +60,7 @@ EXECUTOR_API_TOKEN=<same token>
 
 Generate the token with `openssl rand -base64 32`. A standalone server with the Docker executor needs no token, since its embedded executor never calls the API. A standalone server on Kubernetes does: its sync pods call the API with `PIPELINE_EXECUTOR_API_TOKEN`.
 
-The Helm chart takes the token from `internalApi.secret`, generates one on first install when it is empty, and keeps it across upgrades. It passes it to the server and jobs pods as `PIPELINE_EXECUTOR_API_TOKEN` and to the executor pods as `EXECUTOR_API_TOKEN`. See [Kubernetes: secrets](/synclet-site/docs/deployment/kubernetes/#secrets).
+The Helm chart takes the token from `internalApi.secret`, generates one on first install when it is empty, and keeps it across upgrades. It passes it to the server and jobs pods as `PIPELINE_EXECUTOR_API_TOKEN` and to the executor pods as `EXECUTOR_API_TOKEN`. See [Kubernetes: secrets](/docs/deployment/kubernetes/#secrets).
 
 Keep port 8081 off the public network. The chart serves it only through the ClusterIP Service `<fullname>-internal`, which no Ingress or HTTPRoute routes to.
 
@@ -108,7 +108,7 @@ A Docker executor that stops while syncs are running: its jobs stop sending hear
 
 ## See also
 
-- [Kubernetes](/synclet-site/docs/deployment/kubernetes/): the chart's executor and `k8s.*` options
-- [Docker](/synclet-site/docs/deployment/docker/): running Synclet with the host's Docker daemon
-- [Architecture](/synclet-site/docs/concepts/architecture/): how a sync runs
-- [Environment Variables](/synclet-site/docs/reference/environment-variables/#distributed-mode)
+- [Kubernetes](/docs/deployment/kubernetes/): the chart's executor and `k8s.*` options
+- [Docker](/docs/deployment/docker/): running Synclet with the host's Docker daemon
+- [Architecture](/docs/concepts/architecture/): how a sync runs
+- [Environment Variables](/docs/reference/environment-variables/#distributed-mode)

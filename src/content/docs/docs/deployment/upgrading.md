@@ -8,7 +8,7 @@ Releases, with their notes, are on [GitHub Releases](https://github.com/synclet-
 ## Before you upgrade
 
 1. Read the release notes of every version between yours and the target, and the [version notes](#version-notes) below.
-2. Back up the database and keep the encryption key with it. See [Backup and Restore](/synclet-site/docs/deployment/backup-and-restore/).
+2. Back up the database and keep the encryption key with it. See [Backup and Restore](/docs/deployment/backup-and-restore/).
 
 ## Migrations
 
@@ -22,7 +22,7 @@ Each release brings its schema changes as migrations, applied by `synclet migrat
 
 ## Executors and the server
 
-Executors never touch the database. They talk to the server through the executor API (see [Executors](/synclet-site/docs/deployment/executors/)). Upgrade them together with the server, from the same release. Synclet does not check that their versions match. **Settings > System** shows each executor's version, so an executor left on an old one is easy to spot.
+Executors never touch the database. They talk to the server through the executor API (see [Executors](/docs/deployment/executors/)). Upgrade them together with the server, from the same release. Synclet does not check that their versions match. **Settings > System** shows each executor's version, so an executor left on an old one is easy to spot.
 
 The Helm chart runs the server, jobs worker, executor and the orchestrator container of every sync pod (`K8S_EXECUTOR_SYNCLET_IMAGE`) from one image, so they move together. Syncs already running when the executor restarts keep their pods; a sync whose heartbeat stops is failed after `PIPELINE_HEARTBEAT_TIMEOUT` and retried.
 
@@ -67,7 +67,7 @@ Breaking and operator-visible changes, newest first. Versions not listed need no
 
   Syncs already running keep their pods, which report to the server directly.
 - **`executor.strategy` is now `executor.updateStrategy`.** It takes a StatefulSet update strategy, `type: RollingUpdate` or `OnDelete`, without `maxSurge`. A values file that still sets `executor.strategy` fails to render. The old chart's default, carried over by `--reuse-values`, is tolerated.
-- **Kubernetes owner label.** The Kubernetes executor stamps `synclet.io/owner` on its Jobs and Secrets and cleans up only its own (see [owner IDs](/synclet-site/docs/deployment/executors/#owner-ids)). Jobs and Secrets created by earlier versions carry no owner label, and no executor removes them. Once no sync is running, delete them by hand:
+- **Kubernetes owner label.** The Kubernetes executor stamps `synclet.io/owner` on its Jobs and Secrets and cleans up only its own (see [owner IDs](/docs/deployment/executors/#owner-ids)). Jobs and Secrets created by earlier versions carry no owner label, and no executor removes them. Once no sync is running, delete them by hand:
 
   ```bash
   kubectl delete jobs,secrets -n <k8s.namespace> -l 'synclet.io/sync-job,!synclet.io/owner'
@@ -84,9 +84,9 @@ Breaking and operator-visible changes, newest first. Versions not listed need no
 
 ### Synclet 0.5.0 (chart 0.2.0)
 
-- **Health probes moved.** `/live` and `/ready` are served on the internal port (`8081`). Images up to 0.4.0 serve only `/health` on the public port. The chart's probes default to the new paths. To run an old image with a newer chart, see [Kubernetes: health checks](/synclet-site/docs/deployment/kubernetes/#health-checks).
+- **Health probes moved.** `/live` and `/ready` are served on the internal port (`8081`). Images up to 0.4.0 serve only `/health` on the public port. The chart's probes default to the new paths. To run an old image with a newer chart, see [Kubernetes: health checks](/docs/deployment/kubernetes/#health-checks).
 - **Secrets are required and validated.** Outside local development (`ENVIRONMENT` set to anything but `development`, or in a container) the server exits when `AUTH_JWT_SECRET` or `SECRET_ENCRYPTION_KEY` is missing. `AUTH_JWT_SECRET` must be at least 32 bytes and `SECRET_ENCRYPTION_KEY` a base64-encoded 32-byte key. Earlier versions generated a missing encryption key and stored it in `<UserConfigDir>/synclet/encryption.key` of the process's user. An installation that relied on that must copy the file's content into `SECRET_ENCRYPTION_KEY` before upgrading, or its stored credentials cannot be decrypted.
-- **The image runs as a non-root user.** A container that starts connectors through the host's `docker.sock` needs `--user 0:0` (or a group that owns the socket); see [Docker](/synclet-site/docs/deployment/docker/#docker-standalone).
+- **The image runs as a non-root user.** A container that starts connectors through the host's `docker.sock` needs `--user 0:0` (or a group that owns the socket); see [Docker](/docs/deployment/docker/#docker-standalone).
 - **`synclet migrate down`** needs `--module` or `--all`, and `--yes` outside development.
 - **The chart** waits for PostgreSQL and runs `migrate up` before the jobs worker and executor start.
 

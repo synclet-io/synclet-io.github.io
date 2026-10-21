@@ -30,12 +30,12 @@ In a run, A syncs first. When A has succeeded, B and C start together (fan-out).
 
 1. Go to **Workflows** in the sidebar and click **New workflow**.
 2. Enter a **Name**.
-3. Set a schedule in the cron editor, or leave it on manual. A workflow without a schedule runs only when you start it. The cron syntax is the one connections use, evaluated in UTC; see [Scheduling & Triggers](/synclet-site/docs/guides/scheduling/#cron-scheduling).
+3. Set a schedule in the cron editor, or leave it on manual. A workflow without a schedule runs only when you start it. The cron syntax is the one connections use, evaluated in UTC; see [Scheduling & Triggers](/docs/guides/scheduling/#cron-scheduling).
 4. Under **Steps**, choose a connection and click **Add step**. Repeat for every connection the workflow runs.
 5. For each step, check the steps it **Runs after**. A step with none starts the run. A box that would make a cycle is disabled.
 6. Click **Create workflow**.
 
-The server rejects a workflow without a name or without steps, a cycle, a connection listed twice, a connection from another workspace, and a connection without [configured streams](/synclet-site/docs/guides/connections/#streams-are-required-to-run). A connection can be a step of several workflows.
+The server rejects a workflow without a name or without steps, a cycle, a connection listed twice, a connection from another workspace, and a connection without [configured streams](/docs/guides/connections/#streams-are-required-to-run). A connection can be a step of several workflows.
 
 Adding a connection to a workflow turns off the connection's own schedule; see [Schedules](#schedules).
 
@@ -55,11 +55,11 @@ Only one run of a workflow is active at a time. A scheduled start while a run is
 
 A failed step marks every step downstream of it `skipped`. Independent branches keep running. In the example, if B fails, D is skipped, C still runs, and the run ends `failed` once C has finished.
 
-A failed run sends a [notification](/synclet-site/docs/guides/notifications/#notification-rules--conditions) to channels with an **On failure** rule on one of the workflow's connections, and the [`workflow.failed` webhook](/synclet-site/docs/guides/webhooks/#events). The step's sync job also sends its own `sync.failed` webhook and sync failure notification, as any failed sync does.
+A failed run sends a [notification](/docs/guides/notifications/#notification-rules--conditions) to channels with an **On failure** rule on one of the workflow's connections, and the [`workflow.failed` webhook](/docs/guides/webhooks/#events). The step's sync job also sends its own `sync.failed` webhook and sync failure notification, as any failed sync does.
 
 ### Disabled and Paused Connections
 
-When a step is ready but its connection is not active (disabled, or [paused by Synclet](/synclet-site/docs/guides/schema-changes/#paused-by-synclet)), the step is skipped with everything downstream of it. A skipped step does not fail the run by itself: a run whose other steps all succeed ends `succeeded`.
+When a step is ready but its connection is not active (disabled, or [paused by Synclet](/docs/guides/schema-changes/#paused-by-synclet)), the step is skipped with everything downstream of it. A skipped step does not fail the run by itself: a run whose other steps all succeed ends `succeeded`.
 
 A step whose connection has lost its configured streams since the run started fails with the reason "has no configured streams", and everything downstream of it is skipped.
 
@@ -83,9 +83,9 @@ Open the workflow, change its name, schedule or steps, and click **Save workflow
 
 **Delete** removes the workflow with its run history. The connections stay.
 
-A connection that is a step of a workflow cannot be deleted. Remove it from every workflow first; see [Deleting a Connection](/synclet-site/docs/guides/connections/#deleting-a-connection).
+A connection that is a step of a workflow cannot be deleted. Remove it from every workflow first; see [Deleting a Connection](/docs/guides/connections/#deleting-a-connection).
 
-Workflows are not included in [config export](/synclet-site/docs/guides/settings/#config-export--import).
+Workflows are not included in [config export](/docs/guides/settings/#config-export--import).
 
 ## The Workflow Page
 
@@ -107,11 +107,11 @@ Step statuses in a run:
 
 ## Roles
 
-Editors and admins create, edit, delete, run and rerun workflows. Viewers see workflows, the graph and the run history, but the page shows no **New workflow**, **Run now**, **Delete** or rerun buttons, and the definition is read-only. See [Workspaces & Roles](/synclet-site/docs/concepts/workspaces-and-roles/) and the [`WorkflowService` RPCs](/synclet-site/docs/reference/api/#workflowservice).
+Editors and admins create, edit, delete, run and rerun workflows. Viewers see workflows, the graph and the run history, but the page shows no **New workflow**, **Run now**, **Delete** or rerun buttons, and the definition is read-only. See [Workspaces & Roles](/docs/concepts/workspaces-and-roles/) and the [`WorkflowService` RPCs](/docs/reference/api/#workflowservice).
 
 ## Next Steps
 
-- [Creating Connections](/synclet-site/docs/guides/connections/) — The connections a workflow runs.
-- [Scheduling & Triggers](/synclet-site/docs/guides/scheduling/) — Cron syntax, retries and concurrency.
-- [Notifications](/synclet-site/docs/guides/notifications/) — Alerts for failed syncs and workflow runs.
-- [Webhooks](/synclet-site/docs/guides/webhooks/) — The `workflow.failed` event and its payload.
+- [Creating Connections](/docs/guides/connections/) — The connections a workflow runs.
+- [Scheduling & Triggers](/docs/guides/scheduling/) — Cron syntax, retries and concurrency.
+- [Notifications](/docs/guides/notifications/) — Alerts for failed syncs and workflow runs.
+- [Webhooks](/docs/guides/webhooks/) — The `workflow.failed` event and its payload.

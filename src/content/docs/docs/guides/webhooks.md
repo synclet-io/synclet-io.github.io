@@ -3,7 +3,7 @@ title: Webhooks
 description: Send sync and workflow events to your own HTTP endpoint, signed with HMAC-SHA256.
 ---
 
-A webhook sends a JSON `POST` to a URL of yours when a sync job finishes or a [workflow](/synclet-site/docs/guides/workflows/) run fails. Use it to start downstream work, such as a dbt run after a load, or to feed your own alerting. For Slack, email and Telegram alerts, use [Notifications](/synclet-site/docs/guides/notifications/) instead.
+A webhook sends a JSON `POST` to a URL of yours when a sync job finishes or a [workflow](/docs/guides/workflows/) run fails. Use it to start downstream work, such as a dbt run after a load, or to feed your own alerting. For Slack, email and Telegram alerts, use [Notifications](/docs/guides/notifications/) instead.
 
 Webhooks belong to a workspace. Only admins can see and manage them: the **Webhooks** tab under **Settings** is hidden from editors and viewers, and every webhook API call requires the Admin role.
 
@@ -120,13 +120,13 @@ Click the send button (**Test delivery**) on a webhook's row. Synclet posts a te
 }
 ```
 
-The toast shows the result: **Test delivered: HTTP 200** for a `2xx` answer, or **Test failed** with the status code (or **no response**) and the error. The test is sent once, without retries, whatever events the webhook subscribes to and whether it is enabled. Each test is recorded in the [audit log](/synclet-site/docs/guides/settings/#audit-log).
+The toast shows the result: **Test delivered: HTTP 200** for a `2xx` answer, or **Test failed** with the status code (or **no response**) and the error. The test is sent once, without retries, whatever events the webhook subscribes to and whether it is enabled. Each test is recorded in the [audit log](/docs/guides/settings/#audit-log).
 
 ## Delivery and Retries
 
 Synclet treats any `2xx` response as delivered. A `3xx` that is not followed to a `2xx`, a `4xx` or `5xx` status, a connection error or a timeout is a failed attempt. A failed delivery is tried again after 1 second, then after 2 seconds, up to `NOTIFY_WEBHOOK_MAX_RETRIES` attempts in total (3 by default). Each request times out after `NOTIFY_WEBHOOK_HTTP_TIMEOUT` (10 seconds by default). After the last failed attempt the event is dropped; Synclet keeps no delivery history.
 
-Webhooks matching an event are called one after another. Both settings are described under [Environment Variables: Email and Webhooks](/synclet-site/docs/reference/environment-variables/#email-and-webhooks).
+Webhooks matching an event are called one after another. Both settings are described under [Environment Variables: Email and Webhooks](/docs/reference/environment-variables/#email-and-webhooks).
 
 ## Private and Internal Addresses
 
@@ -141,6 +141,6 @@ To receive webhooks from a Synclet inside a private network, expose the receiver
 
 ## Next Steps
 
-- [Notifications](/synclet-site/docs/guides/notifications/) — Slack, email and Telegram alerts on failures.
-- [Monitoring & Jobs](/synclet-site/docs/guides/monitoring/) — Open the job a webhook points to.
-- [Workspaces & Roles](/synclet-site/docs/concepts/workspaces-and-roles/) — Who can manage webhooks.
+- [Notifications](/docs/guides/notifications/) — Slack, email and Telegram alerts on failures.
+- [Monitoring & Jobs](/docs/guides/monitoring/) — Open the job a webhook points to.
+- [Workspaces & Roles](/docs/concepts/workspaces-and-roles/) — Who can manage webhooks.

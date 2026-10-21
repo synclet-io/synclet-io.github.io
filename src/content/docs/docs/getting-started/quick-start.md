@@ -69,7 +69,7 @@ After saving the connection:
 
 That's it! Your data is now flowing from source to destination.
 
-<img src="/synclet-site/screenshots/demo-first-sync.gif" alt="Creating a connection from a Faker source to PostgreSQL and running its first sync" width="960" height="600" loading="lazy" />
+<img src="/screenshots/demo-first-sync.gif" alt="Creating a connection from a Faker source to PostgreSQL and running its first sync" width="960" height="600" loading="lazy" />
 
 ## Alternative: Standalone Binary
 
@@ -99,13 +99,13 @@ export DB_DSN="postgres://user:password@localhost:5432/synclet?sslmode=disable"
 
 Run directly on your machine with `ENVIRONMENT` unset or `development`, Synclet generates the two secrets for a local trial: an **ephemeral** `AUTH_JWT_SECRET` (every restart ends existing sessions) and a `SECRET_ENCRYPTION_KEY` persisted under `<UserConfigDir>/synclet/encryption.key`. **Back that file up** — losing it makes every stored connector credential unrecoverable. In any other environment, and inside a container or a Kubernetes pod, Synclet refuses to start until both are set.
 
-For anything beyond a local trial, set both explicitly (`openssl rand -base64 32` for each) so they survive restarts. See [Environment Variables](/synclet-site/docs/reference/environment-variables/) for the full list of defaults.
+For anything beyond a local trial, set both explicitly (`openssl rand -base64 32` for each) so they survive restarts. See [Environment Variables](/docs/reference/environment-variables/) for the full list of defaults.
 
 Open [http://localhost:8080](http://localhost:8080) and follow the same steps above to create your first sync.
 
-See the [Installation](/synclet-site/docs/getting-started/installation/) page for more details on binary and build-from-source options.
+See the [Installation](/docs/getting-started/installation/) page for more details on binary and build-from-source options.
 
 ## What's Next
 
-- [Configuration](/synclet-site/docs/getting-started/configuration/) — Customize sync intervals, enable SMTP notifications, set up OIDC single sign-on, and more.
-- [Installation](/synclet-site/docs/getting-started/installation/) — Explore additional deployment options including Kubernetes with Helm.
+- [Configuration](/docs/getting-started/configuration/) — Customize sync intervals, enable SMTP notifications, set up OIDC single sign-on, and more.
+- [Installation](/docs/getting-started/installation/) — Explore additional deployment options including Kubernetes with Helm.

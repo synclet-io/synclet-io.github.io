@@ -9,8 +9,8 @@ import { join, relative } from 'node:path';
 import { sidebar } from './src/sidebar.mjs';
 
 const SITE = 'https://synclet-io.github.io';
-const BASE = '/synclet-site';
-const ORIGIN = `${SITE}${BASE}/`;
+const BASE = '/';
+const ORIGIN = new URL(BASE, SITE).href;
 const OG_IMAGE = `${ORIGIN}og-image.png`;
 const OG_IMAGE_ALT = 'Synclet: self-hosted data sync for Airbyte Protocol connectors';
 const DOCS_DIR = 'src/content/docs';

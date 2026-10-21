@@ -1,0 +1,3 @@
+User-agent: *
+Allow: /
+Sitemap: https://synclet-io.github.io/sitemap-index.xml

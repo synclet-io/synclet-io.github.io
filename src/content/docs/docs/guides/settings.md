@@ -29,7 +29,7 @@ Go to **Settings > Members** to see all current workspace members, their email a
 2. Select a role: **Admin**, **Editor**, or **Viewer**.
 3. Click **Send Invite** (**Create Invite** when the server has no SMTP configured).
 
-Synclet shows the invitation link and, with SMTP configured, emails it. The invitee opens the link, signs in or creates an account, and joins. Pending invitations are listed with the members, where you can resend or revoke them. See [Inviting a Member](/synclet-site/docs/concepts/workspaces-and-roles/#inviting-a-member) for the whole flow.
+Synclet shows the invitation link and, with SMTP configured, emails it. The invitee opens the link, signs in or creates an account, and joins. Pending invitations are listed with the members, where you can resend or revoke them. See [Inviting a Member](/docs/concepts/workspaces-and-roles/#inviting-a-member) for the whole flow.
 
 ### Changing Roles
 
@@ -46,11 +46,11 @@ Role changes take effect immediately.
 
 Removed members lose access to the workspace immediately. Their past actions (created connections, triggered syncs) remain in the history.
 
-For a detailed explanation of what each role can do, see [Workspaces & Roles](/synclet-site/docs/concepts/workspaces-and-roles/).
+For a detailed explanation of what each role can do, see [Workspaces & Roles](/docs/concepts/workspaces-and-roles/).
 
 ## Connectors
 
-**Settings > Connectors** lists the workspace's installed source and destination connectors, with stars, updates and custom images, and its connector repositories. Every new workspace gets two repositories: Airbyte's public OSS registry and Synclet's own. See [Managing Connectors](/synclet-site/docs/guides/connectors/).
+**Settings > Connectors** lists the workspace's installed source and destination connectors, with stars, updates and custom images, and its connector repositories. Every new workspace gets two repositories: Airbyte's public OSS registry and Synclet's own. See [Managing Connectors](/docs/guides/connectors/).
 
 ## Notifications
 
@@ -61,9 +61,9 @@ Manage your workspace's notification channels and rules from **Settings > Notifi
 - Test a channel to verify it works.
 - Create notification rules that link channels to connections and events.
 
-For outbound HTTP integrations (e.g., calling external systems on sync events), see [Webhooks](/synclet-site/docs/guides/webhooks/).
+For outbound HTTP integrations (e.g., calling external systems on sync events), see [Webhooks](/docs/guides/webhooks/).
 
-For detailed setup instructions, see the [Notifications](/synclet-site/docs/guides/notifications/) guide.
+For detailed setup instructions, see the [Notifications](/docs/guides/notifications/) guide.
 
 ## API Keys
 
@@ -134,10 +134,10 @@ Never commit API keys to version control. Use environment variables or a secrets
 
 ## Audit Log
 
-**Settings → Audit log** lists every configuration change in the workspace, and logins and syncs, newest first. Only admins see it. Filter by action, resource type and date range; expand an event to see the fields it changed, before and after. The retention in days is set per workspace, up to the server's `AUDIT_RETENTION_MAX_DAYS` (see [Environment Variables](/synclet-site/docs/reference/environment-variables/#audit-log)).
+**Settings → Audit log** lists every configuration change in the workspace, and logins and syncs, newest first. Only admins see it. Filter by action, resource type and date range; expand an event to see the fields it changed, before and after. The retention in days is set per workspace, up to the server's `AUDIT_RETENTION_MAX_DAYS` (see [Environment Variables](/docs/reference/environment-variables/#audit-log)).
 
-<img src="/synclet-site/screenshots/audit-log-light.png" alt="The audit log filtered to connection updates, with one event expanded to show the streams it changed" width="1440" height="900" loading="lazy" class="dark:sl-hidden" />
-<img src="/synclet-site/screenshots/audit-log-dark.png" alt="The audit log filtered to connection updates, with one event expanded to show the streams it changed" width="1440" height="900" loading="lazy" class="light:sl-hidden" />
+<img src="/screenshots/audit-log-light.png" alt="The audit log filtered to connection updates, with one event expanded to show the streams it changed" width="1440" height="900" loading="lazy" class="dark:sl-hidden" />
+<img src="/screenshots/audit-log-dark.png" alt="The audit log filtered to connection updates, with one event expanded to show the streams it changed" width="1440" height="900" loading="lazy" class="light:sl-hidden" />
 
 ## Account Settings
 
@@ -157,7 +157,7 @@ To change your password:
 2. In the **Change Password** card, enter your current password and the new password twice.
 3. Click **Change password**.
 
-If you signed up through OIDC, you have no password, and **Change Password** cannot set one because it asks for the current password. To add one as an email/password fallback, use the **Forgot password?** link on the login page (requires SMTP), or ask an operator to run [`synclet users reset-link --email <your-email>`](/synclet-site/docs/reference/cli/#users).
+If you signed up through OIDC, you have no password, and **Change Password** cannot set one because it asks for the current password. To add one as an email/password fallback, use the **Forgot password?** link on the login page (requires SMTP), or ask an operator to run [`synclet users reset-link --email <your-email>`](/docs/reference/cli/#users).
 
 ## Config Export & Import
 
@@ -193,6 +193,6 @@ Importing merges the configuration into the current workspace. Sources and desti
 
 ## Next Steps
 
-- [Authentication & SSO](/synclet-site/docs/guides/authentication/) — Set up OIDC providers and manage registration.
-- [Notifications](/synclet-site/docs/guides/notifications/) — Detailed setup for Slack, Email, and Telegram channels.
-- [Workspaces & Roles](/synclet-site/docs/concepts/workspaces-and-roles/) — Understand the Admin, Editor, and Viewer roles.
+- [Authentication & SSO](/docs/guides/authentication/) — Set up OIDC providers and manage registration.
+- [Notifications](/docs/guides/notifications/) — Detailed setup for Slack, Email, and Telegram channels.
+- [Workspaces & Roles](/docs/concepts/workspaces-and-roles/) — Understand the Admin, Editor, and Viewer roles.

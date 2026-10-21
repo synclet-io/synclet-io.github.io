@@ -45,7 +45,7 @@ Changes are applied by saving the connection's streams:
 
 When the streams are saved, each one takes its schema from the latest catalog, so column changes of the enabled streams are cleared, as are streams that are gone from the source. Streams you leave disabled stay listed as **Added**.
 
-See [Stream Configuration](/synclet-site/docs/guides/stream-configuration/) for the settings of a stream.
+See [Stream Configuration](/docs/guides/stream-configuration/) for the settings of a stream.
 
 ## Schema Change Policy
 
@@ -57,11 +57,11 @@ Every connection has a policy, set when it is created and under **Settings > Sch
 | **Ignore changes** | `ignore` |
 | **Pause on change** (**Pause on changes** in the wizard) | `pause` |
 
-In the current release the policy is stored and shown, but Synclet does not act on it: whatever the policy, syncs keep using the saved streams, pending changes wait until you save the streams, and a schema change alone does not pause a connection. Connections created through the UI and through [config import](/synclet-site/docs/guides/settings/#config-export--import) default to **Propagate changes**; one created through the API without a policy gets **Pause on change**.
+In the current release the policy is stored and shown, but Synclet does not act on it: whatever the policy, syncs keep using the saved streams, pending changes wait until you save the streams, and a schema change alone does not pause a connection. Connections created through the UI and through [config import](/docs/guides/settings/#config-export--import) default to **Propagate changes**; one created through the API without a policy gets **Pause on change**.
 
 ## Paused by Synclet
 
-Synclet pauses a connection itself when a schema change breaks its [transforms](/synclet-site/docs/guides/transforms/). After every discovery, it compiles the mappers of each connection on that source against the new catalog. When a stream's mappers no longer compile, for example because a mapper reads a column that was removed or retyped, the connection is set to **Paused**, whatever its schema change policy, and its `status_reason` records the first stream and mapper that failed, such as:
+Synclet pauses a connection itself when a schema change breaks its [transforms](/docs/guides/transforms/). After every discovery, it compiles the mappers of each connection on that source against the new catalog. When a stream's mappers no longer compile, for example because a mapper reads a column that was removed or retyped, the connection is set to **Paused**, whatever its schema change policy, and its `status_reason` records the first stream and mapper that failed, such as:
 
 ```text
 stream "public.orders": mapper step 1, field "amount": ...
@@ -73,6 +73,6 @@ To resume, fix the stream's mappers on the **Streams** page, then click **Enable
 
 ## Next Steps
 
-- [Stream Configuration](/synclet-site/docs/guides/stream-configuration/) — Sync modes, fields, cursors and primary keys.
-- [Transforms](/synclet-site/docs/guides/transforms/) — Mappers and how they are validated.
-- [Creating Connections](/synclet-site/docs/guides/connections/) — Connection settings and status.
+- [Stream Configuration](/docs/guides/stream-configuration/) — Sync modes, fields, cursors and primary keys.
+- [Transforms](/docs/guides/transforms/) — Mappers and how they are validated.
+- [Creating Connections](/docs/guides/connections/) — Connection settings and status.

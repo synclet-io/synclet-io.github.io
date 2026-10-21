@@ -10,7 +10,7 @@ Every stream in a connection has a **sync mode** that controls two things:
 1. **How the source reads data** (source read mode)
 2. **How the destination writes data** (destination write mode)
 
-The combination of these two determines the behavior of each sync run. You configure the sync mode per stream when [setting up a connection](/synclet-site/docs/guides/connections/) or [configuring streams](/synclet-site/docs/guides/stream-configuration/).
+The combination of these two determines the behavior of each sync run. You configure the sync mode per stream when [setting up a connection](/docs/guides/connections/) or [configuring streams](/docs/guides/stream-configuration/).
 
 ## Source Read Modes
 
@@ -108,6 +108,6 @@ The cursor field is configured on the source connector or overridden per stream.
 
 ## Next Steps
 
-- [Stream Configuration](/synclet-site/docs/guides/stream-configuration/) — Configure sync modes, field selection, and primary keys per stream.
-- [Connections Guide](/synclet-site/docs/guides/connections/) — Create and manage connections between sources and destinations.
-- [Architecture Overview](/synclet-site/docs/concepts/architecture/) — Understand how data flows through Synclet.
+- [Stream Configuration](/docs/guides/stream-configuration/) — Configure sync modes, field selection, and primary keys per stream.
+- [Connections Guide](/docs/guides/connections/) — Create and manage connections between sources and destinations.
+- [Architecture Overview](/docs/concepts/architecture/) — Understand how data flows through Synclet.

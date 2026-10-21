@@ -70,7 +70,7 @@ server:
 A client authenticates in one of two ways:
 
 - **OAuth**: clients that support MCP authorization, such as Claude's custom connectors, sign you in through your browser and get a key for the workspace and access level you pick. Nothing to copy. See [Add Synclet as a connector](#add-synclet-as-a-connector).
-- **API key**: a [workspace API key](/synclet-site/docs/guides/authentication/#api-keys) sent as `Authorization: Bearer synclet_sk_…`, for clients configured by hand such as Claude Code.
+- **API key**: a [workspace API key](/docs/guides/authentication/#api-keys) sent as `Authorization: Bearer synclet_sk_…`, for clients configured by hand such as Claude Code.
 
 A request without a key, or with an unknown, revoked or expired key, gets `401 Unauthorized` with a `WWW-Authenticate` header that points OAuth clients to the discovery document.
 
@@ -79,7 +79,7 @@ A key carries its workspace and acts with the role of the user who created it:
 - **Viewer** can use the read tools.
 - **Editor** and **Admin** can also use the operational and write tools.
 
-A tool the role does not allow returns a `permission_denied` error to the client. Actions taken through MCP are recorded in the [audit log](/synclet-site/docs/guides/settings/#audit-log) like the same actions in the UI or API.
+A tool the role does not allow returns a `permission_denied` error to the client. Actions taken through MCP are recorded in the [audit log](/docs/guides/settings/#audit-log) like the same actions in the UI or API.
 
 A key issued through OAuth also carries the access level chosen on the consent page: the client lists and calls only the tools of that level, and the user's role applies on top of it. It works only on the MCP server; the public API rejects it.
 

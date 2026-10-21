@@ -35,7 +35,7 @@ Store the key apart from the database backups, so that one leaked backup does no
 
 ## Config export is not a backup
 
-**Settings > General > Export Configuration** writes a workspace's sources, destinations and connections to YAML. It is meant for moving a setup between installations (see [Settings: Config Export & Import](/synclet-site/docs/guides/settings/#config-export--import)), and it leaves out most of what a restore needs:
+**Settings > General > Export Configuration** writes a workspace's sources, destinations and connections to YAML. It is meant for moving a setup between installations (see [Settings: Config Export & Import](/docs/guides/settings/#config-export--import)), and it leaves out most of what a restore needs:
 
 - Config keys that look like secrets (containing `password`, `secret`, `token`, `key`, `credential` or `private`) are exported as `***REDACTED***`. New sources and destinations created by an import need their credentials entered again.
 - Connections carry only their source, destination, schedule, max attempts, enabled flag and tags. Stream selection, sync modes, transforms, namespace settings and connection names are not exported, and an import creates new connections with defaults.
@@ -146,7 +146,7 @@ Destination data written after the backup stays in the destination. Incremental 
 
 ## See also
 
-- [Upgrading](/synclet-site/docs/deployment/upgrading/)
-- [Production Checklist](/synclet-site/docs/deployment/production/)
-- [Environment Variables: Secret Rotation](/synclet-site/docs/reference/environment-variables/#secret-rotation)
-- [Monitoring: log storage](/synclet-site/docs/guides/monitoring/#log-storage-and-archiving)
+- [Upgrading](/docs/deployment/upgrading/)
+- [Production Checklist](/docs/deployment/production/)
+- [Environment Variables: Secret Rotation](/docs/reference/environment-variables/#secret-rotation)
+- [Monitoring: log storage](/docs/guides/monitoring/#log-storage-and-archiving)

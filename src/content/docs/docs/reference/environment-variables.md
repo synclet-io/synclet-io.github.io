@@ -153,11 +153,11 @@ Defaults for connector containers and pods. A source or destination overrides th
 | `PIPELINE_RUNTIME_CPU_LIMIT` | CPU limit. | *empty* |
 | `PIPELINE_RUNTIME_MEMORY_REQUEST` | Memory request. | *empty* |
 | `PIPELINE_RUNTIME_MEMORY_LIMIT` | Memory limit. | *empty* |
-| `PIPELINE_RUNTIME_SERVICE_ACCOUNT_NAME` | Kubernetes service account of connector pods; empty uses the namespace's default account. A source or destination overrides it with `service_account_name`. See [Kubernetes: service accounts](/synclet-site/docs/deployment/kubernetes/#service-accounts). | *empty* |
+| `PIPELINE_RUNTIME_SERVICE_ACCOUNT_NAME` | Kubernetes service account of connector pods; empty uses the namespace's default account. A source or destination overrides it with `service_account_name`. See [Kubernetes: service accounts](/docs/deployment/kubernetes/#service-accounts). | *empty* |
 
 ## Job Logs
 
-See [Monitoring: log storage](/synclet-site/docs/guides/monitoring/#log-storage-and-archiving) for how archiving works.
+See [Monitoring: log storage](/docs/guides/monitoring/#log-storage-and-archiving) for how archiving works.
 
 | Variable | Description | Default |
 |---|---|---|
@@ -209,7 +209,7 @@ export AUTH_OIDC_GOOGLE_ISSUER="https://accounts.google.com"
 
 You can configure multiple providers by adding slugs to `AUTH_OIDC_PROVIDERS` (e.g., `google,okta`) and setting the corresponding `AUTH_OIDC_<SLUG>_*` variables for each.
 
-The role variables (`ROLE_CLAIM`, `ROLE_MAP_*`, `DEFAULT_ROLE`, `ROLE_SYNC`) set the user's role in the default workspace and apply in single-workspace mode only; in multi-workspace mode the server ignores them and logs a warning. See [Role mapping](/synclet-site/docs/guides/authentication/#role-mapping) for an authentik `groups` example.
+The role variables (`ROLE_CLAIM`, `ROLE_MAP_*`, `DEFAULT_ROLE`, `ROLE_SYNC`) set the user's role in the default workspace and apply in single-workspace mode only; in multi-workspace mode the server ignores them and logs a warning. See [Role mapping](/docs/guides/authentication/#role-mapping) for an authentik `groups` example.
 
 ## Docker Executor
 
@@ -222,7 +222,7 @@ The role variables (`ROLE_CLAIM`, `ROLE_MAP_*`, `DEFAULT_ROLE`, `ROLE_SYNC`) set
 | `DOCKER_EXECUTOR_JOB_RESOURCE_CLEANUP_INTERVAL` | How often orphaned containers are removed. | `5m` |
 | `DOCKER_EXECUTOR_TEMP_DIR_ROOT` | Scratch directory for connector config, catalog and state. Leave empty when running the binary natively (the OS temp dir is used). When Synclet runs in a container that talks to the host `docker.sock`, set it to a host-bind-mounted path that is identical inside and outside the container. | *empty* |
 | `DOCKER_EXECUTOR_OWNER_ID` | Executor ID, stamped as the `synclet.io/owner` label on every connector container; orphan cleanup removes only containers carrying it. Executors sharing one Docker daemon need distinct values. | hostname |
-| `DOCKER_EXECUTOR_LOCAL_ROOT` | Host directory mounted at `/local` in every connector container, where [file-writing destinations](/synclet-site/docs/concepts/connectors/#files-written-by-destinations) leave their files. Shared by all jobs and never cleaned. Empty gives each job its own `/local`, removed with the job. Like `DOCKER_EXECUTOR_TEMP_DIR_ROOT`, a containerised Synclet needs it mounted at the same path from the host. | *empty* |
+| `DOCKER_EXECUTOR_LOCAL_ROOT` | Host directory mounted at `/local` in every connector container, where [file-writing destinations](/docs/concepts/connectors/#files-written-by-destinations) leave their files. Shared by all jobs and never cleaned. Empty gives each job its own `/local`, removed with the job. Like `DOCKER_EXECUTOR_TEMP_DIR_ROOT`, a containerised Synclet needs it mounted at the same path from the host. | *empty* |
 
 ## Kubernetes Executor
 
@@ -233,7 +233,7 @@ Used by `synclet k8s-executor`, and by `synclet server --standalone` inside a po
 | `K8S_EXECUTOR_NAMESPACE` | Namespace for connector pods. | *empty* |
 | `K8S_EXECUTOR_KUBECONFIG` | Kubeconfig path; empty uses the in-cluster config. | *empty* |
 | `K8S_EXECUTOR_IMAGE_PULL_SECRET` | Image pull secret for private registries. | *empty* |
-| `K8S_EXECUTOR_LOCAL_VOLUME_CLAIM` | Existing PersistentVolumeClaim mounted at `/local` in the connector containers, where [file-writing destinations](/synclet-site/docs/concepts/connectors/#files-written-by-destinations) leave their files (Helm: `k8s.localVolume`). Empty mounts a per-pod `emptyDir`. | *empty* |
+| `K8S_EXECUTOR_LOCAL_VOLUME_CLAIM` | Existing PersistentVolumeClaim mounted at `/local` in the connector containers, where [file-writing destinations](/docs/concepts/connectors/#files-written-by-destinations) leave their files (Helm: `k8s.localVolume`). Empty mounts a per-pod `emptyDir`. | *empty* |
 | `K8S_EXECUTOR_SYNCLET_IMAGE` | Synclet image of the orchestrator container in sync pods. | *empty* |
 | `K8S_EXECUTOR_SERVER_ADDR` | Internal server address the orchestrator containers call. | *empty* |
 | `K8S_EXECUTOR_DEFAULT_MEMORY` | Default memory of sync pods. | `2Gi` |

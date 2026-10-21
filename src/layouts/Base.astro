@@ -6,7 +6,7 @@ interface Props {
 
 const { title, description } = Astro.props;
 const canonical = new URL(Astro.url.pathname, Astro.site).href;
-const ogImage = new URL(`${import.meta.env.BASE_URL}/og-image.png`, Astro.site).href;
+const ogImage = new URL(`${import.meta.env.BASE_URL}og-image.png`, Astro.site).href;
 const ogImageAlt = 'Synclet: self-hosted data sync for Airbyte Protocol connectors';
 const goatcounterCode = import.meta.env.PUBLIC_GOATCOUNTER_CODE;
 ---
@@ -15,13 +15,13 @@ const goatcounterCode = import.meta.env.PUBLIC_GOATCOUNTER_CODE;
 <html lang="en" class="dark">
   <head>
     <meta charset="utf-8" />
-    <link rel="icon" type="image/svg+xml" href={`${import.meta.env.BASE_URL}/favicon.svg`} />
+    <link rel="icon" type="image/svg+xml" href={`${import.meta.env.BASE_URL}favicon.svg`} />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <meta name="description" content={description} />
     <meta name="generator" content={Astro.generator} />
     <title>{title}</title>
     <link rel="canonical" href={canonical} />
-    <link rel="sitemap" href={`${import.meta.env.BASE_URL}/sitemap-index.xml`} />
+    <link rel="sitemap" href={`${import.meta.env.BASE_URL}sitemap-index.xml`} />
     <meta property="og:type" content="website" />
     <meta property="og:site_name" content="Synclet Docs" />
     <meta property="og:locale" content="en" />

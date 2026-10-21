@@ -10,7 +10,7 @@ description: "Answers to common questions about Synclet: what it is, how it comp
 Synclet is a lightweight, self-hosted control plane for connectors that implement the Airbyte Protocol. Key differences from the Airbyte platform:
 
 - **Single binary** -- Synclet is one Go binary. No Java, no multi-container orchestration.
-- **Airbyte Protocol connectors** -- Synclet runs connector images that implement the Airbyte Protocol; the pairs tested, with versions, are listed under [Tested with](/synclet-site/docs/concepts/connectors/#tested-with).
+- **Airbyte Protocol connectors** -- Synclet runs connector images that implement the Airbyte Protocol; the pairs tested, with versions, are listed under [Tested with](/docs/concepts/connectors/#tested-with).
 - **Simpler operations** -- One container (or binary) plus PostgreSQL. No Temporal, no MinIO, no separate scheduler service.
 - **Fewer enterprise features** -- Synclet focuses on reliable data movement. It does not include a connector builder, dbt integration, or multi-tenant SaaS features.
 
@@ -18,7 +18,7 @@ If you need a simple, fast data sync tool that works with Airbyte connectors, Sy
 
 ### Do I need Docker installed?
 
-**Yes, unless syncs run on Kubernetes.** Every connector, including Synclet's own Go connectors from [synclet-io/connectors](https://github.com/synclet-io/connectors), is a Docker image, and Synclet launches a container for each connector run. Docker must be available on the host. [On Kubernetes](/synclet-site/docs/deployment/kubernetes/) no Docker daemon is needed: each sync runs as a Kubernetes Job whose pod holds the connector containers.
+**Yes, unless syncs run on Kubernetes.** Every connector, including Synclet's own Go connectors from [synclet-io/connectors](https://github.com/synclet-io/connectors), is a Docker image, and Synclet launches a container for each connector run. Docker must be available on the host. [On Kubernetes](/docs/deployment/kubernetes/) no Docker daemon is needed: each sync runs as a Kubernetes Job whose pod holds the connector containers.
 
 ### Can I use custom connectors?
 
@@ -30,7 +30,7 @@ Yes. Any Docker image that implements the [Airbyte connector protocol](https://d
 
 ### Which licenses do the connectors have?
 
-Synclet is MIT; connector images keep their own licenses. Most Airbyte connectors are under ELv2 since 2025-07-22 and 51 remain MIT. See [Connector licenses](/synclet-site/docs/reference/connector-licenses/).
+Synclet is MIT; connector images keep their own licenses. Most Airbyte connectors are under ELv2 since 2025-07-22 and 51 remain MIT. See [Connector licenses](/docs/reference/connector-licenses/).
 
 ## Security
 
@@ -38,18 +38,18 @@ Synclet is MIT; connector images keep their own licenses. Most Airbyte connector
 
 All connector credentials (database passwords, API keys, OAuth tokens) are encrypted at rest using **AES-256-GCM** with an HKDF-derived data key. The master key is provided via the `SECRET_ENCRYPTION_KEY` environment variable. Without this key, stored credentials cannot be decrypted.
 
-See [Environment Variables](/synclet-site/docs/reference/environment-variables/) for how to generate a secure key.
+See [Environment Variables](/docs/reference/environment-variables/) for how to generate a secure key.
 
 ### Is data encrypted in transit?
 
-Synclet can serve TLS itself: set `PUBLIC_HTTP_SERVER_TLS_ENABLED=true` with `PUBLIC_HTTP_SERVER_TLS_CERT_PATH` and `PUBLIC_HTTP_SERVER_TLS_KEY_PATH` (the internal port has the same `INTERNAL_HTTP_SERVER_TLS_*` settings; see [Environment Variables](/synclet-site/docs/reference/environment-variables/#http-servers)). More often TLS is terminated by a reverse proxy (Nginx, Caddy) or load balancer in front of Synclet, or on the [Kubernetes Ingress](/synclet-site/docs/deployment/kubernetes/).
+Synclet can serve TLS itself: set `PUBLIC_HTTP_SERVER_TLS_ENABLED=true` with `PUBLIC_HTTP_SERVER_TLS_CERT_PATH` and `PUBLIC_HTTP_SERVER_TLS_KEY_PATH` (the internal port has the same `INTERNAL_HTTP_SERVER_TLS_*` settings; see [Environment Variables](/docs/reference/environment-variables/#http-servers)). More often TLS is terminated by a reverse proxy (Nginx, Caddy) or load balancer in front of Synclet, or on the [Kubernetes Ingress](/docs/deployment/kubernetes/).
 
 Data between Synclet and your sources/destinations travels over whatever connection the connector establishes. Most database and API connectors support SSL/TLS natively through their configuration options.
 
 ### How do I control access?
 
 - **Disable registration** -- Set `AUTH_REGISTRATION_ENABLED=false` after creating your initial accounts.
-- **OIDC single sign-on** -- Configure one or more OIDC providers (Google, Okta, Azure AD) so users authenticate through your identity provider. See [Environment Variables](/synclet-site/docs/reference/environment-variables/).
+- **OIDC single sign-on** -- Configure one or more OIDC providers (Google, Okta, Azure AD) so users authenticate through your identity provider. See [Environment Variables](/docs/reference/environment-variables/).
 - **Role-based access** -- Synclet supports workspace-level roles to control who can create, edit, or run pipelines.
 
 ## Scalability
@@ -65,7 +65,7 @@ It depends on your deployment mode and resources:
 
 In **standalone mode**, run only one instance to avoid duplicate scheduling.
 
-In **distributed mode** on Kubernetes, the API server is stateless and can be scaled horizontally. There is no leader election: the scheduler takes a Postgres advisory lock on each run, so only one process schedules syncs at a time, and executors claim jobs with `SELECT ... FOR UPDATE SKIP LOCKED`, so each job is claimed once. See [Kubernetes deployment](/synclet-site/docs/deployment/kubernetes/).
+In **distributed mode** on Kubernetes, the API server is stateless and can be scaled horizontally. There is no leader election: the scheduler takes a Postgres advisory lock on each run, so only one process schedules syncs at a time, and executors claim jobs with `SELECT ... FOR UPDATE SKIP LOCKED`, so each job is claimed once. See [Kubernetes deployment](/docs/deployment/kubernetes/).
 
 ### What happens if a sync is interrupted?
 
@@ -81,7 +81,7 @@ This means:
 
 ### Which Airbyte connector versions are supported?
 
-Synclet supports connectors that implement **Airbyte Protocol v1**. The connectors and versions tested, and the known issues, are listed under [Tested with](/synclet-site/docs/concepts/connectors/#tested-with).
+Synclet supports connectors that implement **Airbyte Protocol v1**. The connectors and versions tested, and the known issues, are listed under [Tested with](/docs/concepts/connectors/#tested-with).
 
 Connector versions are pinned per workspace connector, and every source or destination using that connector runs the same image tag. Synclet does not auto-upgrade connector images. To update, go to **Settings > Connectors**: connectors with a newer version in their repository show an **Update** button, and **Update All** updates every one of them. An update with breaking changes asks for confirmation first.
 

@@ -90,7 +90,7 @@ docker logs synclet
 You can run Synclet as a plain binary without Docker.
 
 1. Download the latest release from [GitHub Releases](https://github.com/synclet-io/synclet/releases).
-2. Set the required environment variables (see [Environment Variables](/synclet-site/docs/reference/environment-variables/)).
+2. Set the required environment variables (see [Environment Variables](/docs/reference/environment-variables/)).
 3. Run migrations and start the server:
 
 ```bash
@@ -128,7 +128,7 @@ curl -f http://localhost:8081/ready
 ## Monitoring
 
 - **Dashboard** — The built-in web UI at `http://localhost:8080` shows pipeline status, job history, and logs.
-- **Prometheus metrics** — Synclet exposes a `/metrics` endpoint compatible with Prometheus on the internal port (`8081`). See [Production Checklist](/synclet-site/docs/deployment/production/) for scraping configuration.
+- **Prometheus metrics** — Synclet exposes a `/metrics` endpoint compatible with Prometheus on the internal port (`8081`). See [Production Checklist](/docs/deployment/production/) for scraping configuration.
 
 ## Backup & Restore
 
@@ -143,5 +143,5 @@ pg_dump -Fc "$DB_DSN" > synclet_$(date +%Y%m%d).dump
 pg_restore -d "$DB_DSN" synclet_20260401.dump
 ```
 
-Keep `SECRET_ENCRYPTION_KEY` with every backup: without it the credentials in the dump cannot be decrypted. See [Backup and Restore](/synclet-site/docs/deployment/backup-and-restore/) for the full procedure.
+Keep `SECRET_ENCRYPTION_KEY` with every backup: without it the credentials in the dump cannot be decrypted. See [Backup and Restore](/docs/deployment/backup-and-restore/) for the full procedure.
 

@@ -26,7 +26,7 @@ Store secrets in a secret manager (HashiCorp Vault, AWS Secrets Manager, Kuberne
 Always terminate TLS in front of Synclet. Options:
 
 - **Reverse proxy** -- Nginx, Caddy, or Traefik with a Let's Encrypt certificate.
-- **Kubernetes Ingress or Gateway API** -- Enable `server.ingress.tls`, or route through a TLS-terminating Gateway with `server.gateway.*`, in the [Helm chart](/synclet-site/docs/deployment/kubernetes/#exposing-the-server).
+- **Kubernetes Ingress or Gateway API** -- Enable `server.ingress.tls`, or route through a TLS-terminating Gateway with `server.gateway.*`, in the [Helm chart](/docs/deployment/kubernetes/#exposing-the-server).
 - **Cloud load balancer** -- AWS ALB, GCP HTTPS LB, etc.
 
 ### Disable open registration
@@ -39,7 +39,7 @@ export AUTH_REGISTRATION_ENABLED="false"
 
 ### OIDC single sign-on
 
-For teams, configure an OIDC provider (Google, Okta, etc.) instead of local passwords. See [Environment Variables](/synclet-site/docs/reference/environment-variables/) for the `AUTH_OIDC_*` settings.
+For teams, configure an OIDC provider (Google, Okta, etc.) instead of local passwords. See [Environment Variables](/docs/reference/environment-variables/) for the `AUTH_OIDC_*` settings.
 
 ### Container network isolation
 
@@ -88,11 +88,11 @@ scrape_configs:
       - targets: ["synclet:8081"]
 ```
 
-On Kubernetes, enable the ServiceMonitor in the [Helm chart](/synclet-site/docs/deployment/kubernetes/).
+On Kubernetes, enable the ServiceMonitor in the [Helm chart](/docs/deployment/kubernetes/).
 
 ### Grafana dashboards
 
-Synclet does not ship Grafana dashboards; build your own from the [exposed metrics](/synclet-site/docs/guides/monitoring/#key-metrics). Key panels to track:
+Synclet does not ship Grafana dashboards; build your own from the [exposed metrics](/docs/guides/monitoring/#key-metrics). Key panels to track:
 
 - Active syncs and queue depth
 - Sync duration (p50, p95, p99)
@@ -114,7 +114,7 @@ Recommended alerts:
 | PostgreSQL | `pg_dump` or managed-service snapshots | Daily (minimum) |
 | Restore test | Restore into a staging instance | Monthly |
 
-Automate all of the above and **test restores regularly**. A backup you have never restored is not a backup. Back up `SECRET_ENCRYPTION_KEY` with the database; see [Backup and Restore](/synclet-site/docs/deployment/backup-and-restore/).
+Automate all of the above and **test restores regularly**. A backup you have never restored is not a backup. Back up `SECRET_ENCRYPTION_KEY` with the database; see [Backup and Restore](/docs/deployment/backup-and-restore/).
 
 ## Performance Tuning
 
@@ -167,7 +167,7 @@ Key considerations:
 - **Database** -- Use a managed PostgreSQL with multi-AZ or a replicated cluster. Synclet does not manage database HA.
 - **Connection pooling** -- With multiple replicas, a connection pooler (PgBouncer) prevents exhausting the database connection limit.
 
-See [Kubernetes deployment](/synclet-site/docs/deployment/kubernetes/) for the full Helm reference.
+See [Kubernetes deployment](/docs/deployment/kubernetes/) for the full Helm reference.
 
 ## Upgrade Strategy
 
@@ -177,4 +177,4 @@ See [Kubernetes deployment](/synclet-site/docs/deployment/kubernetes/) for the f
 4. **Run migrations and restart Synclet** -- run `synclet migrate up` before starting the new version. The Helm chart runs it in an init container of the server pod.
 5. **Verify** -- Check `/ready` on the internal port, review the dashboard, and confirm a test sync completes.
 
-For Kubernetes, use rolling updates (the default Helm strategy). The readiness probe ensures traffic only routes to healthy pods. See [Upgrading](/synclet-site/docs/deployment/upgrading/) for the per-version notes.
+For Kubernetes, use rolling updates (the default Helm strategy). The readiness probe ensures traffic only routes to healthy pods. See [Upgrading](/docs/deployment/upgrading/) for the per-version notes.

@@ -67,6 +67,6 @@ For detailed error messages, check the job logs under **Jobs** in the sidebar.
 
 ## Next Steps
 
-- [Creating Connections](/synclet-site/docs/guides/connections/) — Link a source to a destination.
-- [Managing Sources](/synclet-site/docs/guides/sources/) — Set up where your data comes from.
-- [Stream Configuration](/synclet-site/docs/guides/stream-configuration/) — Fine-tune which data gets synced and how.
+- [Creating Connections](/docs/guides/connections/) — Link a source to a destination.
+- [Managing Sources](/docs/guides/sources/) — Set up where your data comes from.
+- [Stream Configuration](/docs/guides/stream-configuration/) — Fine-tune which data gets synced and how.

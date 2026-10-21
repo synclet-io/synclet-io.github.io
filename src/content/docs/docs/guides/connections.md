@@ -14,7 +14,7 @@ A connection ties together:
 - **Stream configuration** — which streams (tables/endpoints) to sync, with what sync mode, field selection, and mapping.
 - A **schedule** — when syncs run (cron or manual).
 - A **retry policy** — how failures are retried.
-- A **schema change policy** — propagate, ignore or pause on source schema changes. See [Schema Changes](/synclet-site/docs/guides/schema-changes/).
+- A **schema change policy** — propagate, ignore or pause on source schema changes. See [Schema Changes](/docs/guides/schema-changes/).
 - **Tags** — labels for finding and filtering connections.
 
 Each connection maintains its own sync state, job history, and health status.
@@ -24,8 +24,8 @@ Each connection maintains its own sync state, job history, and health status.
 1. **Navigate** — Go to **Connections** in the sidebar and click **Create Connection**.
 2. **Select a source** — Choose an existing source from the dropdown, or click **Add Source** to create one inline.
 3. **Select a destination** — Choose an existing destination from the dropdown, or click **Add Destination** to create one inline.
-4. **Configure streams** — Synclet displays the streams discovered from the source. For each stream, choose whether to enable it, select a sync mode, pick fields, and configure namespace mapping. See [Stream Configuration](/synclet-site/docs/guides/stream-configuration/) for details.
-5. **Set a schedule** — Choose a cron schedule for automated syncs, or select **Manual** to only sync on demand. See [Scheduling & Triggers](/synclet-site/docs/guides/scheduling/) for cron syntax and examples.
+4. **Configure streams** — Synclet displays the streams discovered from the source. For each stream, choose whether to enable it, select a sync mode, pick fields, and configure namespace mapping. See [Stream Configuration](/docs/guides/stream-configuration/) for details.
+5. **Set a schedule** — Choose a cron schedule for automated syncs, or select **Manual** to only sync on demand. See [Scheduling & Triggers](/docs/guides/scheduling/) for cron syntax and examples.
 6. **Configure retry policy** — Set the maximum number of attempts for failed syncs. Retries start right away, with no delay between attempts.
 7. **Review** — Check the summary and add [tags](#tags) if you want.
 8. **Create** — Click **Create Connection**. The connection is created in an active, enabled state.
@@ -34,7 +34,7 @@ Each connection maintains its own sync state, job history, and health status.
 
 A connection syncs only once at least one of its streams is configured. A connection created without streams (through the API, or when you skip the stream step) shows **Streams not configured** in the connection list and header, with a link to its stream settings, and **Sync Now** is disabled until you save at least one stream. The scheduler skips it, a workflow cannot list it as a step, and `TriggerSync`, `RunWorkflow` and `RerunWorkflowRun` fail with `failed_precondition`. Saving an empty stream list is rejected: to stop a connection from syncing, disable it instead.
 
-To receive alerts when syncs fail, create notification rules under **Settings > Notifications**. See [Notifications](/synclet-site/docs/guides/notifications/).
+To receive alerts when syncs fail, create notification rules under **Settings > Notifications**. See [Notifications](/docs/guides/notifications/).
 
 :::tip
 Start with a manual schedule and run a test sync before enabling a cron schedule. This lets you verify the configuration without waiting for the next scheduled run.
@@ -54,7 +54,7 @@ You can always trigger a manual sync in addition to the scheduled ones.
 
 ### Run by a Workflow
 
-A connection that is a step of a [workflow](/synclet-site/docs/guides/workflows/) has no schedule of its own. Adding it to a workflow turns its schedule off, and its **Settings** tab shows "This connection is run by" with the workflow's name in place of the cron editor. Setting a schedule on it is rejected. **Sync Now** still works. When the connection is removed from its last workflow, or the workflow is deleted, it stays without a schedule until you set one.
+A connection that is a step of a [workflow](/docs/guides/workflows/) has no schedule of its own. Adding it to a workflow turns its schedule off, and its **Settings** tab shows "This connection is run by" with the workflow's name in place of the cron editor. Setting a schedule on it is rejected. **Sync Now** still works. When the connection is removed from its last workflow, or the workflow is deleted, it stays without a schedule until you set one.
 
 ## Editing a Connection
 
@@ -96,7 +96,7 @@ The API filters the same way: `ListConnections` takes a `tags` list and returns 
 
 ### Tags in Config Export
 
-[Config export](/synclet-site/docs/guides/settings/#config-export--import) writes each connection's tags under `tags`:
+[Config export](/docs/guides/settings/#config-export--import) writes each connection's tags under `tags`:
 
 ```yaml
 connections:
@@ -136,17 +136,17 @@ Each connection displays a status:
 |---|---|
 | **Active** | The connection is enabled and syncs are running on schedule. |
 | **Inactive** | The connection is disabled. No syncs are scheduled. |
-| **Paused** | Synclet paused the connection because its transforms no longer compile against the source's latest schema. No syncs are scheduled until you fix them and click **Enable**. See [Paused by Synclet](/synclet-site/docs/guides/schema-changes/#paused-by-synclet). |
+| **Paused** | Synclet paused the connection because its transforms no longer compile against the source's latest schema. No syncs are scheduled until you fix them and click **Enable**. See [Paused by Synclet](/docs/guides/schema-changes/#paused-by-synclet). |
 
 The dashboard shows an overview of all connection statuses so you can address issues quickly.
 
-<img src="/synclet-site/screenshots/connection-light.png" alt="A connection page: source and destination, status, schedule and replication stats" width="1440" height="900" loading="lazy" class="dark:sl-hidden" />
-<img src="/synclet-site/screenshots/connection-dark.png" alt="A connection page: source and destination, status, schedule and replication stats" width="1440" height="900" loading="lazy" class="light:sl-hidden" />
+<img src="/screenshots/connection-light.png" alt="A connection page: source and destination, status, schedule and replication stats" width="1440" height="900" loading="lazy" class="dark:sl-hidden" />
+<img src="/screenshots/connection-dark.png" alt="A connection page: source and destination, status, schedule and replication stats" width="1440" height="900" loading="lazy" class="light:sl-hidden" />
 
 ## Next Steps
 
-- [Stream Configuration](/synclet-site/docs/guides/stream-configuration/) — Deep dive into sync modes, field selection, primary keys, and cursors.
-- [Schema Changes](/synclet-site/docs/guides/schema-changes/) — Pending schema changes, policies, and connections paused by Synclet.
-- [Scheduling & Triggers](/synclet-site/docs/guides/scheduling/) — Learn about cron syntax, retries, and concurrency.
-- [Workflows](/synclet-site/docs/guides/workflows/) — Run connections in order as a graph of steps.
-- [Monitoring & Jobs](/synclet-site/docs/guides/monitoring/) — Track sync progress and diagnose failures.
+- [Stream Configuration](/docs/guides/stream-configuration/) — Deep dive into sync modes, field selection, primary keys, and cursors.
+- [Schema Changes](/docs/guides/schema-changes/) — Pending schema changes, policies, and connections paused by Synclet.
+- [Scheduling & Triggers](/docs/guides/scheduling/) — Learn about cron syntax, retries, and concurrency.
+- [Workflows](/docs/guides/workflows/) — Run connections in order as a graph of steps.
+- [Monitoring & Jobs](/docs/guides/monitoring/) — Track sync progress and diagnose failures.

@@ -5,7 +5,7 @@ import { readdir, readFile, stat } from 'node:fs/promises';
 import path from 'node:path';
 
 const distDir = path.resolve(process.argv[2] ?? 'dist');
-const base = (process.argv[3] ?? '/synclet-site').replace(/\/$/, '');
+const base = (process.argv[3] ?? '/').replace(/\/$/, '');
 
 async function* htmlFiles(dir) {
   for (const entry of await readdir(dir, { withFileTypes: true })) {

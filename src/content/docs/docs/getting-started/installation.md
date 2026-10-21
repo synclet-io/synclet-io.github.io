@@ -58,7 +58,7 @@ export DB_DSN="postgres://user:password@localhost:5432/synclet?sslmode=disable"
 
 With `ENVIRONMENT` unset or `development` and outside a container, Synclet generates an **ephemeral** `AUTH_JWT_SECRET` and persists a `SECRET_ENCRYPTION_KEY` to `<UserConfigDir>/synclet/encryption.key` for a local trial. Anywhere else it refuses to start until both are set: generate each with `openssl rand -base64 32`, keep them in your secret manager and back up the encryption key.
 
-See [Environment Variables](/synclet-site/docs/reference/environment-variables/) for every variable and its default.
+See [Environment Variables](/docs/reference/environment-variables/) for every variable and its default.
 
 **3. Run database migrations**
 
@@ -72,7 +72,7 @@ See [Environment Variables](/synclet-site/docs/reference/environment-variables/)
 ./synclet server --standalone
 ```
 
-`--standalone` runs the API, the background jobs and an in-process executor in one process. Without it, `server` serves only the API and no sync runs until you start `synclet jobs` and an executor separately (see the [CLI reference](/synclet-site/docs/reference/cli/)).
+`--standalone` runs the API, the background jobs and an in-process executor in one process. Without it, `server` serves only the API and no sync runs until you start `synclet jobs` and an executor separately (see the [CLI reference](/docs/reference/cli/)).
 
 Synclet is now running on port 8080 by default.
 
@@ -116,5 +116,5 @@ On the first visit, Synclet will prompt you to create an admin account. Enter yo
 
 ## Next Steps
 
-- [Configuration](/synclet-site/docs/getting-started/configuration/) — Fine-tune Synclet with environment variables for SMTP, OIDC, sync behavior, and more.
-- [Quick Start](/synclet-site/docs/getting-started/quick-start/) — Create your first source, destination, and connection.
+- [Configuration](/docs/getting-started/configuration/) — Fine-tune Synclet with environment variables for SMTP, OIDC, sync behavior, and more.
+- [Quick Start](/docs/getting-started/quick-start/) — Create your first source, destination, and connection.

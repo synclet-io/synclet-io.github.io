@@ -11,7 +11,7 @@ A stream's transform is a list of steps. Synclet runs them in the router, the pa
 
 - The steps run top to bottom, once per record. Each step sees the record as the step before it left it.
 - All entries of one step read the record as it was before that step. A **Set** step that creates `a` cannot use `r.a` in another entry of the same step; put that entry in a later step.
-- After the last step, [field selection](/synclet-site/docs/guides/stream-configuration/#field-selection) is applied. Fields you did not select are still readable by the steps. Every field a step writes is kept, even if it is not selected.
+- After the last step, [field selection](/docs/guides/stream-configuration/#field-selection) is applied. Fields you did not select are still readable by the steps. Every field a step writes is kept, even if it is not selected.
 - The destination receives the schema the steps produce: renamed fields under their new names, new fields with the type their expression returns, cast fields with their new type.
 
 The tab shows three columns: the input columns of the stream, the steps, and the output columns with marks such as **new**, **renamed**, **type changed** and **dropped** (not selected and not written by any step). A field removed by a **Drop** step is not listed at all.
@@ -503,5 +503,5 @@ To write a default instead of failing the sync when a value cannot be computed, 
 
 ## Next Steps
 
-- [Stream Configuration](/synclet-site/docs/guides/stream-configuration/) — Field selection, sync modes and primary keys.
-- [Sync Modes](/synclet-site/docs/concepts/sync-modes/) — How Append + Dedup writes records by primary key.
+- [Stream Configuration](/docs/guides/stream-configuration/) — Field selection, sync modes and primary keys.
+- [Sync Modes](/docs/concepts/sync-modes/) — How Append + Dedup writes records by primary key.

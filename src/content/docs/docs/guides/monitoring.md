@@ -9,8 +9,8 @@ Synclet provides built-in tools for monitoring your data syncs — a real-time d
 
 The dashboard is the landing page after you log in. It provides a high-level view of your workspace's sync health.
 
-<img src="/synclet-site/screenshots/dashboard-light.png" alt="The dashboard: five stat cards for the last 24 hours, the sync timeline and throughput charts" width="1440" height="900" loading="lazy" class="dark:sl-hidden" />
-<img src="/synclet-site/screenshots/dashboard-dark.png" alt="The dashboard: five stat cards for the last 24 hours, the sync timeline and throughput charts" width="1440" height="900" loading="lazy" class="light:sl-hidden" />
+<img src="/screenshots/dashboard-light.png" alt="The dashboard: five stat cards for the last 24 hours, the sync timeline and throughput charts" width="1440" height="900" loading="lazy" class="dark:sl-hidden" />
+<img src="/screenshots/dashboard-dark.png" alt="The dashboard: five stat cards for the last 24 hours, the sync timeline and throughput charts" width="1440" height="900" loading="lazy" class="light:sl-hidden" />
 
 The **24h / 7d / 30d** selector in the top right sets the time range of the stat cards and charts; 24h is the default.
 
@@ -50,8 +50,8 @@ The **Connection Health** grid has one tile per connection, linked to the connec
 
 The **Topology** page draws every source, connection and destination as one graph, coloured by health, with filters for failing and enabled connections only.
 
-<img src="/synclet-site/screenshots/topology-light.png" alt="Topology of sources, connections and destinations; the failing partner feed and its destination are red" width="1440" height="900" loading="lazy" class="dark:sl-hidden" />
-<img src="/synclet-site/screenshots/topology-dark.png" alt="Topology of sources, connections and destinations; the failing partner feed and its destination are red" width="1440" height="900" loading="lazy" class="light:sl-hidden" />
+<img src="/screenshots/topology-light.png" alt="Topology of sources, connections and destinations; the failing partner feed and its destination are red" width="1440" height="900" loading="lazy" class="dark:sl-hidden" />
+<img src="/screenshots/topology-dark.png" alt="Topology of sources, connections and destinations; the failing partner feed and its destination are red" width="1440" height="900" loading="lazy" class="light:sl-hidden" />
 
 ## Job History
 
@@ -81,8 +81,8 @@ Click any job to view its details.
 
 The job detail page shows everything about a specific sync run.
 
-<img src="/synclet-site/screenshots/job-logs-light.png" alt="A job page: the run timeline with its attempt, and the combined source and destination logs" width="1440" height="900" loading="lazy" class="dark:sl-hidden" />
-<img src="/synclet-site/screenshots/job-logs-dark.png" alt="A job page: the run timeline with its attempt, and the combined source and destination logs" width="1440" height="900" loading="lazy" class="light:sl-hidden" />
+<img src="/screenshots/job-logs-light.png" alt="A job page: the run timeline with its attempt, and the combined source and destination logs" width="1440" height="900" loading="lazy" class="dark:sl-hidden" />
+<img src="/screenshots/job-logs-dark.png" alt="A job page: the run timeline with its attempt, and the combined source and destination logs" width="1440" height="900" loading="lazy" class="light:sl-hidden" />
 
 ### Summary
 
@@ -92,7 +92,7 @@ The cards at the top show the job's **Status**, its **Total duration**, **Record
 
 The **Timeline** card lists the job's steps in order: **Scheduled** (with the time spent waiting in the queue), **Job started**, one **Attempt N** entry per attempt, and **Job completed**, **Job failed** or **Job cancelled**. Each attempt shows when it started and how long it ran, and then either its error or the records it read and its duration.
 
-A job gets a new attempt when an attempt fails and the connection's retry policy allows another; see [Scheduling & Triggers](/synclet-site/docs/guides/scheduling/). The job fails only when its last attempt fails.
+A job gets a new attempt when an attempt fails and the connection's retry policy allows another; see [Scheduling & Triggers](/docs/guides/scheduling/). The job fails only when its last attempt fails.
 
 ## Logs
 
@@ -145,7 +145,7 @@ While a job runs, its log lines are stored in PostgreSQL and the UI tails them f
 |---|---|
 | `none` (default) | They stay in PostgreSQL until job retention deletes the job. |
 | `filesystem` | Files under `PIPELINE_LOG_ARCHIVE_DIR`. Every server replica must see the same directory, so use a shared volume. |
-| `s3` | Any S3-compatible bucket: AWS S3, MinIO, Cloudflare R2, Google Cloud Storage through its S3 interoperability endpoint (HMAC keys), or the [Garage store bundled with the Helm chart](/synclet-site/docs/deployment/kubernetes/#log-archive). Set `PIPELINE_LOG_ARCHIVE_S3_ENDPOINT` for anything but AWS, and `PIPELINE_LOG_ARCHIVE_S3_USE_PATH_STYLE=true` for MinIO. Without static keys the default AWS credential chain is used (environment, IRSA, instance profile). |
+| `s3` | Any S3-compatible bucket: AWS S3, MinIO, Cloudflare R2, Google Cloud Storage through its S3 interoperability endpoint (HMAC keys), or the [Garage store bundled with the Helm chart](/docs/deployment/kubernetes/#log-archive). Set `PIPELINE_LOG_ARCHIVE_S3_ENDPOINT` for anything but AWS, and `PIPELINE_LOG_ARCHIVE_S3_USE_PATH_STYLE=true` for MinIO. Without static keys the default AWS credential chain is used (environment, IRSA, instance profile). |
 | `gcs` | Google Cloud Storage through its native API. With `PIPELINE_LOG_ARCHIVE_GCS_CREDENTIALS_FILE` it uses that service account key; without it, Application Default Credentials (GKE Workload Identity, `GOOGLE_APPLICATION_CREDENTIALS`, or `gcloud auth application-default login` locally). |
 
 With an archive backend, a finished job's logs move out of PostgreSQL into one gzipped NDJSON object per attempt, keyed `logs/<workspace>/<connection>/<job>/<attempt>.ndjson.gz`, and the UI reads them back from there. Job retention and workspace deletion remove the objects too.
@@ -154,7 +154,7 @@ The server logs which GCS credential source it uses at startup. Credentials are 
 
 Switching back to `none` leaves already archived logs where they are, but they can no longer be read from the UI.
 
-All variables are listed under [Environment Variables: Job Logs](/synclet-site/docs/reference/environment-variables/#job-logs).
+All variables are listed under [Environment Variables: Job Logs](/docs/reference/environment-variables/#job-logs).
 
 ## Prometheus Metrics
 
@@ -229,6 +229,6 @@ Point load balancer health checks and Kubernetes probes at these endpoints. Imag
 
 ## Next Steps
 
-- [Scheduling & Triggers](/synclet-site/docs/guides/scheduling/) — Configure when syncs run and how retries work.
-- [Notifications](/synclet-site/docs/guides/notifications/) — Get alerted when syncs fail.
-- [Environment Variables](/synclet-site/docs/reference/environment-variables/) — Configure metrics, log storage, and health check settings.
+- [Scheduling & Triggers](/docs/guides/scheduling/) — Configure when syncs run and how retries work.
+- [Notifications](/docs/guides/notifications/) — Get alerted when syncs fail.
+- [Environment Variables](/docs/reference/environment-variables/) — Configure metrics, log storage, and health check settings.

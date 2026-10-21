@@ -3,7 +3,7 @@ title: Writing a connector
 description: "Write a Synclet source connector in Go with synclet-go-sdk: spec, check, discover, read, state and the conformance test suite."
 ---
 
-Synclet's own connectors live in [synclet-io/connectors](https://github.com/synclet-io/connectors), one directory per connector, written in Go on [synclet-go-sdk](https://github.com/synclet-io/synclet-go-sdk) and shipped as Docker images that speak the [Airbyte protocol](https://docs.airbyte.com/platform/understanding-airbyte/airbyte-protocol). This page walks through [`connectors/source-postgres`](https://github.com/synclet-io/connectors/tree/main/connectors/source-postgres), the reference source, from an empty directory to a connector that passes the SDK's conformance suite. [Publishing a connector](/synclet-site/docs/connector-development/publishing-a-connector/) covers releasing it.
+Synclet's own connectors live in [synclet-io/connectors](https://github.com/synclet-io/connectors), one directory per connector, written in Go on [synclet-go-sdk](https://github.com/synclet-io/synclet-go-sdk) and shipped as Docker images that speak the [Airbyte protocol](https://docs.airbyte.com/platform/understanding-airbyte/airbyte-protocol). This page walks through [`connectors/source-postgres`](https://github.com/synclet-io/connectors/tree/main/connectors/source-postgres), the reference source, from an empty directory to a connector that passes the SDK's conformance suite. [Publishing a connector](/docs/connector-development/publishing-a-connector/) covers releasing it.
 
 The SDK is deliberately small: protocol messages, the source and destination interfaces, catalog and state types, the process runner and a test kit. It has no HTTP, pagination, SQL or retry helpers; a connector uses ordinary Go libraries for those (source-postgres uses [pgx](https://github.com/jackc/pgx)).
 
@@ -80,7 +80,7 @@ printf '/source-acme\n' > .gitignore
 touch CHANGELOG.md README.md
 ```
 
-Write the Go files (below), then run `go mod tidy`: until code imports a module, `go get` lists it as `// indirect`, and `tidy` fixes that and adds the test dependencies to `go.sum`. `meta.json` is described in [Publishing a connector](/synclet-site/docs/connector-development/publishing-a-connector/#1-fill-in-metajson); `spec.json` is generated at the end of this page.
+Write the Go files (below), then run `go mod tidy`: until code imports a module, `go get` lists it as `// indirect`, and `tidy` fixes that and adds the test dependencies to `go.sum`. `meta.json` is described in [Publishing a connector](/docs/connector-development/publishing-a-connector/#1-fill-in-metajson); `spec.json` is generated at the end of this page.
 
 The `Dockerfile` every connector in the repository uses, copied as is:
 
@@ -672,4 +672,4 @@ docker run --rm -v "$PWD:/data" ghcr.io/synclet-io/connectors/source-postgres:de
   --config /data/config.json --catalog /data/catalog.json
 ```
 
-Rerun `task spec` whenever the spec changes; CI fails when `spec.json` is stale. Next: fill in `meta.json` and release the connector, as described in [Publishing a connector](/synclet-site/docs/connector-development/publishing-a-connector/).
+Rerun `task spec` whenever the spec changes; CI fails when `spec.json` is stale. Next: fill in `meta.json` and release the connector, as described in [Publishing a connector](/docs/connector-development/publishing-a-connector/).

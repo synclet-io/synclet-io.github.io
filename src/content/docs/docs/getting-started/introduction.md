@@ -5,12 +5,12 @@ description: What is Synclet, who it's for, and what makes it different from oth
 
 ## What is Synclet?
 
-Synclet is a self-hosted data synchronization platform that moves data between databases, APIs, warehouses, and file systems. It ships as a single Go binary, runs on any Linux server or container orchestrator, and runs connectors that implement the [Airbyte Protocol](https://docs.airbyte.com/platform/understanding-airbyte/airbyte-protocol): run Airbyte connectors without Airbyte. The connectors and versions tested are listed under [Tested with](/synclet-site/docs/concepts/connectors/#tested-with).
+Synclet is a self-hosted data synchronization platform that moves data between databases, APIs, warehouses, and file systems. It ships as a single Go binary, runs on any Linux server or container orchestrator, and runs connectors that implement the [Airbyte Protocol](https://docs.airbyte.com/platform/understanding-airbyte/airbyte-protocol): run Airbyte connectors without Airbyte. The connectors and versions tested are listed under [Tested with](/docs/concepts/connectors/#tested-with).
 
 You define sources, destinations, and connections through a web dashboard or API. Synclet handles schema detection, incremental synchronization, state management, scheduling, and monitoring — so you can focus on what to sync rather than how.
 
-<img src="/synclet-site/screenshots/dashboard-light.png" alt="The Synclet dashboard: sync totals, success rate, timeline and throughput for a demo workspace" width="1440" height="900" loading="lazy" class="dark:sl-hidden" />
-<img src="/synclet-site/screenshots/dashboard-dark.png" alt="The Synclet dashboard: sync totals, success rate, timeline and throughput for a demo workspace" width="1440" height="900" loading="lazy" class="light:sl-hidden" />
+<img src="/screenshots/dashboard-light.png" alt="The Synclet dashboard: sync totals, success rate, timeline and throughput for a demo workspace" width="1440" height="900" loading="lazy" class="dark:sl-hidden" />
+<img src="/screenshots/dashboard-dark.png" alt="The Synclet dashboard: sync totals, success rate, timeline and throughput for a demo workspace" width="1440" height="900" loading="lazy" class="light:sl-hidden" />
 
 ## Who is Synclet For?
 
@@ -21,7 +21,7 @@ You define sources, destinations, and connections through a web dashboard or API
 
 ## Key Features
 
-- **Airbyte Protocol connectors** — Run source and destination images that implement the Airbyte Protocol, plus Synclet's own Go connectors. Each image keeps its own license, see [Connector licenses](/synclet-site/docs/reference/connector-licenses/).
+- **Airbyte Protocol connectors** — Run source and destination images that implement the Airbyte Protocol, plus Synclet's own Go connectors. Each image keeps its own license, see [Connector licenses](/docs/reference/connector-licenses/).
 - **Multiple Execution Modes** — Run connectors as Docker containers or Kubernetes pods depending on your environment.
 - **Incremental Sync** — Only transfer new or changed records. Synclet tracks sync state automatically between runs.
 - **Stream Configuration** — Select individual streams, choose sync modes (full refresh or incremental), pick specific fields, and rewrite destination namespaces or stream names.
@@ -43,5 +43,5 @@ Synclet follows a straightforward three-step workflow:
 
 ## Next Steps
 
-- [Installation](/synclet-site/docs/getting-started/installation/) — Set up Synclet on your machine or server.
-- [Quick Start](/synclet-site/docs/getting-started/quick-start/) — Create your first data sync in under 5 minutes.
+- [Installation](/docs/getting-started/installation/) — Set up Synclet on your machine or server.
+- [Quick Start](/docs/getting-started/quick-start/) — Create your first data sync in under 5 minutes.

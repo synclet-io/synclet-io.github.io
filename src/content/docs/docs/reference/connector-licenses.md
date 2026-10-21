@@ -5,7 +5,7 @@ description: Synclet is MIT; the connectors it runs carry their own licenses. Mo
 
 Synclet is MIT licensed. The connectors it runs are not part of Synclet: they are Docker images that you pull from their publishers, and each one carries its own license. Synclet does not ship, mirror or relicense any connector.
 
-The default connector registry in Synclet is Airbyte's public OSS registry (`https://connectors.airbyte.com/files/registries/v0/oss_registry.json`). It is enabled by default, so the catalog is full on first start; you can remove it, or add your own registries, under [Settings](/synclet-site/docs/guides/settings/). Whichever images you run, their license terms apply to you, not to Synclet.
+The default connector registry in Synclet is Airbyte's public OSS registry (`https://connectors.airbyte.com/files/registries/v0/oss_registry.json`). It is enabled by default, so the catalog is full on first start; you can remove it, or add your own registries, under [Settings](/docs/guides/settings/). Whichever images you run, their license terms apply to you, not to Synclet.
 
 > This page is not legal advice. It summarizes public documents so you know what to read; for a decision that matters, read the licenses with your own counsel.
 
@@ -63,6 +63,6 @@ Licenses change: check the registry before you rely on this list.
 
 ## The Airbyte Protocol and Synclet
 
-Synclet talks to connectors through the [Airbyte Protocol](https://docs.airbyte.com/platform/understanding-airbyte/airbyte-protocol), whose specification is published in the [airbyte-protocol repository](https://github.com/airbytehq/airbyte-protocol) under the MIT license ([LICENSE](https://github.com/airbytehq/airbyte-protocol/blob/main/LICENSE)). Synclet contains no Airbyte platform code. See [Connectors](/synclet-site/docs/concepts/connectors/) for how connectors run and which ones are tested.
+Synclet talks to connectors through the [Airbyte Protocol](https://docs.airbyte.com/platform/understanding-airbyte/airbyte-protocol), whose specification is published in the [airbyte-protocol repository](https://github.com/airbytehq/airbyte-protocol) under the MIT license ([LICENSE](https://github.com/airbytehq/airbyte-protocol/blob/main/LICENSE)). Synclet contains no Airbyte platform code. See [Connectors](/docs/concepts/connectors/) for how connectors run and which ones are tested.
 
 Airbyte is a trademark of Airbyte, Inc. Synclet is not affiliated with, endorsed by or sponsored by Airbyte, Inc.

@@ -49,7 +49,7 @@ resp, err := client.TriggerSync(ctx, req)
 
 For TypeScript use `buf.build/bufbuild/es` with `@connectrpc/connect`; for other languages see the [Connect](https://connectrpc.com/docs/introduction) and [gRPC](https://grpc.io/docs/languages/) plugin lists.
 
-Native gRPC needs HTTP/2. The server serves plain HTTP/1.1 unless TLS is on (`PUBLIC_HTTP_SERVER_TLS_ENABLED`, see [Environment Variables](/synclet-site/docs/reference/environment-variables/)), or unless an HTTP/2-capable proxy sits in front of it. The Connect protocol works over HTTP/1.1, so prefer a Connect client when in doubt.
+Native gRPC needs HTTP/2. The server serves plain HTTP/1.1 unless TLS is on (`PUBLIC_HTTP_SERVER_TLS_ENABLED`, see [Environment Variables](/docs/reference/environment-variables/)), or unless an HTTP/2-capable proxy sits in front of it. The Connect protocol works over HTTP/1.1, so prefer a Connect client when in doubt.
 
 To call a streaming RPC such as `DownloadJobLogs` without writing code, use [`buf curl`](https://buf.build/docs/reference/cli/buf/curl/) with the protos:
 
@@ -72,7 +72,7 @@ A request with none of them, or with an unknown, expired or revoked credential, 
 
 ### API keys
 
-Create keys in **Settings > API Keys** ([Settings & API Keys](/synclet-site/docs/guides/settings/)). A key looks like `synclet_sk_` followed by 64 hex characters and is shown only once.
+Create keys in **Settings > API Keys** ([Settings & API Keys](/docs/guides/settings/)). A key looks like `synclet_sk_` followed by 64 hex characters and is shown only once.
 
 ```
 Authorization: Bearer synclet_sk_3f9c…
@@ -104,7 +104,7 @@ Without it those RPCs fail with `permission_denied` ("workspace is required"). A
 
 ### Roles
 
-RPCs marked with a role in the tables below check the caller's role in the workspace: **Viewer** < **Editor** < **Admin**, and a higher role passes a lower check. A caller who isn't a member, or whose role is too low, gets `permission_denied`. See [Members](/synclet-site/docs/guides/settings/#members) for what each role is meant for.
+RPCs marked with a role in the tables below check the caller's role in the workspace: **Viewer** < **Editor** < **Admin**, and a higher role passes a lower check. A caller who isn't a member, or whose role is too low, gets `permission_denied`. See [Members](/docs/guides/settings/#members) for what each role is meant for.
 
 ## Errors
 
@@ -279,7 +279,7 @@ Exceeding a limit returns `resource_exhausted`. Behind a reverse proxy, set `RAT
 | `ListWorkflowRuns` | List a workflow's runs with their step runs. | Viewer |
 | `GetWorkflowRun` | Get one run with its step runs. | Viewer |
 
-A step is `{"connectionId": "…", "afterConnectionIds": ["…"]}`: it runs after the steps of the listed connections. A cycle, a connection listed twice or a connection of another workspace is `invalid_argument`. `UpdateWorkflow`, `DeleteWorkflow` and `RunWorkflow` fail with `failed_precondition` while a run is active, and `RerunWorkflowRun` also for a run that did not fail. See [Workflows](/synclet-site/docs/guides/workflows/).
+A step is `{"connectionId": "…", "afterConnectionIds": ["…"]}`: it runs after the steps of the listed connections. A cycle, a connection listed twice or a connection of another workspace is `invalid_argument`. `UpdateWorkflow`, `DeleteWorkflow` and `RunWorkflow` fail with `failed_precondition` while a run is active, and `RerunWorkflowRun` also for a run that did not fail. See [Workflows](/docs/guides/workflows/).
 
 ### ConnectorTaskService
 
