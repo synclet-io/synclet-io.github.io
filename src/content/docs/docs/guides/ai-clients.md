@@ -175,6 +175,7 @@ Each tool takes the same JSON as the matching API request and returns the API re
 | `get_discovered_catalog` | The streams the connection's source offers, as last discovered |
 | `get_source_catalog` | The streams a source offers, as last discovered; read it before `create_connection` with `streams` |
 | `list_connectors`, `get_connector_spec` | Installed connectors and their config spec |
+| `get_system_info` | The Synclet version, registration, email and workspace mode, runtime defaults, pipeline settings, and the connected executors with their versions |
 
 **Operational** (Editor):
 
