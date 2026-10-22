@@ -109,6 +109,21 @@ The dashboard is available at `http://localhost:8080`.
 
 > **Important:** Connectors still require Docker on the host: every connector, Synclet's own Go connectors included, runs as a Docker container.
 
+## Connector resources
+
+The Docker executor sets the resources of every connector container it starts: the source and destination of a sync and the containers of check, spec and discover. A source's or destination's `runtime_config` sets them, and each key it leaves out takes the instance default.
+
+| `runtime_config` key | Docker setting | When unset |
+|---|---|---|
+| `memory_limit` | `--memory` | 2Gi |
+| `cpu_limit` | `--cpus` (NanoCPUs) | 1 core |
+| `memory_request` | `--memory-reservation`, capped at the memory limit | no reservation |
+| `cpu_request` | `--cpu-shares`, 1024 per core | no shares set (Docker's default weight) |
+
+Requests on Docker are weaker than on Kubernetes. Docker does not schedule by them or refuse a container that does not fit: the memory reservation is a soft limit the kernel reclaims down to when the host runs short of memory, and CPU shares are a relative weight that only matters while containers compete for CPU.
+
+The instance defaults come from `PIPELINE_RUNTIME_CPU_REQUEST`, `PIPELINE_RUNTIME_CPU_LIMIT`, `PIPELINE_RUNTIME_MEMORY_REQUEST` and `PIPELINE_RUNTIME_MEMORY_LIMIT` (see [Environment Variables](/docs/reference/environment-variables/)).
+
 ## Health Checks
 
 Synclet serves `/live` and `/ready` on the internal port (`8081` by default) for load balancers and orchestrators:
