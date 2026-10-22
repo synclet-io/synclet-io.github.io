@@ -122,6 +122,8 @@ The Docker executor sets the resources of every connector container it starts: t
 
 Requests on Docker are weaker than on Kubernetes. Docker does not schedule by them or refuse a container that does not fit: the memory reservation is a soft limit the kernel reclaims down to when the host runs short of memory, and CPU shares are a relative weight that only matters while containers compete for CPU.
 
+`runtime_config` also takes `docker_network`, the Docker network the connector containers join. It cannot mount host paths: a connector reaches host files only under `/local`, mounted from `DOCKER_EXECUTOR_LOCAL_ROOT` (see [files written by destinations](/docs/concepts/connectors/#files-written-by-destinations)).
+
 The instance defaults come from `PIPELINE_RUNTIME_CPU_REQUEST`, `PIPELINE_RUNTIME_CPU_LIMIT`, `PIPELINE_RUNTIME_MEMORY_REQUEST` and `PIPELINE_RUNTIME_MEMORY_LIMIT` (see [Environment Variables](/docs/reference/environment-variables/)).
 
 ## Health Checks

@@ -59,6 +59,7 @@ Breaking and operator-visible changes, newest first. Versions not listed need no
 ### Synclet 0.17.0
 
 - **Runtime configs no longer take `service_account_name`.** Every connector pod runs under the instance-wide `PIPELINE_RUNTIME_SERVICE_ACCOUNT_NAME` (`pipeline.serviceAccount` in the chart). `synclet migrate up` strips the key from stored runtime configs, and saving a runtime config that still sets it fails as an unknown key. A connector that relied on its own account for cloud or cluster permissions needs the instance-wide account to carry them.
+- **Runtime configs no longer take `docker_volumes`.** A connector container reaches host files only under `/local`, which the Docker executor mounts from `DOCKER_EXECUTOR_LOCAL_ROOT` (see [files written by destinations](/docs/concepts/connectors/#files-written-by-destinations)). `synclet migrate up` strips the key from stored runtime configs, and saving a runtime config that still sets it fails as an unknown key. Move files a connector read from or wrote to a per-entity volume under the local root and point the connector's config at `/local`.
 
 ### Chart 0.4.0 (Synclet 0.7.0)
 
