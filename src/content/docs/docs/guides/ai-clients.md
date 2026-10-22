@@ -176,6 +176,8 @@ Each tool takes the same JSON as the matching API request and returns the API re
 | `get_source_catalog` | The streams a source offers, as last discovered; read it before `create_connection` with `streams` |
 | `list_connectors`, `get_connector_spec` | Installed connectors and their config spec |
 | `get_system_info` | The Synclet version, registration, email and workspace mode, runtime defaults, pipeline settings, and the connected executors with their versions |
+| `get_reference` | The reference for a JSON field the tool schemas do not describe: `mappers` or `runtime_config` (see [Reference](#reference)) |
+| `validate_mappers` | Checks a stream's mappers without saving them: the errors a save would refuse with, warnings, the output schema and a sample record's output |
 
 **Operational** (Editor):
 
@@ -198,3 +200,18 @@ Each tool takes the same JSON as the matching API request and returns the API re
 Operational and write tools are marked as not read-only, and the deletes and edits as destructive, so clients such as Claude ask you before each call. Turn write tools off with `MCP_WRITE_TOOLS=false` (`mcp.writeTools: false` in the chart) if an assistant should only observe and operate.
 
 No tool returns a secret value. Source and destination configs come back with secrets replaced by `********`; when an update passes a masked value back unchanged, Synclet keeps the stored secret.
+
+## Reference
+
+Two fields hold JSON whose format the tool schemas do not describe: a stream's `mappers` and a source's or destination's `runtime_config`. The MCP server serves a reference for each, so an assistant writes a valid value without guessing:
+
+| Topic | Resource | Covers |
+|---|---|---|
+| `mappers` | `synclet://reference/mappers` | Every step kind with its options and an example, `on_error`, and the CEL expressions steps use. The full guide is [Transforms](/docs/guides/transforms/). |
+| `runtime_config` | `synclet://reference/runtime_config` | The resource keys and their units, the Docker keys and the Kubernetes keys, with an example for each executor. See [Docker](/docs/deployment/docker/) and [Kubernetes](/docs/deployment/kubernetes/). |
+
+An assistant reads a topic with the `get_reference` tool (`topic: "mappers"` or `topic: "runtime_config"`) or as an MCP resource. Both return the same Markdown. The tools that take these fields (`configure_stream`, `configure_streams`, `create_source`, `update_source`, `create_destination`, `update_destination`) name the topic to read in their descriptions. `runtime_config` is set with `update_source` or `update_destination`; the create tools do not take it.
+
+On initialize the server sends instructions that point the assistant to the reference and tell it to read the current state (`get_source`, `get_destination`, `get_configured_catalog`) before a write.
+
+`validate_mappers` checks a mappers list against a connection's stream without saving it. It returns the errors `configure_stream` would refuse with, the warnings, the output schema and, given a `sample_record`, the record the steps produce. For a connection not created yet, pass `source_id` and `connection_name` instead of `connection_id`. It is a read tool, available to any role.
