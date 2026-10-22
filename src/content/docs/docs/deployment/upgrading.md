@@ -56,6 +56,10 @@ Stop Synclet, replace the binary with the one from the release, run `synclet mig
 
 Breaking and operator-visible changes, newest first. Versions not listed need nothing beyond the steps above.
 
+### Synclet 0.17.0
+
+- **Runtime configs no longer take `service_account_name`.** Every connector pod runs under the instance-wide `PIPELINE_RUNTIME_SERVICE_ACCOUNT_NAME` (`pipeline.serviceAccount` in the chart). `synclet migrate up` strips the key from stored runtime configs, and saving a runtime config that still sets it fails as an unknown key. A connector that relied on its own account for cloud or cluster permissions needs the instance-wide account to carry them.
+
 ### Chart 0.4.0 (Synclet 0.7.0)
 
 - **The executor is a StatefulSet.** In distributed mode, delete the old Deployment before upgrading. Helm cannot turn a Deployment into a StatefulSet:
@@ -74,7 +78,7 @@ Breaking and operator-visible changes, newest first. Versions not listed need no
   kubectl delete jobs,secrets -n <k8s.namespace> -l 'synclet.io/task,!synclet.io/owner'
   ```
 
-- **Connector pods get no Kubernetes API token** unless a connector service account is created or named (`pipeline.serviceAccount`, `pipeline.resources.serviceAccountName`, or `service_account_name` in a runtime config). A connector that called the Kubernetes API needs one of those now.
+- **Connector pods get no Kubernetes API token** unless a connector service account is created or named (`pipeline.serviceAccount` or `pipeline.resources.serviceAccountName`). A connector that called the Kubernetes API needs one of those now.
 
 ### Synclet 0.6.0 (chart 0.3.0)
 

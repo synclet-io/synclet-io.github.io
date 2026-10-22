@@ -153,7 +153,7 @@ Defaults for connector containers and pods. A source or destination overrides th
 | `PIPELINE_RUNTIME_CPU_LIMIT` | CPU limit. | *empty* |
 | `PIPELINE_RUNTIME_MEMORY_REQUEST` | Memory request. | *empty* |
 | `PIPELINE_RUNTIME_MEMORY_LIMIT` | Memory limit. | *empty* |
-| `PIPELINE_RUNTIME_SERVICE_ACCOUNT_NAME` | Kubernetes service account of connector pods; empty uses the namespace's default account. A source or destination overrides it with `service_account_name`. See [Kubernetes: service accounts](/docs/deployment/kubernetes/#service-accounts). | *empty* |
+| `PIPELINE_RUNTIME_SERVICE_ACCOUNT_NAME` | Kubernetes service account of connector pods; empty uses the namespace's default account. See [Kubernetes: service accounts](/docs/deployment/kubernetes/#service-accounts). | *empty* |
 
 ## Job Logs
 
