@@ -49,7 +49,7 @@ Synclet listens on two ports: the public server (UI and API) and the internal se
 | `*_TLS_CERT_PATH`, `*_TLS_KEY_PATH` | Certificate and key files. | *empty* |
 | `*_TLS_CLIENT_AUTH`, `*_TLS_CLIENT_CA_PATH` | Client certificate verification mode and CA bundle. | *empty* |
 | `*_TLS_APPEND_SYSTEM_CAS_TO_CLIENT` | Trust the system CAs in addition to the client CA bundle. | `false` |
-| `RATE_LIMIT_TRUSTED_PROXIES` | Comma-separated IPs or CIDR ranges of reverse proxies whose `X-Forwarded-For` and `X-Real-IP` headers identify the client for the login and register rate limits. | *empty* |
+| `RATE_LIMIT_TRUSTED_PROXIES` | Comma-separated IPs or CIDR ranges of reverse proxies whose `X-Forwarded-For` and `X-Real-IP` headers identify the client for the auth rate limits and the login lockout. Empty: limits key on the TCP peer, so behind a proxy every client shares one limit. | *empty* |
 
 ### CORS (public server)
 
@@ -69,7 +69,7 @@ Synclet listens on two ports: the public server (UI and API) and the internal se
 
 | Variable | Description | Default |
 |---|---|---|
-| `AUTH_REGISTRATION_ENABLED` | Allow email/password sign-up. Set to `false` after creating your admin account. | `true` |
+| `AUTH_REGISTRATION_ENABLED` | Allow email/password sign-up. While `false`, sign-up stays open until the first account exists, so a fresh install can create its admin. | `false` |
 | `AUTH_SECURE_COOKIES` | Mark authentication cookies HTTPS-only. Set to `true` behind HTTPS. | `false` |
 | `AUTH_ACCESS_TOKEN_TTL` | Lifetime of access tokens. | `15m` |
 | `AUTH_REFRESH_TOKEN_TTL` | Lifetime of refresh tokens. | `168h` |

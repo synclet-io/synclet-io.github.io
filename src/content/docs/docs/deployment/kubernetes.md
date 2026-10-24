@@ -214,13 +214,13 @@ vso:
 
 | Value | Description | Default |
 |---|---|---|
-| `auth.registrationEnabled` | Allow sign-up with email and password (`AUTH_REGISTRATION_ENABLED`) | `true` |
+| `auth.registrationEnabled` | Allow sign-up with email and password (`AUTH_REGISTRATION_ENABLED`). While `false`, the first account may still sign up | `false` |
 | `auth.secureCookies` | Mark auth cookies `Secure`, sent only over HTTPS (`AUTH_SECURE_COOKIES`). Keep it on behind TLS; set `false` only when users reach Synclet over plain HTTP | `true` |
 | `auth.accessTokenTTL` | Access token lifetime | `15m` |
 | `auth.refreshTokenTTL` | Refresh token lifetime | `168h` |
 | `auth.oidcStateTTL` | Lifetime of the OIDC login state | `10m` |
 | `auth.minPasswordLength` | Minimum password length of local accounts | `8` |
-| `rateLimit.trustedProxies` | Proxies whose `X-Forwarded-For` identifies the client for login and register rate limits | `[]` |
+| `rateLimit.trustedProxies` | Proxies whose `X-Forwarded-For` identifies the client for the auth rate limits and the login lockout | `[10.0.0.0/8, 172.16.0.0/12, 192.168.0.0/16, fc00::/7]` |
 
 The server's own default for `AUTH_SECURE_COOKIES` is `false`; the chart sets `true`. The chart's default Ingress (`synclet.local`, no TLS) serves plain HTTP, so set either `server.ingress.tls: true` or `auth.secureCookies: false` there.
 
@@ -404,7 +404,7 @@ server:
 - **Cross-namespace attachment.** A listener accepts routes only from its own namespace unless `allowedRoutes.namespaces` says otherwise (`Same` by default, or `All`, or `Selector` as above). If the route stays `Accepted=False` with `NotAllowedByListeners`, that is the cause. Check with `kubectl get httproute <fullname> -o yaml`.
 - **ReferenceGrant.** The route and its backend, the public Service, are in the release namespace, so attaching the route needs none. You need a `ReferenceGrant` in the Secret's namespace only when a listener's `certificateRefs` points at a Secret in a namespace other than the Gateway's.
 - **TLS.** TLS ends at the Gateway (`mode: Terminate`). The chart puts no certificate on the route, and cert-manager annotations go on the `Gateway`, not on the chart. Set `server.gateway.tls: true` (or `server.publicUrl` with `https://`) so invite links and OIDC callbacks use `https`. Keep `auth.secureCookies: true`.
-- **Client IPs.** Login and register rate limits trust `X-Forwarded-For` only from `rateLimit.trustedProxies`. Behind a Gateway, set it to the pod CIDR of the data-plane proxies (for Envoy Gateway, the `envoy-*` pods in the controller namespace), not to the ingress controller's.
+- **Client IPs.** The auth rate limits and the login lockout trust `X-Forwarded-For` only from `rateLimit.trustedProxies`, which by default are the private ranges. To narrow it behind a Gateway, set it to the pod CIDR of the data-plane proxies (for Envoy Gateway, the `envoy-*` pods in the controller namespace), not to the ingress controller's.
 
 ### Migrating from Ingress to a Gateway
 

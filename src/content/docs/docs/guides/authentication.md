@@ -129,13 +129,13 @@ A user in `synclet-admins` becomes admin, a user in `synclet-editors` editor, an
 
 ## Disabling Registration
 
-Once your team is onboarded, you can prevent new sign-ups by setting:
+Registration is off by default (`AUTH_REGISTRATION_ENABLED=false`). While no account exists yet, sign-up stays open, so the first person to open a fresh install creates the admin account; after that, new email/password registrations are refused. To let anyone sign up, set:
 
 ```bash
-AUTH_REGISTRATION_ENABLED=false
+AUTH_REGISTRATION_ENABLED=true
 ```
 
-This blocks new email/password registrations. Existing users and OIDC logins are not affected — users who authenticate through an OIDC provider can still sign in and have accounts created on first login.
+Existing users and OIDC logins are not affected: users who authenticate through an OIDC provider can still sign in and have accounts created on first login.
 
 ## API Keys
 
