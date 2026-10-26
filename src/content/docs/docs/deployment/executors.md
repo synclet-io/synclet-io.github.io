@@ -78,14 +78,24 @@ Every container, Kubernetes Job and Secret an executor creates carries the label
 
 | Executor | Variable | Default |
 |---|---|---|
-| Docker | `DOCKER_EXECUTOR_OWNER_ID` | hostname |
-| Kubernetes | `K8S_EXECUTOR_OWNER_ID` | hostname |
+| Docker | `DOCKER_EXECUTOR_OWNER_ID` | none, required |
+| Kubernetes | `K8S_EXECUTOR_OWNER_ID` or `K8S_EXECUTOR_OWNER_ID_PREFIX` | none, required |
+
+There is no default: an executor without an owner ID does not start, and the error names the variable. This holds for `synclet docker-executor`, `synclet k8s-executor` and a `synclet server` that runs an executor itself. A process that does not run the Docker executor needs no `DOCKER_EXECUTOR_OWNER_ID`.
 
 The owner ID is also the executor's ID in the executor list.
 
-Give every executor that shares a Docker daemon or a namespace its own owner ID. Two Synclet installations with the same owner ID on one daemon or namespace delete each other's running containers or Jobs, because each one's server does not know the other's jobs. Two executors of one installation with the same ID show up as a single row in the executor list.
+Always set it, to a value unique to each executor that shares a Docker daemon or a namespace. Two Synclet installations with the same owner ID on one daemon or namespace delete each other's running containers or Jobs, because each one's server does not know the other's jobs. Two executors of one installation with the same ID show up as a single row in the executor list.
 
-Keep the ID stable across restarts. After a restart, the executor cleans up only the leftovers of the executor with its own ID. The Compose file sets a fixed `hostname: synclet` for that reason. The chart runs the executor as a StatefulSet, so each replica keeps its pod name (`<fullname>-executor-0`, `-1`, …) as its owner ID. Its standalone server uses the release's full name. `k8s.ownerId` and `pipeline.dockerOwnerId` override them.
+Keep the ID stable across restarts. After a restart, the executor cleans up only the leftovers of the executor with its own ID.
+
+The shipped configurations set it for you:
+
+- The Compose file takes `DOCKER_EXECUTOR_OWNER_ID` from the shell or `.env` and falls back to `synclet` when it is unset or empty. A second Compose stack on the same Docker daemon must set another value, for example `DOCKER_EXECUTOR_OWNER_ID=staging docker compose up`.
+- `.env.dist` lists `DOCKER_EXECUTOR_OWNER_ID` with no value, so a server run from source does not start until you set an ID unique to that checkout.
+- The chart runs the executor as a StatefulSet, and each replica uses its pod name (`<fullname>-executor-0`, `-1`, …) as its owner ID. The standalone server uses the release's full name. `pipeline.dockerOwnerId` sets the Docker executor's ID.
+
+`K8S_EXECUTOR_OWNER_ID_PREFIX` gives each StatefulSet replica its own ID from one value: the owner ID is `<prefix>-<n>`, where `n` is the number after the last `-` of the pod's hostname, its ordinal. The executor does not start when the hostname does not end in `-<digits>`, or when `K8S_EXECUTOR_OWNER_ID` is set too. In distributed mode the chart passes a set `k8s.ownerId` as this prefix, so replicas of `k8s.ownerId=blue` are `blue-0`, `blue-1`, ….
 
 ## How work is claimed
 

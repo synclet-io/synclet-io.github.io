@@ -221,7 +221,7 @@ The role variables (`ROLE_CLAIM`, `ROLE_MAP_*`, `DEFAULT_ROLE`, `ROLE_SYNC`) set
 | `DOCKER_EXECUTOR_HEARTBEAT_INTERVAL` | How often a running sync sends a heartbeat. | `5s` |
 | `DOCKER_EXECUTOR_JOB_RESOURCE_CLEANUP_INTERVAL` | How often orphaned containers are removed. | `5m` |
 | `DOCKER_EXECUTOR_TEMP_DIR_ROOT` | Scratch directory for connector config, catalog and state. Leave empty when running the binary natively (the OS temp dir is used). When Synclet runs in a container that talks to the host `docker.sock`, set it to a host-bind-mounted path that is identical inside and outside the container. | *empty* |
-| `DOCKER_EXECUTOR_OWNER_ID` | Executor ID, stamped as the `synclet.io/owner` label on every connector container; orphan cleanup removes only containers carrying it. Executors sharing one Docker daemon need distinct values. | hostname |
+| `DOCKER_EXECUTOR_OWNER_ID` | Executor ID, stamped as the `synclet.io/owner` label on every connector container; orphan cleanup removes only containers carrying it. Required by a process that runs the Docker executor, which does not start without it. Set it unique per executor sharing one Docker daemon and stable across restarts (see [owner IDs](/docs/deployment/executors/#owner-ids)). | *none, required* |
 | `DOCKER_EXECUTOR_LOCAL_ROOT` | Host directory mounted at `/local` in every connector container, where [file-writing destinations](/docs/concepts/connectors/#files-written-by-destinations) leave their files. Shared by all jobs and never cleaned. Empty gives each job its own `/local`, removed with the job. Like `DOCKER_EXECUTOR_TEMP_DIR_ROOT`, a containerised Synclet needs it mounted at the same path from the host. | *empty* |
 
 ## Kubernetes Executor
@@ -240,7 +240,8 @@ Used by `synclet k8s-executor`, and by `synclet server --standalone` inside a po
 | `K8S_EXECUTOR_DEFAULT_CPU` | Default CPU of sync pods. | `1` |
 | `K8S_EXECUTOR_JOB_WORKER_INTERVAL` | How often the executor polls for pending work. | `5s` |
 | `K8S_EXECUTOR_JOB_RESOURCE_CLEANUP_INTERVAL` | How often orphaned pods are removed. | `5m` |
-| `K8S_EXECUTOR_OWNER_ID` | Executor ID, stamped as the `synclet.io/owner` label on every Job and Secret the executor creates; it reconciles only those carrying it. Executors sharing one namespace need distinct values. | hostname |
+| `K8S_EXECUTOR_OWNER_ID` | Executor ID, stamped as the `synclet.io/owner` label on every Job and Secret the executor creates; it reconciles only those carrying it. The executor does not start without it or `K8S_EXECUTOR_OWNER_ID_PREFIX`. Set it unique per executor sharing one namespace and stable across restarts (see [owner IDs](/docs/deployment/executors/#owner-ids)). | *none, required* |
+| `K8S_EXECUTOR_OWNER_ID_PREFIX` | Gives the owner ID `<prefix>-<n>`, `n` being the digits after the last `-` of the hostname: a StatefulSet replica's ordinal. Startup fails when the hostname does not end in `-<digits>` or `K8S_EXECUTOR_OWNER_ID` is set too (Helm: `k8s.ownerId` in distributed mode). | *empty* |
 
 ## Distributed Mode
 

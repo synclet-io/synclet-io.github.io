@@ -62,7 +62,7 @@ helm upgrade synclet oci://ghcr.io/synclet-io/charts/synclet -f values.yaml -n s
 | Value | Description | Default |
 |---|---|---|
 | `mode` | Deployment mode: `standalone` or `distributed` | `standalone` |
-| `server.replicaCount` | Number of server replicas | `1` |
+| `server.replicaCount` | Number of server replicas; above 1 only in distributed mode | `1` |
 | `server.resources.requests.cpu` | CPU request | `250m` |
 | `server.resources.requests.memory` | Memory request | `512Mi` |
 | `server.resources.limits.cpu` | CPU limit | `2` |
@@ -87,7 +87,7 @@ helm upgrade synclet oci://ghcr.io/synclet-io/charts/synclet -f values.yaml -n s
 
 ### Standalone mode
 
-A single pod runs the API server, scheduler, and sync executor together. This is the simplest setup and works well for small-to-medium workloads.
+A single pod runs the API server, scheduler, and sync executor together. This is the simplest setup and works well for small-to-medium workloads. Standalone mode always runs one server pod: the chart fails to render with `server.replicaCount` above 1 or `server.pdb.enabled: true`. To run several replicas, use distributed mode.
 
 ```yaml
 mode: standalone
@@ -120,27 +120,30 @@ See [Production Checklist](/docs/deployment/production/) for sizing guidance.
 
 | Value | Description | Default |
 |---|---|---|
-| `server.replicaCount` | Server replicas. In standalone mode every replica also runs the background jobs and an embedded executor, all with the same owner ID | `1` |
-| `server.pdb.enabled` | Create a PodDisruptionBudget for the server pods. Use it only with more than one replica: with one replica and `minAvailable: 1`, it blocks node drains | `false` |
-| `server.pdb.minAvailable` | Server pods that must stay up during a voluntary disruption | `1` |
-| `server.pdb.maxUnavailable` | Alternative to `minAvailable`; takes precedence when set | unset |
+| `server.replicaCount` | Server replicas. Above 1 only in distributed mode; standalone mode fails to render | `1` |
 | `jobs.replicaCount` | Jobs worker replicas (distributed mode) | `1` |
 | `executor.enabled` | Run the executor StatefulSet in distributed mode. Set `false` to run the executor outside the chart | `true` |
 | `executor.replicaCount` | Executor replicas (distributed mode) | `1` |
+| `<component>.pdb.enabled` | PodDisruptionBudget of `server`, `jobs` or `executor` (distributed mode). Unset creates one when the component runs more than one replica; `true` always, `false` never. Standalone mode fails to render with `server.pdb.enabled: true` | unset |
+| `<component>.pdb.maxUnavailable` | Pods of the component that may be down during a voluntary disruption, such as a node drain | `1` |
+| `<component>.pdb.minAvailable` | Pods that must stay up instead; replaces `maxUnavailable` when set | unset |
 | `executor.updateStrategy` | StatefulSet update strategy: `type: RollingUpdate` or `OnDelete` | `RollingUpdate` |
 
 ```yaml
 mode: distributed
 server:
+  replicaCount: 2     # gets a PDB with maxUnavailable: 1
+jobs:
   replicaCount: 2
   pdb:
-    enabled: true
-    minAvailable: 1
+    enabled: false    # no PDB for the jobs workers
 executor:
-  replicaCount: 2
+  replicaCount: 3
+  pdb:
+    maxUnavailable: 2
 ```
 
-Executor pods start in parallel and update one at a time, highest ordinal first. Each keeps its pod name (`<fullname>-executor-0`, `-1`, …) as its owner ID unless `k8s.ownerId` is set. After a scale-down, the Jobs a removed ordinal left behind are cleaned up only when a pod with that ordinal runs again. More replicas add availability, not capacity: one executor launches any number of sync Jobs. See [Executors: scaling](/docs/deployment/executors/#scaling).
+Executor pods start in parallel and update one at a time, highest ordinal first. Each keeps its pod name (`<fullname>-executor-0`, `-1`, …) as its owner ID; with `k8s.ownerId` set, its ID is `<k8s.ownerId>-<ordinal>`. After a scale-down, the Jobs a removed ordinal left behind are cleaned up only when a pod with that ordinal runs again. More replicas add availability, not capacity: one executor launches any number of sync Jobs. See [Executors: scaling](/docs/deployment/executors/#scaling).
 
 With `executor.enabled: false`, point your own `synclet k8s-executor` at `http://<fullname>-internal.<namespace>.svc.cluster.local:8081` (`EXECUTOR_API_URL`) and give it the internal API token (`EXECUTOR_API_TOKEN`, the `internal-api-secret` key of the `<fullname>-secrets` Secret unless `internalApi.existingSecret` is set).
 
@@ -151,7 +154,7 @@ With `executor.enabled: false`, point your own `synclet k8s-executor` at `http:/
 | Value | Description | Default |
 |---|---|---|
 | `k8s.namespace` | Namespace of the sync and connector task Jobs (`K8S_EXECUTOR_NAMESPACE`). It must exist before install | release namespace |
-| `k8s.ownerId` | Owner label stamped on the executor's Jobs and Secrets (`K8S_EXECUTOR_OWNER_ID`); the executor cleans up only its own. Empty uses the pod name of each executor replica (distributed) or the release's full name (standalone). Releases sharing one namespace need distinct values; a set value is shared by all executor replicas | empty |
+| `k8s.ownerId` | Owner label stamped on the executor's Jobs and Secrets; the executor cleans up only its own. Empty uses the pod name of each executor replica (distributed) or the release's full name (standalone). Set, it is the standalone server's `K8S_EXECUTOR_OWNER_ID`, and in distributed mode the prefix `K8S_EXECUTOR_OWNER_ID_PREFIX`: each replica's owner ID is `<k8s.ownerId>-<ordinal>`. Releases sharing one namespace need distinct values | empty |
 | `k8s.defaultMemory` | Memory request and limit of a sync container that gets neither from `pipeline.resources` or the connector's runtime config | `2Gi` |
 | `k8s.defaultCPU` | Same for CPU | `1` |
 | `k8s.imagePullSecret` | Image pull Secret for private connector registries | empty |
@@ -312,7 +315,7 @@ See [Workspaces & Roles](/docs/concepts/workspaces-and-roles/).
 | `pipeline.maxSyncDuration` | `DOCKER_EXECUTOR_MAX_SYNC_DURATION` | `24h` |
 | `pipeline.maxConcurrentJobs` | `DOCKER_EXECUTOR_MAX_CONCURRENT_JOBS` | `10` |
 | `pipeline.heartbeatInterval` | `DOCKER_EXECUTOR_HEARTBEAT_INTERVAL` | `5s` |
-| `pipeline.dockerOwnerId` | `DOCKER_EXECUTOR_OWNER_ID` | empty |
+| `pipeline.dockerOwnerId` | `DOCKER_EXECUTOR_OWNER_ID`; needed only when the server runs the Docker executor, which does not start without it | empty |
 
 :::note
 The last four are settings of the Docker executor, which the chart does not run: on Kubernetes, Synclet uses the Kubernetes executor. In particular `pipeline.maxConcurrentJobs` does not limit concurrent syncs. That limit is `PIPELINE_MAX_CONCURRENT_JOBS` (default `10`), which the chart does not render; set it through `extraEnv`:
