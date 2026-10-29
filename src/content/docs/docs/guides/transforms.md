@@ -40,19 +40,19 @@ Each entry is a field name and an expression, for example `full_name` = `r.first
 
 ### Cast
 
-Converts a field to `string`, `integer`, `number`, `boolean`, `timestamp`, `date`, `object` or `array`. Options:
+Converts a field to `string`, `integer`, `number`, `boolean`, `timestamp`, `datetime`, `date`, `object` or `array`. Options:
 
 | Option | Applies to | Meaning |
 |---|---|---|
-| **Format** | timestamp, date, string | `iso8601` (default), `unix`, `unix_ms` or a pattern such as `dd.MM.yyyy HH:mm` (see [Timestamp formats](#timestamp-formats)). For timestamp and date it is the format of the input; for string it is the output format of an ISO 8601 input. |
-| **Timezone for values without one** | timestamp, date | An IANA name such as `Europe/Kyiv`. Default UTC. |
+| **Format** | timestamp, datetime, date, string | `iso8601` (default), `unix`, `unix_ms` or a pattern such as `dd.MM.yyyy HH:mm` (see [Timestamp formats](#timestamp-formats)). For timestamp, datetime and date it is the format of the input; for string it is the output format of an ISO 8601 input. |
+| **Timezone for values without one** | timestamp, datetime, date | An IANA name such as `Europe/Kyiv`. Default UTC. |
 | **Decimal separator**, **Thousands separator** | integer, number | For text such as `1.234,56`: decimal `,`, thousands `.` gives `1234.56`. |
 | **Strip prefix**, **Strip suffix**, **Trim** | integer, number | Remove a currency sign, a unit or spaces before parsing: `"$ 1,200"` with prefix `$`, trim and thousands `,` gives `1200`. |
 | **True values**, **False values** | boolean | Text that means true or false, matched case-insensitively. Default: `true 1 yes y t` and `false 0 no n f`. |
 | **Source expression** | all | Cast the result of an expression instead of the field. The field can be new. |
 | **On error** | all | Overrides the step's on error for this field. |
 
-Results: a timestamp becomes an RFC 3339 string (`2026-01-02T10:00:00+02:00`), a date becomes `yyyy-MM-dd`, `integer` rejects a value with a fractional part, `object` and `array` parse a JSON string, and `string` of an object or array writes its JSON.
+Results: a timestamp becomes an RFC 3339 string (`2026-01-02T10:00:00+02:00`), a datetime becomes the wall clock in the cast's timezone without an offset (`2026-01-02T10:00:00`), which destinations store as a timestamp without time zone (BigQuery `DATETIME`), a date becomes `yyyy-MM-dd`, `integer` rejects a value with a fractional part, `object` and `array` parse a JSON string, and `string` of an object or array writes its JSON.
 
 ### Hash
 
