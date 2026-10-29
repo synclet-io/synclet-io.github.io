@@ -50,6 +50,7 @@ Synclet listens on two ports: the public server (UI and API) and the internal se
 | `*_TLS_CLIENT_AUTH`, `*_TLS_CLIENT_CA_PATH` | Client certificate verification mode and CA bundle. | *empty* |
 | `*_TLS_APPEND_SYSTEM_CAS_TO_CLIENT` | Trust the system CAs in addition to the client CA bundle. | `false` |
 | `RATE_LIMIT_TRUSTED_PROXIES` | Comma-separated IPs or CIDR ranges of reverse proxies whose `X-Forwarded-For` and `X-Real-IP` headers identify the client for the auth rate limits and the login lockout. Empty: limits key on the TCP peer, so behind a proxy every client shares one limit. | *empty* |
+| `RATE_LIMIT_DISABLED` | Turns off the per-IP auth rate limits on the public API and the MCP OAuth client registration; the login lockout stays on. For test environments only, never in production. | `false` |
 
 ### CORS (public server)
 
